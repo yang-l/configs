@@ -3,14 +3,14 @@ xrandr --output eDP1 --mode 1366x768
 xrandr --output HDMI1 --mode 1920x1080 --left-of eDP1
 xrandr --output DP1 --mode 1920x1080 --left-of HDMI1
 
+# compositor
+compton -bcf --backend glx --glx-use-gpushader4
+
 # mouse
 xmodmap -e "pointer = 3 2 1"
 
 # xscreensaver
 xscreensaver -no-splash &
-
-# compositor
-compton -bcf --backend glx --glx-use-gpushader4
 
 # set editor
 export ALTERNATE_EDITOR= EDITOR=emacsclient

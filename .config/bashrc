@@ -1,0 +1,10 @@
+# Add below to .bashrc
+#
+#if [ -f ~/.config/bashrc ]; then
+#    . ~/.config/bashrc
+#fi
+
+# keychain
+eval $(/usr/bin/keychain -q --eval `find ~/.ssh -type f -name "*.pem"`)
+. ~/.keychain/$HOSTNAME-sh
+. ~/.keychain/$HOSTNAME-sh-gpg
