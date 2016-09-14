@@ -11,3 +11,6 @@ xscreensaver -no-splash &
 
 # compositor
 compton -bcf --backend glx --glx-use-gpushader4
+
+# set editor
+export ALTERNATE_EDITOR= EDITOR=emacsclient
