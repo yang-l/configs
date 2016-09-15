@@ -1,0 +1,41 @@
+[user]
+    name = Y@L
+    email = Y@L
+
+[alias]
+    st  = status
+    ci  = commit
+    cim = commit -m
+    br  = branch
+    co  = checkout
+    df  = diff
+    dfs = diff --staged
+    pom = push origin master
+    # push current branch
+    po  = "!git push --set-upstream origin \"$(git rev-parse --abbrev-ref HEAD)\""
+    ls  = ls-files
+    l   = log --graph --abbrev-commit --decorate --format=format:'%C(bold magenta)%h%C(reset) %C(bold cyan)%ad%C(reset) %C(bold green)(%ar)%C(reset)%x09|  %C(cyan)%s%C(reset) %C(bold yellow)%d%C(reset) [ %C(dim white)%an%C(reset) @ %C(dim white)%ae%C(reset) ]' --all --date=short
+    addp     = add -p
+    fixup    = commit --fixup=HEAD
+    pullnr   = pull --no-rebase
+    tags     = tag -l
+    trim     = !git reflog expire --expire=now --all && git gc --prune=now
+    uncommit = reset --soft HEAD^
+    unstage  = reset HEAD --
+
+[branch]
+    autosetupmerge = always
+    autosetuprebase = always
+
+[color]
+    compression = 9
+    ui = auto
+
+[core]
+    pager = less -R
+
+[merge]
+    conflictstyle = diff3
+
+[push]
+    default = simple
