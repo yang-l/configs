@@ -11,6 +11,9 @@ export HISTFILESIZE=$((HISTSIZE * 2))
 export HISTTIMEFORMAT="%y-%m-%d %H:%M:%S | "
 shopt -s histappend
 
+# prompt
+export PS1="[\$?] \u@\h:\w\$ "
+
 # keychain
 eval $(/usr/bin/keychain -q --eval `find ~/.ssh -type f -name "*.pem"`)
 . ~/.keychain/$HOSTNAME-sh
