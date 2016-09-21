@@ -8,3 +8,5 @@ __lambda() { \
              "$@" ; \
 } ; \
 __lambda'
+
+alias grep='grep --color=auto'
