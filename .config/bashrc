@@ -5,11 +5,12 @@
 #fi
 
 # history
-export HISTIGNORE="&:ls:exit:clear:history"
+export HISTIGNORE="&:ls:exit:clear:history:top"
 export HISTSIZE=500000
 export HISTFILESIZE=$((HISTSIZE * 2))
 export HISTTIMEFORMAT="%y-%m-%d %H:%M:%S | "
 shopt -s histappend
+shopt -s cmdhist
 
 # prompt
 export PS1="[\$?] \u@\h:\w\$ "
