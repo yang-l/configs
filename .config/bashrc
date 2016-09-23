@@ -13,7 +13,7 @@ shopt -s histappend
 shopt -s cmdhist
 
 # prompt
-export PS1="[\$?] \u@\h:\w\$ "
+export PS1="\[\033[01;32m\][\$?] \u@\h\[\033[01;34m\] \w \$\[\033[00m\] "
 
 # keychain
 eval $(/usr/bin/keychain -q --eval `find ~/.ssh -type f -name "*.pem"`)
