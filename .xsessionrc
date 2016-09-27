@@ -13,4 +13,4 @@ xmodmap -e "pointer = 3 2 1"
 xscreensaver -no-splash &
 
 # set editor
-export ALTERNATE_EDITOR= EDITOR=emacsclient
+export ALTERNATE_EDITOR= EDITOR='emacsclient -t -a ""'
