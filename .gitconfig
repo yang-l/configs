@@ -19,7 +19,8 @@
     # one-liner log message of the last commit - copied from my colleague
     lo  = "!echo $(git remote -v | grep push | grep origin | awk '{ print $2 }'; git branch | awk '{ print $2 }' ; git log --oneline -1 ) | sed -r -e 's/\\n//g'"
     addp     = add -p
-    fixup    = commit --fixup=HEAD
+    fixup    = "! git commit -m \"fixup! $(git log --pretty='format:%s' -1 | sed -r -e 's/^fixup\\!\\ //g')\""
+    squash   = "! git commit -m \"squash! $(git log --pretty='format:%s' -1 | sed -r -e 's/^squash\\!\\ //g')\""
     pullnr   = pull --no-rebase
     tags     = tag -l
     trim     = !git reflog expire --expire=now --all && git gc --prune=now
