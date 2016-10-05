@@ -1,0 +1,23 @@
+FROM debian:8
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update                                      && \
+    apt-get install -y --no-install-recommends             \
+        ca-certificates                                    \
+        firefox-esr                                     && \
+    apt-get clean                                       && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN export uid=1000 gid=1000                                                            && \
+    mkdir -p /home/firefox                                                              && \
+    echo "firefox:x:${uid}:${gid}:Firefox,,,:/home/firefox:/bin/bash" >> /etc/passwd    && \
+    echo "firefox:x:${uid}:" >> /etc/group                                              && \
+    mkdir -p /etc/sudoers.d                                                             && \
+    echo "firefox ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/firefox                     && \
+    chmod 0440 /etc/sudoers.d/firefox                                                   && \
+    chown ${uid}:${gid} -R /home/firefox
+
+USER firefox
+ENV HOME /home/firefox
+CMD /usr/bin/firefox
