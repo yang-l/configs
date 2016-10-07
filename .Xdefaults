@@ -93,3 +93,18 @@ URxvt.iso14755:             false
 !! white dark/light
 *color7:                    #eee8d5
 *color15:                   #fdf6e3
+
+!-------------------------------------------------------------------------------
+! xscreensaver
+xscreensaver.timeout:           0:05:00
+xscreensaver.lock:              True
+xscreensaver.lockTimeout:       0:00:00
+xscreensaver.passwdTimeout:     0:00:15
+xscreensaver.dpmsEnabled:       True
+xscreensaver.dpmsQuickOff:      False
+xscreensaver.dpmsStandby:       0:10:00
+xscreensaver.dpmsSuspend:       0:15:00
+xscreensaver.dpmsOff:           0:30:00
+xscreensaver.fadeSecond:        0:00:05
+xscreensaver.mode:              blank
+xscreensaver.nice:              19
