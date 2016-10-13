@@ -5,7 +5,7 @@
 #fi
 
 # history
-export HISTIGNORE="&:ls:exit:clear:history:top"
+export HISTIGNORE="&:ls:ls -la:ls -l:exit:clear:history:top:git diff:git df*:git log:git l:git ll:git lo:git status:git st:git show"
 export HISTSIZE=500000
 export HISTFILESIZE=$((HISTSIZE * 2))
 export HISTTIMEFORMAT="%y-%m-%d %H:%M:%S | "
