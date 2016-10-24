@@ -5,12 +5,14 @@
 #fi
 
 # history
-export HISTIGNORE="&:ls:ls -la:ls -l:exit:clear:history:top:git diff:git df*:git log:git l:git ll:git lo:git status:git st:git show"
+export HISTIGNORE="&:ls:ls -la:ls -l:exit:clear:history*:top:git diff:git df*:git log:git l:git ll:git lo:git status:git st:git show:git branch:git br"
+unset HISTSIZE
+unset HISTFILESIZE
 export HISTSIZE=500000
 export HISTFILESIZE=$((HISTSIZE * 2))
 export HISTTIMEFORMAT="%y-%m-%d %H:%M:%S | "
-shopt -s histappend
-shopt -s cmdhist
+shopt -s histappend cmdhist
+export PROMPT_COMMAND='history -a'
 
 # prompt
 export PS1="\[\033[01;32m\][\$?] \u@\h\[\033[01;34m\] \w \$\[\033[00m\] "
