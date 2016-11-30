@@ -10,3 +10,4 @@ __lambda() { \
 __lambda'
 
 alias grep='grep --color=auto'
+alias ect='emacsclient -t'

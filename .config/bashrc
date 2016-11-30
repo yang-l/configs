@@ -13,7 +13,7 @@ export HISTSIZE=500000
 export HISTFILESIZE=$((HISTSIZE * 2))
 export HISTTIMEFORMAT="%y-%m-%d %H:%M:%S | "
 shopt -s histappend cmdhist
-export PROMPT_COMMAND='history -w'
+export PROMPT_COMMAND='history -a; history -c; history -r; history -w'
 
 # prompt
 export PS1="\[\033[01;32m\][\$?] \u@\h\[\033[01;34m\] \w \$\[\033[00m\] "
