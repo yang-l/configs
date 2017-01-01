@@ -1,4 +1,3 @@
-
 # Add below to .bashrc
 #
 #if [ -f ~/.config/bashrc ]; then
@@ -6,7 +5,7 @@
 #fi
 
 # history
-export HISTIGNORE="&:ls:ls -la:ls -l:exit:clear:history*:top:git diff:git df*:git log:git l:git ll:git lo:git status:git st:git show:git branch:git br:docker ps -a:docker images"
+export HISTIGNORE="&:ls:ls -la:ls -l:exit:clear:history*:top:git diff:git df*:git log:git l:git ll:git lo:git status:git st:git show:git branch:git br:docker ps -a:docker images:kill*:pkill*"
 unset HISTSIZE
 unset HISTFILESIZE
 export HISTSIZE=500000
