@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+mkdir -p .config/hist_backup
+
 for i in .config/awesome .aws
 do
     [ -d ~/"${i}" ] && rm -fr ~/"${i}"
