@@ -9,5 +9,9 @@ __lambda() { \
 } ; \
 __lambda'
 
+# bash
 alias grep='grep --color=auto'
 alias ect='emacsclient -t'
+
+# ansible
+alias ansible-playbook='ansible-playbook -D'

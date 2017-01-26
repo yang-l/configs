@@ -5,7 +5,7 @@
 #fi
 
 # history
-export HISTIGNORE="&:ls:ls -la:ls -l:exit:clear:history*:top:git diff:git df*:git log:git l:git ll:git lo:git status:git st:git show:git branch:git br:docker ps -a:docker images:kill*:pkill*"
+export HISTIGNORE="&:ls*([[:space:]])?(-l?(a?(h))):exit:clear:history*:top:git diff:git df?(s):git l?(?(og)|?(l)|?(o)):git st?(atus):git show:git br?(anch):git po*([[:space:]])?(-f):docker*([[:space:]])?(?(ps -a)|?(images)|?(info)):?(p)kill*"
 unset HISTSIZE
 unset HISTFILESIZE
 export HISTSIZE=500000
