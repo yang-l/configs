@@ -12,6 +12,7 @@ __lambda'
 # bash
 alias grep='grep --color=auto'
 alias ect='emacsclient -t'
+alias ssh-background='ssh -fNC2T'
 
 # ansible
 alias ansible-playbook='ansible-playbook -D'
