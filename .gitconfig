@@ -3,9 +3,14 @@
     email = Y@L
 
 [alias]
+    s   = status -s
     st  = status
-    ci  = commit
-    cim = commit -m
+    a   = add
+    ap  = add -p
+    c   = commit --verbose
+    cm  = commit -m
+    cam = commit -a -m
+    m   = commit --amend --verbose
     br  = branch
     co  = checkout
     df  = diff
@@ -18,7 +23,6 @@
     ll  = log --graph --abbrev-commit --decorate --format=format:'%C(bold magenta)%h%C(reset) %C(bold cyan)%ad%C(reset) %C(bold green)(%ar)%C(reset)%x09|  %C(cyan)%s%C(reset) %C(bold yellow)%d%C(reset) [ %C(dim white)%an%C(reset) @ %C(dim white)%ae%C(reset) ]' --date=short
     # one-liner log message of the last commit - copied from my colleague
     lo  = "!echo $(git remote -v | grep push | grep origin | awk '{ print $2 }'; git branch | awk '{ print $2 }' ; git log --oneline -1 ) | sed -r -e 's/\\n//g'"
-    addp     = add -p
     fixup    = "! git commit -m \"fixup! $(git log --pretty='format:%s' -1 | sed -r -e 's/^fixup\\!\\ //g')\""
     squash   = "! git commit -m \"squash! $(git log --pretty='format:%s' -1 | sed -r -e 's/^squash\\!\\ //g')\""
     pullnr   = pull --no-rebase
