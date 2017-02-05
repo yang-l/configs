@@ -5,7 +5,7 @@
 #fi
 
 # history
-export HISTIGNORE="&:ls*([[:space:]])?(-l?(a?(h))):exit:clear:history*:top:git*([[:space:]])?(?(diff)|?(show)|?(fixup)|?(squash))*([[:space:]]):git df?(?(c?(s))|?(s)):git l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))):git s?(?(tatus)|?(t)):git br?(anch):git po*([[:space:]])?(-f):docker*([[:space:]])?(?(ps -a)|?(images)|?(info)):?(p)kill*"
+export HISTIGNORE="&:ls*([[:space:]])?(-l?(a?(h))):exit:clear:history*:top:git*([[:space:]])?(?(diff)|?(show)|?(fixup)|?(squash))*([[:space:]]):git df?(?(c?(s))|?(s))*([[:space:]]):git l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files)))*([[:space:]]):git s?(?(tatus)|?(t))*([[:space:]]):git br?(anch)*([[:space:]]):git po*([[:space:]])?(-f)*([[:space:]]):docker*([[:space:]])?(?(ps -a)|?(images)|?(info)):?(p)kill*"
 unset HISTSIZE
 unset HISTFILESIZE
 export HISTSIZE=500000
