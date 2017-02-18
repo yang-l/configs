@@ -17,6 +17,7 @@ alias cp='cp -a'
 alias rm='rm -i'
 alias rsync='time rsync -zhcP'
 alias scp='time scp -Cpr -o Compression=yes -o CompressionLevel=9'
+alias psg='ps auxwww | grep -i'
 
 # ansible
 alias ansible-playbook='ansible-playbook -D'

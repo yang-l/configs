@@ -5,7 +5,7 @@
 #fi
 
 # history
-export HISTIGNORE="&:ls*([[:space:]])?(-l?(a?(h))):exit:clear:history*:top:git*([[:space:]])?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*([[:space:]])?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(show)|?(fixup)|?(squash)|?(pull)|?(ri HEAD*)|?(a *))*([[:space:]]):docker*([[:space:]])?(?(ps -a)|?(images)|?(info)):?(p)kill*"
+export HISTIGNORE="&:ls*([[:space:]])?(-l?(a?(h))):exit:clear:history*:top:git*([[:space:]])?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*([[:space:]])?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(show)|?(fixup)|?(squash)|?(pull)|?(ri HEAD*)|?(a *))*([[:space:]]):docker*([[:space:]])?(?(ps -a)|?(images)|?(info)):?(p)kill*:. ~/.bash*"
 unset HISTSIZE
 unset HISTFILESIZE
 export HISTSIZE=500000
