@@ -10,14 +10,15 @@ __lambda() { \
 __lambda'
 
 # bash
-alias grep='grep --color=auto'
-alias ect='emacsclient -t'
-alias ssh-background='ssh -fNC2T'
 alias cp='cp -a'
+alias ect='emacsclient -t'
+alias less='less -N'
+alias grep='grep --color=auto'
+alias psg='ps auxwww | grep -i'
 alias rm='rm -i'
 alias rsync='time rsync -zhcP'
 alias scp='time scp -Cpr -o Compression=yes -o CompressionLevel=9'
-alias psg='ps auxwww | grep -i'
+alias ssh-background='ssh -fNC2T'
 
 # ansible
 alias ansible-playbook='ansible-playbook -D'
