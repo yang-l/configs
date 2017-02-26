@@ -1,0 +1,3 @@
+[submodule ".config/vagrant"]
+	path = .config/vagrant
+	url = git@github.com:yang-l/vagrant-docker-vm.git
