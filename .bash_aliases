@@ -16,9 +16,9 @@ alias less='less -N'
 alias grep='grep --color=auto'
 alias psg='ps auxwww | grep -i'
 alias rm='rm -i'
-alias rsync='time rsync -zhcP'
+alias rsync='time rsync -zhcPS'
 alias scp='time scp -Cpr -o Compression=yes -o CompressionLevel=9'
-alias ssh-background='ssh -fNC2T'
+alias ssh-bg='ssh -fNC2T'
 
 # ansible
 alias ansible-playbook='ansible-playbook -D'
