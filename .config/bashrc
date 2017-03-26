@@ -18,9 +18,13 @@ export PROMPT_COMMAND='history -a; history -c; history -r; history -w; cp ~/.bas
 export PS1="\[\033[01;32m\][\$?] \D{%F %T} \u@\h\[\033[01;34m\] \w \$\[\033[00m\] "
 
 # keychain
-eval $(~/.config/keychain/keychain -q --eval `find ~/.ssh -type f -name "*.pem"`)
-[ -f '~/.keychain/$HOSTNAME-sh' ] && . ~/.keychain/$HOSTNAME-sh
-[ -f '~/.keychain/$HOSTNAME-sh-gpg' ] && . ~/.keychain/$HOSTNAME-sh-gpg
+KEYCHAIN=~/.config/keychain/keychain
+if [ -f "${KEYCHAIN}" ]
+then
+    eval $("${KEYCHAIN}" -q --eval `find ~/.ssh -type f -name "*.pem"`)
+    [ -f '~/.keychain/$HOSTNAME-sh' ] && . ~/.keychain/$HOSTNAME-sh
+    [ -f '~/.keychain/$HOSTNAME-sh-gpg' ] && . ~/.keychain/$HOSTNAME-sh-gpg
+fi
 
 # i-search
 stty -ixon
