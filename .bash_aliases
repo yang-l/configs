@@ -22,3 +22,6 @@ alias ssh-bg='ssh -fNC2T'
 
 # ansible
 alias ansible-playbook='ansible-playbook -D'
+
+# ruby
+alias cap='rbenv exec bundle exec cap'

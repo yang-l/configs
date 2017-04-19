@@ -15,7 +15,7 @@ shopt -s histappend cmdhist
 export PROMPT_COMMAND='history -a; history -c; history -r; history -w; cp ~/.bash_history ~/.config/hist_backup/.bash_history.$(date +%y%m%d)'
 
 # prompt
-export PS1="\[\033[01;32m\][\$?] \D{%F %T} \u@\h\[\033[01;34m\] \w \$\[\033[00m\] "
+export PS1='$(printf "%*s\r%s" $(( COLUMNS-1 )) "[$(git branch 2>/dev/null | grep '^*' | sed s/..//)] $(date +"%y-%m-%d %H:%M:%S")" "$(echo -en "[$?] \u@\h \w \$ ")")'
 
 # keychain
 KEYCHAIN=~/.config/keychain/keychain
