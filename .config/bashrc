@@ -5,7 +5,7 @@
 #fi
 
 # history
-export HISTIGNORE="&:ls*([[:space:]])?(-l?(a?(h))):exit:clear:history*:top:git*([[:space:]])?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*([[:space:]])?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(show)|?(fixup)|?(squash)|?(pull)|?(ri HEAD*)|?(a *))*([[:space:]]):docker*([[:space:]])?(?(ps -a)|?(images)|?(info)):?(p)kill*:. ~/.bash*"
+export HISTIGNORE="&:ls*([[:space:]])?(-l?(a?(h))):exit:clear:history*:top:git*([[:space:]])?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*([[:space:]])?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(show)|?(fixup)|?(squash)|?(pull)|?(ri HEAD*)|?(a *))*([[:space:]]):docker*([[:space:]])?(?(ps -a)|?(images)|?(info)):?(p)kill*:. ~/.bash*:stty*"
 unset HISTSIZE
 unset HISTFILESIZE
 export HISTSIZE=500000
@@ -15,7 +15,13 @@ shopt -s histappend cmdhist
 export PROMPT_COMMAND='history -a; history -c; history -r; history -w; cp ~/.bash_history ~/.config/hist_backup/.bash_history.$(date +%y%m%d)'
 
 # prompt
-export PS1='$(printf "%*s\r%s" $(( COLUMNS-1 )) "[$(git branch 2>/dev/null | grep '^*' | sed s/..//)] $(date +"%y-%m-%d %H:%M:%S")" "$(echo -en "[$?] \u@\h \w \$ ")")'
+if [ "${_OLD_VIRTUAL_PS1}" ] ;
+then
+    # handle virtualenv prompt
+    export PS1='$(printf "%*s\r%s" $(( COLUMNS-1 )) "[$(git branch 2>/dev/null | grep '^*' | sed s/..//)] $(date +"%y-%m-%d %H:%M:%S")" "$(echo -e "(`basename \"$VIRTUAL_ENV\"`) [$?] \u@\h \w \$ ")")'
+else
+    export PS1='$(printf "%*s\r%s" $(( COLUMNS-1 )) "[$(git branch 2>/dev/null | grep '^*' | sed s/..//)] $(date +"%y-%m-%d %H:%M:%S")" "$(echo -en "[$?] \u@\h \w \$ ")")'
+fi
 
 # keychain
 KEYCHAIN=~/.config/keychain/keychain
@@ -28,3 +34,8 @@ fi
 
 # i-search
 stty -ixon
+
+# emacs terminal emulators in OSX
+if [[ -n $INSIDE_EMACS && $(uname) == 'Darwin' ]]; then
+   stty ek
+fi
