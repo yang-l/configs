@@ -16,7 +16,7 @@ do
 done
 
 # link folder
-for i in .aws .config/awesome .config/keychain .config/vagrant
+for i in .aws .config/awesome .config/iterm2 .config/keychain .config/vagrant
 do
     [ -e ~/"${i}" ] && rm -f ~/"${i}"
     ln -s $(pwd)/"${i}"/ ~/"${i}"
