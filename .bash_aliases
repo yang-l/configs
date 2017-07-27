@@ -11,6 +11,7 @@ __lambda'
 
 # bash
 alias cp='cp -a'
+alias ecf='emacsclient -c -n'
 alias ect='emacsclient -t'
 alias less='less -N'
 alias grep='grep --color=auto'
@@ -25,3 +26,8 @@ alias ansible-playbook='ansible-playbook -D'
 
 # ruby
 alias cap='rbenv exec bundle exec cap'
+
+# OSX
+if [ $(uname) == 'Darwin' ]; then
+    alias lscreen='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspendy'
+fi
