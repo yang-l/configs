@@ -271,6 +271,8 @@
 			<integer>160</integer>
 			<key>Command</key>
 			<string></string>
+			<key>Cursor Boost</key>
+			<real>0.0</real>
 			<key>Cursor Color</key>
 			<dict>
 				<key>Blue Component</key>
@@ -285,13 +287,13 @@
 				<key>Alpha Component</key>
 				<real>0.25</real>
 				<key>Blue Component</key>
-				<real>1</real>
+				<real>0.27102288603782654</real>
 				<key>Color Space</key>
 				<string>Calibrated</string>
 				<key>Green Component</key>
-				<real>0.91000000000000003</real>
+				<real>0.24822023510932922</real>
 				<key>Red Component</key>
-				<real>0.65000000000000002</real>
+				<real>0.18266648054122925</real>
 			</dict>
 			<key>Cursor Text Color</key>
 			<dict>
@@ -318,12 +320,16 @@
 			<true/>
 			<key>Foreground Color</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.51685798168182373</real>
+				<real>0.021789258345961571</real>
+				<key>Color Space</key>
+				<string>Calibrated</string>
 				<key>Green Component</key>
-				<real>0.50962930917739868</real>
+				<real>0.82259571552276611</real>
 				<key>Red Component</key>
-				<real>0.44058024883270264</real>
+				<real>0.25753936171531677</real>
 			</dict>
 			<key>Guid</key>
 			<string>7887AB5C-720D-47A3-A1C4-22DC564D5648</string>
@@ -637,7 +643,7 @@
 				<real>0.023</real>
 			</dict>
 			<key>Minimum Contrast</key>
-			<real>0.61538271360759489</real>
+			<real>0.46214893196202533</real>
 			<key>Mouse Reporting</key>
 			<true/>
 			<key>Name</key>
@@ -690,6 +696,8 @@
 			<string></string>
 			<key>Silence Bell</key>
 			<true/>
+			<key>Smart Cursor Color</key>
+			<true/>
 			<key>Sync Title</key>
 			<false/>
 			<key>Tags</key>
@@ -716,6 +724,8 @@
 			<key>Use Bold Font</key>
 			<true/>
 			<key>Use Bright Bold</key>
+			<true/>
+			<key>Use Cursor Guide</key>
 			<true/>
 			<key>Use Italic Font</key>
 			<true/>
