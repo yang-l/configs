@@ -17,6 +17,7 @@
     dfc = diff --cached
     dfs = diff --stat
     dfcs= diff --cached --stat
+    sh  = show
     pom = push origin master
     # push current branch
     po  = "!git push --set-upstream origin \"$(git rev-parse --abbrev-ref HEAD)\""
