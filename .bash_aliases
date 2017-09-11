@@ -13,8 +13,9 @@ __lambda'
 alias cp='cp -a'
 alias ecf='emacsclient -c -n'
 alias ect='emacsclient -t'
-alias less='less -N'
+alias genpass='openssl rand -base64'
 alias grep='grep --color=auto'
+alias less='less -N'
 alias psg='ps auxwww | grep -i'
 alias rm='rm -i'
 alias rsync='time rsync -zhcPS'
@@ -26,6 +27,9 @@ alias ansible-playbook='ansible-playbook -D'
 
 # ruby
 alias cap='rbenv exec bundle exec cap'
+
+# terraform
+alias tf="terraform"
 
 # OSX
 if [ $(uname) == 'Darwin' ]; then
