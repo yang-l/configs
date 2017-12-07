@@ -1,3 +1,6 @@
+# Clean all existing alias
+unalias -a
+
 alias rdesktop=' \
 __lambda() { \
     RDESKTOP_SHARED="Documents/rdesktop" ; \
@@ -26,13 +29,22 @@ alias ssh-bg='ssh -fNC2T'
 # ansible
 alias ansible-playbook='ansible-playbook -D'
 
+# cert
+alias certp='__lambda() { cat $1 | sed "1d" | sed "\$d" | tr -d "\n" ; } ; __lambda'
+
 # ruby
 alias cap='rbenv exec bundle exec cap'
 
 # terraform
 alias tf="terraform"
 
+# Linux
+if [ $(uname -s) == "Linux" ]; then
+    # find which process is opening a file without 'lsof' or 'fuser'
+    alias lsofp='__lambda() { sudo find /proc -regex "\/proc\/[0-9]+\/fd\/.*" -type l -lname "*$1*" -printf "%p -> %l\n" 2> /dev/null ; } ; __lambda'
+fi
+
 # OSX
-if [ $(uname) == 'Darwin' ]; then
+if [ $(uname -s) == 'Darwin' ]; then
     alias lscreen='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspendy'
 fi
