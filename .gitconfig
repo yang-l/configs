@@ -57,3 +57,6 @@
 
 [submodules]
     recursiveClone = yes
+
+[rebase]
+    autosquash = true
