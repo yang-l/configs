@@ -30,7 +30,9 @@
     lcl = "!git lc -1"
     lu  = log -u
     fixup    = "! git commit -m \"fixup! $(git log --pretty='format:%s' -1 | sed -r -e 's/^fixup\\!\\ //g')\""
+    fi       = commit --fixup
     squash   = "! git commit -m \"squash! $(git log --pretty='format:%s' -1 | sed -r -e 's/^squash\\!\\ //g')\""
+    sq       = commit --squash
     ri       = rebase --interactive --autosquash
     pullnr   = pull --no-rebase
     tags     = tag -l
@@ -54,6 +56,7 @@
 
 [push]
     default = simple
+    followTags = true
 
 [submodules]
     recursiveClone = yes
