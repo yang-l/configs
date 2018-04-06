@@ -13,11 +13,16 @@ __lambda() { \
 __lambda'
 
 # bash
+alias ..='cd ..'
+alias ...='cd ../../../'
+alias ....='cd ../../../../'
+alias .4='cd ../../../../'
+alias .5='cd ../../../../..'
 alias cp='cp -a'
 alias ecf='emacsclient -c -n'
 alias ect='emacsclient -t'
 alias genpass='openssl rand -base64'
-alias grep='grep --color=auto'
+alias grep='grep --quiet --color=auto'
 alias grepf='grep -Hno'
 alias less='less -N'
 alias psg='ps auxwww | grep -i'
