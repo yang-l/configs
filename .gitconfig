@@ -10,6 +10,7 @@
     c   = commit --verbose
     cm  = commit -m
     cam = commit -a -m
+    ctg = commit --tag
     m   = commit --amend --verbose
     br  = branch
     co  = checkout
