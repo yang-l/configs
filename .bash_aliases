@@ -21,6 +21,7 @@ alias .5='cd ../../../../..'
 alias cp='cp -a'
 alias ecf='emacsclient -c -n -a ""'
 alias ect='emacsclient -t -a ""'
+alias eck="emacsclient -e '(kill-emacs)'"
 alias genpass='openssl rand -base64'
 alias grep='grep -JZ --color=auto'
 alias grepf='grep -Hno'
