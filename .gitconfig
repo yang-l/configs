@@ -3,40 +3,52 @@
     email = Y@L
 
 [alias]
-    s   = status -s
-    st  = status
-    a   = add
-    ap  = add -p
-    c   = commit --verbose
-    cm  = commit -m
-    cam = commit -a -m
-    ctg = commit --tag
-    m   = commit --amend --verbose
-    br  = branch
-    co  = checkout
-    df  = diff
-    dfc = diff --cached
-    dfs = diff --stat
-    dfcs= diff --cached --stat
-    sh  = show
-    pom = push origin master
-    # push current branch
-    po  = "!git push --set-upstream origin \"$(git rev-parse --abbrev-ref HEAD)\""
-    ls  = ls-files
-    l   = log --graph --abbrev-commit --decorate --format=format:'%C(bold magenta)%h%C(reset) %C(bold cyan)%ad%C(reset) %C(bold green)(%ar)%C(reset)%x09|  %C(cyan)%s%C(reset) %C(bold yellow)%d%C(reset) [ %C(dim white)%an%C(reset) @ %C(dim white)%ae%C(reset) ]' --all --date=short
-    ll  = log --graph --abbrev-commit --decorate --format=format:'%C(bold magenta)%h%C(reset) %C(bold cyan)%ad%C(reset) %C(bold green)(%ar)%C(reset)%x09|  %C(cyan)%s%C(reset) %C(bold yellow)%d%C(reset) [ %C(dim white)%an%C(reset) @ %C(dim white)%ae%C(reset) ]' --date=short
-    # one-liner log message of the last commit - copied from my colleague
-    lo  = "!echo $(git remote -v | grep push | grep origin | awk '{ print $2 }'; git branch | awk '{ print $2 }' ; git log --oneline -1 ) | sed -r -e 's/\\n//g'"
-    lc  = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
-    lcl = "!git lc -1"
-    lu  = log -u
-    fixup    = "! git commit -m \"fixup! $(git log --pretty='format:%s' -1 | sed -r -e 's/^fixup\\!\\ //g')\""
+    a        = add
+    ap       = add -p
+    br       = branch
+    c        = commit --verbose
+    cam      = commit -a -m
+    cm       = commit -m
+    co       = checkout
+    cp       = cherry-pick
+    ctg      = commit --tag
+    df       = diff
+    dfc      = diff --cached
+    dfcs     = diff --cached --stat
+    dfs      = diff --stat
+    f        = fetch --all --prune
     fi       = commit --fixup
-    squash   = "! git commit -m \"squash! $(git log --pretty='format:%s' -1 | sed -r -e 's/^squash\\!\\ //g')\""
-    sq       = commit --squash
-    ri       = rebase --interactive --autosquash
+    fixup    = "!git commit -m \"fixup! $(git log --pretty='format:%s' -1 | sed -r -e 's/^fixup\\!\\ //g')\""
+    ft       = fetch --all --prune --tags
+    ftv      = fetch --all --prune --tags --verbose
+    fv       = fetch --all --prune --verbose
+    l        = log --graph --abbrev-commit --decorate --format=format:'%C(bold magenta)%h%C(reset) %C(bold cyan)%ad%C(reset) %C(bold green)(%ar)%C(reset)%x09|  %C(cyan)%s%C(reset) %C(bold yellow)%d%C(reset) [ %C(dim white)%an%C(reset) @ %C(dim white)%ae%C(reset) ]' --all --date=short
+    lc       = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+    lcl      = "!git lc -1"
+    ll       = log --graph --abbrev-commit --decorate --format=format:'%C(bold magenta)%h%C(reset) %C(bold cyan)%ad%C(reset) %C(bold green)(%ar)%C(reset)%x09|  %C(cyan)%s%C(reset) %C(bold yellow)%d%C(reset) [ %C(dim white)%an%C(reset) @ %C(dim white)%ae%C(reset) ]' --date=short
+    # one-liner log message of the last commit - copied from my colleague
+    lo       = "!echo $(git remote -v | grep push | grep origin | awk '{ print $2 }'; git branch | awk '{ print $2 }' ; git log --oneline -1 ) | sed -r -e 's/\\n//g'"
+    ls       = ls-files
+    lu       = log -u
+    m        = commit --amend --verbose
+    new      = log HEAD@{1}..HEAD@{0}
+    pl       = pull
+    plo      = "!git pull origin \"$(git rev-parse --abbrev-ref HEAD)\""
+    plr      = pull --rebase
+    # push current branch
+    po       = "!git push --set-upstream origin \"$(git rev-parse --abbrev-ref HEAD)\""
+    pom      = push origin master
     pullnr   = pull --no-rebase
+    ri       = rebase --interactive --autosquash
+    s        = status -s
+    sh       = show
+    sq       = commit --squash
+    squash   = "! git commit -m \"squash! $(git log --pretty='format:%s' -1 | sed -r -e 's/^squash\\!\\ //g')\""
+    st       = status
+    ta       = tag -a
     tags     = tag -l
+    td       = tag -d
+    tl       = tag -l
     trim     = !git reflog expire --expire=now --all && git gc --prune=now
     uncommit = reset --soft HEAD^
     unstage  = reset HEAD --
