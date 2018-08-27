@@ -19,23 +19,30 @@ alias ....='cd ../../../../'
 alias .4='cd ../../../../'
 alias .5='cd ../../../../..'
 alias cp='cp -a'
-alias ecf='emacsclient -c -n -a ""'
-alias ect='emacsclient -t -a ""'
-alias eck="emacsclient -e '(kill-emacs)'"
-alias genpass='openssl rand -base64'
 alias grep='grep -JZ --color=auto'
 alias grepf='grep -Hno'
 alias less='less -N'
+alias lsl='ls -lAGh'
 alias k='kill -9'
-alias openssl_conn="openssl s_client -connect"
 alias psg='ps auxwww | grep -i'
 alias rm='rm -i'
+
+# emacs
+alias ecf='emacsclient -c -n -a ""'
+alias ect='emacsclient -t -a ""'
+alias eck="emacsclient -e '(kill-emacs)'"
+
+# misc
+alias genpass='openssl rand -base64'
+alias openssl_conn="openssl s_client -connect"
 alias rsync='time rsync -zhcPS'
 alias scp='time scp -Cpr -o Compression=yes -o CompressionLevel=9'
 alias ssh-bg='ssh -fNC2T'
 
 # ansible
+alias ansible-ping='ANSIBLE_HOST_KEY_CHECKING=False ansible -m ping'
 alias ansible-playbook='ansible-playbook -D'
+alias ansible-setup='ANSIBLE_HOST_KEY_CHECKING=False ansible -m setup'
 
 # cert
 alias certp='__lambda() { cat $1 | sed "1d" | sed "\$d" | tr -d "\n" ; } ; __lambda'
