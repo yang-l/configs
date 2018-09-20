@@ -28,9 +28,15 @@ alias psg='ps auxwww | grep -i'
 alias rm='rm -i'
 
 # emacs
-alias ecf='emacsclient -c -n -a ""'
-alias ect='emacsclient -t -a ""'
-alias eck="emacsclient -e '(kill-emacs)'"
+case "$(uname -s)" in
+    Darwin*)      # alias to macports emacs-app's emacsclient
+                  _BASH_ALIAS_EMACSCLIENT='/Applications/MacPorts/Emacs.app/Contents/MacOS/bin/emacsclient' ;;
+    Linux* | *)   _BASH_ALIAS_EMACSCLIENT='/usr/bin/emacsclient' ;;
+esac
+
+alias ecf="${_BASH_ALIAS_EMACSCLIENT} -c -n -a ''"
+alias ect="${_BASH_ALIAS_EMACSCLIENT} -t -a ''"
+alias eck="${_BASH_ALIAS_EMACSCLIENT} -e '(kill-emacs)'"
 
 # misc
 alias genpass='openssl rand -base64'
