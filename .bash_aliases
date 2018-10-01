@@ -30,7 +30,9 @@ alias rm='rm -i'
 # emacs
 case "$(uname -s)" in
     Darwin*)      # alias to macports emacs-app's emacsclient
-                  _BASH_ALIAS_EMACSCLIENT='/Applications/MacPorts/Emacs.app/Contents/MacOS/bin/emacsclient' ;;
+                  _BASH_ALIAS_EMACSCLIENT='/Applications/MacPorts/Emacs.app/Contents/MacOS/bin/emacsclient'
+                  _BASH_ALIAS_EMACS='/Applications/MacPorts/Emacs.app/Contents/MacOS/Emacs'
+                  ;;
     Linux* | *)   _BASH_ALIAS_EMACSCLIENT='/usr/bin/emacsclient' ;;
 esac
 
@@ -38,9 +40,13 @@ alias ecf="${_BASH_ALIAS_EMACSCLIENT} -c -n -a ''"
 alias ect="${_BASH_ALIAS_EMACSCLIENT} -t -a ''"
 alias eck="${_BASH_ALIAS_EMACSCLIENT} -e '(kill-emacs)'"
 
+if [ ! -z "${_BASH_ALIAS_EMACS}" ] ; then
+   alias et="${_BASH_ALIAS_EMACS} -nw"
+   alias ef="${_BASH_ALIAS_EMACS}"
+fi
+
 # misc
 alias genpass='openssl rand -base64'
-alias openssl_conn="openssl s_client -connect"
 alias rsync='time rsync -zhcPS'
 alias scp='time scp -Cpr -o Compression=yes -o CompressionLevel=9'
 alias ssh-bg='ssh -fNC2T'
@@ -52,6 +58,8 @@ alias ansible-setup='ANSIBLE_HOST_KEY_CHECKING=False ansible -m setup'
 
 # cert
 alias certp='__lambda() { cat $1 | sed "1d" | sed "\$d" | tr -d "\n" ; } ; __lambda'
+alias openssl_chkcrt='openssl x509 -text -noout -in'
+alias openssl_conn='openssl s_client -connect'
 
 # ruby
 alias cap='rbenv exec bundle exec cap'
