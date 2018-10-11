@@ -8,9 +8,4 @@ else
     fi
 fi
 
-if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 
-# OSX
-if [ $(uname) == 'Darwin' ]; then
-    export CLICOLOR=1
-fi

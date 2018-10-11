@@ -61,7 +61,13 @@ alias certp='__lambda() { cat $1 | sed "1d" | sed "\$d" | tr -d "\n" ; } ; __lam
 alias openssl_chkcrt='openssl x509 -text -noout -in'
 alias openssl_conn='openssl s_client -connect'
 
+# python
+alias pyprofile='python -m cProfile'
+alias py3profile='python3 -m cProfile'
+
 # ruby
+alias bundle='rbenv exec bundle'
+alias bundle-install='rbenv exec bundle install --path vendor/bundle'
 alias cap='rbenv exec bundle exec cap'
 
 # terraform

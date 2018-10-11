@@ -36,7 +36,19 @@ fi
 # i-search
 stty -ixon
 
-# emacs terminal emulators in OSX
+# git-completion
+[ -f ~/.git-completion.bash ] && source ~/.git-completion.bash
+
+# ruby
+## rbenv
+if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+
+# macOS
+if [ $(uname) == 'Darwin' ]; then
+    export CLICOLOR=1
+fi
+
+# emacs terminal emulators inside macOS
 if [[ -n $INSIDE_EMACS && $(uname) == 'Darwin' ]]; then
    stty ek
 fi

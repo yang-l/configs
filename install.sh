@@ -9,7 +9,7 @@ do
 done
 
 # link file
-for i in .bash_aliases .bash_profile .tmux.conf .Xdefaults .xsessionrc .config/bashrc
+for i in .bash_aliases .bash_profile .inputrc .tmux.conf .Xdefaults .xsessionrc .config/bashrc
 do
     [ -e ~/"${i}" ] && rm -f ~/"${i}"
     ln -s $(pwd)/"${i}" ~/"${i}"
@@ -21,3 +21,6 @@ do
     [ -e ~/"${i}" ] && rm -f ~/"${i}"
     ln -s $(pwd)/"${i}"/ ~/"${i}"
 done
+
+# install git-completion.bash
+curl -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/.git-completion.bash
