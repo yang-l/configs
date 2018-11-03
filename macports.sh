@@ -9,9 +9,11 @@ port -t install \
      `# addtional packages` \
      emacs-app `#text editor` \
      mas `# mac app store cli` \
+     p7zip `# archive tool` \
      `# rbenv ruby-build` `# ruby` \
      the_silver_searcher `# code searching tool` \
-     tmux `# terminal multiplexer`
+     tmux `# terminal multiplexer` \
+     socat xorg-server `# docker/x11/gui`
 
 # others to install
-## xcode / iterm2 / docker / virtualbox & vagrant
+## xcode / iterm2 / docker / virtualbox & vagrant / Terminus TTF

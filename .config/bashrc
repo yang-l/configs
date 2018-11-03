@@ -6,7 +6,7 @@
 
 # history
 shopt -s extglob
-export HISTIGNORE="&:ls*( )?(-l?(a?(h))):exit:clear:history*:top:git*( )?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*( )?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(sh?(ow))?(*()HEAD*)|?(fixup)|?(squash)|?(pull)|?(ri*( )HEAD*)|?(a*( )*)|?(reflog))*( ):docker*( )?(?(ps -a)|?(images)|?(info)):?(p)kill*:.*( )~/.bash*:stty*:tmux*( )ls*( )*:terraform*( )?(init|get|plan|apply|destroy)"
+export HISTIGNORE="&:ls*( )?(-l?(a?(h))):exit:clear:history*:top:git*( )?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*( )?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(sh?(ow))?(*()HEAD*)|?(fixup)|?(squash)|?(pull)|?(ri*( )HEAD*)|?(a*( )*)|?(reflog))*( ):docker*( )?(?(ps -a)|?(images)|?(info)):?(p)kill*:.*( )~/.bash*:stty*:tmux*( )ls*( )*:terraform*( )?(init|get|plan|apply|destroy):e?(c)[ftk]"
 unset HISTSIZE
 unset HISTFILESIZE
 export HISTSIZE=500000

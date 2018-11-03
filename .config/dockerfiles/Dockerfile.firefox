@@ -1,23 +1,31 @@
-FROM debian:8
+# `docker build -t local/firefox:60.3.0esr -f Dockerfile.firefox .'
+FROM debian:stable-slim
 
-ENV DEBIAN_FRONTEND noninteractive
+RUN set -x \
+  && apt-get update \
+  && DEBIAN_FRONTEND=noninteractive \
+     apt-get install -y --no-install-recommends \
+                     `# no 3d/audio support under macOS` \
+                     `# ffmpeg mesa-utils libgl1-mesa-glx libgl1-mesa-dri` \
+                     ca-certificates fonts-noto-cjk firefox-esr \
+  && apt-get --purge autoremove \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN apt-get update                                      && \
-    apt-get install -y --no-install-recommends             \
-        ca-certificates                                    \
-        firefox-esr                                     && \
-    apt-get clean                                       && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ENV LANG C.UTF-8
 
-RUN export uid=1000 gid=1000                                                            && \
-    mkdir -p /home/firefox                                                              && \
-    echo "firefox:x:${uid}:${gid}:Firefox,,,:/home/firefox:/bin/bash" >> /etc/passwd    && \
-    echo "firefox:x:${uid}:" >> /etc/group                                              && \
-    mkdir -p /etc/sudoers.d                                                             && \
-    echo "firefox ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/firefox                     && \
-    chmod 0440 /etc/sudoers.d/firefox                                                   && \
-    chown ${uid}:${gid} -R /home/firefox
+RUN set -x \
+  && export uid=1000 gid=1000 \
+  && mkdir -p /home/firefox \
+  && echo "firefox:x:${uid}:${gid}:Firefox,,,:/home/firefox:/bin/bash" >> /etc/passwd \
+  && echo "firefox:x:${uid}:" >> /etc/group \
+  && mkdir -p /etc/sudoers.d \
+  && echo "firefox ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/firefox \
+  && chmod 0440 /etc/sudoers.d/firefox \
+  && chown ${uid}:${gid} -R /home/firefox
 
 USER firefox
 ENV HOME /home/firefox
-CMD /usr/bin/firefox
+
+ENTRYPOINT ["/usr/bin/firefox"]
+CMD ["-private","-private-window","-new-instance","about:blank"]

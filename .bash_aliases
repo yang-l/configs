@@ -24,6 +24,7 @@ alias grepf='grep -Hno'
 alias less='less -N'
 alias lsl='ls -lAGh'
 alias k='kill -9'
+alias nct='nc -v -w 2'
 alias psg='ps auxwww | grep -i'
 alias rm='rm -i'
 
@@ -73,6 +74,27 @@ alias cap='rbenv exec bundle exec cap'
 # terraform
 alias tf="terraform"
 
+# docker
+## run gui app interactively in docker
+alias dockerapp='
+__lambda() {
+    if [ $(uname -s) == 'Darwin' ]; then
+       [[ -z $(ps auxwww | grep -irE "socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\"" | grep -v grep) ]] && ( socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\" & ) ;
+    fi ;
+
+    DOCKER_ARG=$@ ;
+    case "$1" in
+        firefox)
+            DOCKER_ARG="--shm-size=2g -e DISPLAY=\\$HOSTNAME:0 local/firefox:60.3.0esr"
+            ;;
+        *)
+            ;;
+    esac ;
+
+    docker run -ti --rm ${DOCKER_ARG} ;
+} ;
+__lambda'
+
 # Linux
 if [ $(uname -s) == "Linux" ]; then
     # find which process is opening a file without 'lsof' or 'fuser'
@@ -82,4 +104,9 @@ fi
 # OSX
 if [ $(uname -s) == 'Darwin' ]; then
     alias lscreen='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspendy'
+
+    # macports
+    alias port_clean='sudo port -f clean --all all'
+    alias port_depclean='sudo port -f uninstall inactive || true && sudo port -f uninstall leaves'
+    alias port_update='sudo port selfupdate && sudo port upgrade outdated || true && sudo port clean --all installed && sudo port -f uninstall inactive'
 fi
