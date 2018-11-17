@@ -1,0 +1,70 @@
+# `docker build -t local/vscode:1.28 -t local/vscode:latest -f Dockerfile.vscode .'
+FROM microsoft/dotnet:2.1-sdk
+
+ENV LANG C.UTF-8
+
+# install pkgs and vscode
+RUN set -x \
+  && apt-get update \
+  && DEBIAN_FRONTEND=noninteractive \
+     apt-get install -y --no-install-recommends \
+                     `# to dl vscode`ca-certificates curl \
+                     `# to install vscode` libnotify4 libnss3 gnupg libxkbfile1 libgconf-2-4 libsecret-1-0 libgtk-3-0 libxss1 libxtst6 libasound2 \
+                     `# for vscode extensions` libunwind8 unzip \
+                     `# to install mono for C#` apt-transport-https dirmngr \
+                     `# optimal devel pkgs` git \
+  && apt-key adv --no-tty --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF \
+  && echo "deb https://download.mono-project.com/repo/debian stable-stretch main" > /etc/apt/sources.list.d/mono-official-stable.list \
+  && apt-get update \
+  && DEBIAN_FRONTEND=noninteractive \
+     apt-get install -y --no-install-recommends mono-complete nuget \
+  && apt-get --purge autoremove \
+  && apt-get clean \
+  && find /var/cache/apt/archives /var/lib/apt/lists -not -name lock -type f -delete \
+  && rm -rf /tmp/* /var/tmp/*
+
+# install vscode
+RUN set -x \
+  && curl -L https://go.microsoft.com/fwlink/?LinkID=760868 -o vscode-amd64.deb \
+  && dpkg -i vscode-amd64.deb \
+  && rm vscode-amd64.deb
+
+# setup user
+RUN set -x \
+  && export uid=1000 gid=1000 \
+  && mkdir -p /home/vscode \
+  && echo "vscode:x:${uid}:${gid}:Vscode,,,:/home/vscode:/bin/bash" >> /etc/passwd \
+  && echo "vscode:x:${uid}:" >> /etc/group \
+  && mkdir -p /etc/sudoers.d \
+  && echo "vscode ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/vscode \
+  && chmod 0440 /etc/sudoers.d/vscode \
+  && chown ${uid}:${gid} -R /home/vscode
+
+USER vscode
+ENV HOME /home/vscode
+WORKDIR /home/vscode
+
+# install vscode exetnsion
+RUN set -x \
+  && for VSC_EXT in ms-vscode.csharp `# C# extension` \
+                    Leopotam.csharpfixformat \
+                    jchannon.csharpextensions \
+                    formulahendry.code-runner `# run code snippet` \
+                    streetsidesoftware.code-spell-checker `# spell checker` \
+                    humao.rest-client `# rest client` \
+                    ryu1kn.partial-diff `# diff/compare` \
+                    ; \
+     do \
+         /usr/bin/code --force --install-extension "${VSC_EXT}" ; \
+     done
+
+# pre-load C# omnisharp-vscode extension binary files
+COPY vscode-install-CS-extension-binary.sh /home/vscode/vscode-install-CS-extension-binary.sh
+RUN bash /home/vscode/vscode-install-CS-extension-binary.sh && rm /home/vscode/vscode-install-CS-extension-binary.sh
+
+# override vscode settings
+COPY vscode-config.json /home/vscode/.vscode/settings.json
+
+# main entrypoint
+COPY vscode-entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]

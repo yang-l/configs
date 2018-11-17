@@ -58,9 +58,11 @@ alias ansible-playbook='ansible-playbook -D'
 alias ansible-setup='ANSIBLE_HOST_KEY_CHECKING=False ansible -m setup'
 
 # cert
+alias certg='__lambda() { echo "-----BEGIN CERTIFICATE-----" ; fold -w 64 $1 ; echo "-----END CERTIFICATE-----" ; } ; __lambda'
 alias certp='__lambda() { cat $1 | sed "1d" | sed "\$d" | tr -d "\n" ; } ; __lambda'
 alias openssl_chkcrt='openssl x509 -text -noout -in'
 alias openssl_conn='openssl s_client -connect'
+alias ssh_getpubkey='__lambda() { ssh-keygen -y -f $1 ; } ; __lambda'
 
 # python
 alias pyprofile='python -m cProfile'
