@@ -64,6 +64,9 @@ alias openssl_chkcrt='openssl x509 -text -noout -in'
 alias openssl_conn='openssl s_client -connect'
 alias ssh_getpubkey='__lambda() { ssh-keygen -y -f $1 ; } ; __lambda'
 
+# file
+alias openssl_sha256='openssl sha256'
+
 # python
 alias pyprofile='python -m cProfile'
 alias py3profile='python3 -m cProfile'
