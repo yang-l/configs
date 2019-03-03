@@ -16,4 +16,4 @@ port -t install \
      socat xorg-server `# docker/x11/gui`
 
 # others to install
-## xcode / iterm2 / docker / virtualbox & vagrant / Terminus TTF
+## xcode / iterm2 / docker / virtualbox & vagrant & packer / Terminus TTF

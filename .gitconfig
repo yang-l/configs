@@ -14,8 +14,8 @@
     co       = checkout
     cp       = cherry-pick
     ctg      = commit --tag
-    df       = diff
-    dfc      = diff --cached
+    df       = diff -R
+    dfc      = diff -R --cached
     dfcs     = diff --cached --stat
     dfs      = diff --stat
     f        = fetch --all --prune

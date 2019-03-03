@@ -100,6 +100,9 @@ __lambda() {
 } ;
 __lambda'
 
+# aws
+alias aws='docker run --rm -tiv $HOME/.aws:/root/.aws -v $(pwd):/aws mikesir87/aws-cli aws'
+
 # Linux
 if [ $(uname -s) == "Linux" ]; then
     # find which process is opening a file without 'lsof' or 'fuser'
