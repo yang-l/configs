@@ -27,6 +27,7 @@ alias k='kill -9'
 alias nct='nc -v -w 2'
 alias psg='ps auxwww | grep -i'
 alias rm='rm -i'
+alias myip='dig +short myip.opendns.com @resolver1.opendns.com'
 
 # emacs
 case "$(uname -s)" in
@@ -70,6 +71,7 @@ alias openssl_sha256='openssl sha256'
 # python
 alias pyprofile='python -m cProfile'
 alias py3profile='python3 -m cProfile'
+alias prettyjson='$(which python) -m json.tool'
 
 # ruby
 alias bundle='rbenv exec bundle'
