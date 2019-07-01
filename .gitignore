@@ -1,0 +1,3 @@
+.config/vagrant-box/packer_cache/
+.config/vagrant-box/output-virtualbox-iso/
+.config/vagrant-box/*.box
