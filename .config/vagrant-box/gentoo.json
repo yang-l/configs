@@ -45,7 +45,8 @@
         "ssh_timeout": "{{ user `ssh_timeout` }}",
         "shutdown_command": "shutdown -hP now",
         "vm_name": "{{ user `vm_name` }}",
-        "headless" : "{{ user `headless`}}"
+        "headless" : "{{ user `headless`}}",
+        "post_shutdown_delay": "120s"
     }],
     "provisioners": [
         {

@@ -69,13 +69,14 @@ chroot ${BASE_DIR} /bin/bash << 'EOF'
 set -ex
 echo "sys-kernel/genkernel -firmware" >> /etc/portage/package.use/genkernel
 time emerge -vq --autounmask-continue=y sys-kernel/gentoo-sources sys-kernel/genkernel
+sed -i "s/#CMD_CALLBACK=.*/CMD_CALLBACK=\"emerge --quiet @module-rebuild\"/g" /etc/genkernel.conf
 time genkernel --kernel-config=/tmp/kernel.config --no-splash --no-lvm --no-mdadm --no-dmraid --no-luks --no-iscsi --no-multipath --no-hyperv --no-ssh --no-unionfs --no-zfs --no-btrfs --no-nfs --makeopts=-j$(( ${CPU} + 1 )) --install --symlink all
 EOF
 
 # vb guest
 chroot ${BASE_DIR} /bin/bash << 'EOF'
 set -ex
-time emerge -vq app-emulation/virtualbox-guest-additions
+time emerge -vq --autounmask-continue=y =app-emulation/virtualbox-guest-additions-6.0.*
 rc-update add virtualbox-guest-additions default
 EOF
 
