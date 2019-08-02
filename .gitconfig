@@ -14,8 +14,8 @@
     co       = checkout
     cp       = cherry-pick
     ctg      = commit --tag
-    df       = diff -R
-    dfc      = diff -R --cached
+    df       = diff
+    dfc      = diff --cached
     dfcs     = diff --cached --stat
     dfs      = diff --stat
     f        = fetch --all --prune
@@ -28,6 +28,7 @@
     l        = log --graph --abbrev-commit --decorate --format=format:'%C(bold magenta)%h%C(reset) %C(bold cyan)%ad%C(reset) %C(bold green)(%ar)%C(reset)%x09|  %C(cyan)%s%C(reset) %C(bold yellow)%d%C(reset) [ %C(dim white)%an%C(reset) @ %C(dim white)%ae%C(reset) ]' --all --date=short
     lc       = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
     lcl      = "!git lc -1"
+    lf       = log --follow --
     ll       = log --graph --abbrev-commit --decorate --format=format:'%C(bold magenta)%h%C(reset) %C(bold cyan)%ad%C(reset) %C(bold green)(%ar)%C(reset)%x09|  %C(cyan)%s%C(reset) %C(bold yellow)%d%C(reset) [ %C(dim white)%an%C(reset) @ %C(dim white)%ae%C(reset) ]' --date=short
     # one-liner log message of the last commit - copied from my colleague
     lo       = "!echo $(git remote -v | grep push | grep origin | awk '{ print $2 }'; git branch | awk '{ print $2 }' ; git log --oneline -1 ) | sed -r -e 's/\\n//g'"
