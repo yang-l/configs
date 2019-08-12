@@ -20,7 +20,7 @@
     dfs      = diff --stat
     f        = fetch --all --prune
     fi       = commit --fixup
-    fixup    = "!git commit -m \"fixup! $(git log --pretty='format:%s' -1 | sed -r -e 's/^fixup\\!\\ //g')\""
+    fixup    = "!git commit -m \"fixup! $([ $(uname) == 'Darwin' ] && git log --pretty='format:%s' -1 | sed -E -e 's/^fixup\\!\\ //g' || git log --pretty='format:%s' -1 | sed -r -e 's/^fixup\\!\\ //g')\""
     ft       = fetch --all --prune --tags
     ftv      = fetch --all --prune --tags --verbose
     fv       = fetch --all --prune --verbose
