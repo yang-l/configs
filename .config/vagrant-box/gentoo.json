@@ -5,7 +5,7 @@
         "vb_ram": "2048",
         "vb_disk": "/dev/sda",
         "vb_disk_size": "2048000",
-        "stage3_timestamp": "20190714T214502Z",
+        "stage3_timestamp": "20190807T214502Z",
         "stage3_mirror_url": "http://ftp.swin.edu.au/gentoo/releases/amd64/autobuilds",
         "iso_checksum_type": "sha512",
         "ssh_username": "root",

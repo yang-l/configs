@@ -76,7 +76,7 @@ EOF
 # vb guest
 chroot ${BASE_DIR} /bin/bash << 'EOF'
 set -ex
-time emerge -vq --autounmask-continue=y =app-emulation/virtualbox-guest-additions-6.0.*
+time emerge -vq --autounmask-write=y --autounmask-continue=y =app-emulation/virtualbox-guest-additions-6.0.10
 rc-update add virtualbox-guest-additions default
 EOF
 
