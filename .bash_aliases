@@ -54,11 +54,6 @@ alias rsync='time rsync -zhcPS'
 alias scp='time scp -Cpr -o Compression=yes -o CompressionLevel=9'
 alias ssh-bg='ssh -fNC2T'
 
-# ansible
-alias ansible-ping='ANSIBLE_HOST_KEY_CHECKING=False ansible -m ping'
-alias ansible-playbook='ansible-playbook -D'
-alias ansible-setup='ANSIBLE_HOST_KEY_CHECKING=False ansible -m setup'
-
 # cert
 alias certg='__lambda() { echo "-----BEGIN CERTIFICATE-----" ; fold -w 64 $1 ; echo "-----END CERTIFICATE-----" ; } ; __lambda'
 alias certp='__lambda() { cat $1 | sed "1d" | sed "\$d" | tr -d "\n" ; } ; __lambda'
@@ -78,9 +73,6 @@ alias prettyjson='$(which python) -m json.tool'
 alias bundle='rbenv exec bundle'
 alias bundle-install='rbenv exec bundle install --path vendor/bundle'
 alias cap='rbenv exec bundle exec cap'
-
-# terraform
-alias tf="terraform"
 
 # docker
 ## run gui app interactively in docker
@@ -103,8 +95,20 @@ __lambda() {
 } ;
 __lambda'
 
-# aws
-alias aws='docker run --rm -tiv $HOME/.aws:/root/.aws -v $(pwd):/aws mikesir87/aws-cli aws'
+## dockerised commands
+### ansible
+alias ansible-ping="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -e ANSIBLE_HOST_KEY_CHECKING=False --entrypoint ansible -v $(pwd):/app --rm ansible -m ping `# check host connectivity`"
+alias ansible-playbook="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -v $(pwd):/app --rm ansible"
+alias ansible-setup="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -e ANSIBLE_HOST_KEY_CHECKING=False --entrypoint ansible -v $(pwd):/app --rm ansible -m setup `# collect host facts`"
+### aws
+alias aws="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -v $(pwd):/app --rm aws"
+alias cfn-flip="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run --entrypoint cfn-flip -v $(pwd):/app --rm aws"
+alias cfn-lint="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run --entrypoint cfn-lint -v $(pwd):/app --rm aws"
+### k8s
+alias kubectl="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -v $(pwd):/app --rm kubectl"
+### terraform
+alias terraform="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -v $(pwd):/app --rm terraform"
+alias tf='terraform'
 
 # Linux
 if [ $(uname -s) == "Linux" ]; then

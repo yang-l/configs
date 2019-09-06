@@ -2,23 +2,25 @@
 
 set -ex
 
+# bash history backup
 mkdir -p ~/.config/hist_backup
 
+# ssh keychain setup
 for i in .keychain
 do
     [ -d ~/"${i}" ] && rm -fr ~/"${i}"
     mkdir -p ~/"${i}"
 done
 
-# link file
+# link files
 for i in .bash_aliases .bash_profile .inputrc .tmux.conf .Xdefaults .xsessionrc .config/bashrc
 do
     [ -L ~/"${i}" ] && rm -f ~/"${i}"
     ln -s $(pwd)/"${i}" ~/"${i}"
 done
 
-# link folder
-for i in .aws .config/awesome .config/iterm2 .config/keychain .config/vagrant
+# link folders
+for i in .aws .config/awesome .config/dockerfiles .config/iterm2 .config/keychain .config/vagrant
 do
     [ -L ~/"${i}" ] && rm -f ~/"${i}"
     ln -s $(pwd)/"${i}"/ ~/"${i}"

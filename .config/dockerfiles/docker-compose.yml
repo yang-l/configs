@@ -1,0 +1,52 @@
+---
+version: '3.7'
+
+services:
+  ansible:
+    build:
+      args:
+        ANSIBLE_RELEASE: '2.8.4'
+        BASE_VERSION: '3.7-alpine3.10'
+      context: .
+      dockerfile: Dockerfile.ansible
+    image: ops/ansible:latest
+    volumes:
+      - "$HOME/.aws:/root/.aws"
+      - '.:/app'
+    working_dir: /app
+    entrypoint: ['ansible']
+
+  aws:
+    build:
+      args:
+        BASE_VERSION: '3.7-alpine3.10'
+      context: .
+      dockerfile: Dockerfile.aws
+    image: ops/awscli:latest
+    volumes:
+      - "$HOME/.aws:/root/.aws"
+      - '.:/app'
+    working_dir: /app
+    entrypoint: ['aws']
+
+  kubectl:
+    build:
+      args:
+        BASE_VERSION: '3.10'
+        K8S_RELEASE: 'v1.15.3'
+      context: .
+      dockerfile: Dockerfile.k8s
+    image: ops/k8scli:latest
+    volumes:
+      - "$HOME/.kube:/root/.kube"
+      - '.:/app'
+    working_dir: /app
+    entrypoint: ['/kubectl']
+
+  terraform:
+    image: hashicorp/terraform:0.12.8
+    volumes:
+      - "$HOME/.aws:/root/.aws"
+      - '.:/app'
+    working_dir: /app
+    entrypoint: ['terraform']

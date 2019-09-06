@@ -1,0 +1,17 @@
+ARG BASE_VERSION=3.7-alpine3.10
+
+FROM python:${BASE_VERSION} as base
+
+FROM base as builder
+ARG ANSIBLE_RELEASE=2.8.4
+RUN set -ex && apk update && apk upgrade && apk add --no-cache build-base libffi-dev openssl-dev
+RUN set -ex \
+  && python3 -m pip install -U pip \
+  && python3 -m pip install --install-option="--prefix=/install" -U ansible==${ANSIBLE_RELEASE}
+
+FROM base
+COPY --from=builder /install /usr/local/
+ENV PYTHONPATH /usr/local/lib/python3.7/site-packages
+ENV ANSIBLE_LIBRARY /usr/local/lib/python3.7/site-packages/ansible/library
+WORKDIR /app
+ENTRYPOINT ["ansible-playbook" "-D"]

@@ -1,0 +1,9 @@
+ARG BASE_VERSION=3.7-alpine3.10
+
+FROM python:${BASE_VERSION}
+RUN set -ex && apk update && apk upgrade && apk add --no-cache groff
+RUN set -ex \
+  && python3 -m pip install -U pip setuptools wheel \
+  && python3 -m pip install -U awscli cfn-flip cfn-lint
+WORKDIR /app
+ENTRYPOINT ["/usr/local/bin/aws"]
