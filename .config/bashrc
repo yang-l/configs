@@ -6,7 +6,7 @@
 
 # history
 shopt -s extglob
-export HISTIGNORE="&:ls*( )?(-l?(a?(h))):exit:clear:history*:top:git*( )?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*( )?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(sh?(ow))?(*()HEAD*)|?(fixup)|?(squash)|?(pull)|?(push)|?(ri*( )HEAD*)|?(a*( )*)|?(reflog)|?(m))*( ):docker*( )?(?(ps -a)|?(images)|?(info)|?(rmi*)|?(rm*)):?(p)kill*:k*()*:.*( )~/.bash*:stty*:tmux*( )ls*( )*:terraform*( )?(init|get|plan|apply|destroy):e?(c)[ftk]"
+export HISTIGNORE="&:ls*( )?(-l?(a?(h))):exit:clear:history*:top:git*( )?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*( )?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(sh?(ow))?(*()HEAD*)|?(fixup)|?(squash)|?(pull)|?(push)|?(ri*( )HEAD*)|?(a*( )*)|?(reflog)|?(m))*( ):docker*( )?(?(ps -a)|?(images)|?(info)|?(rmi*)|?(rm*)):?(p)kill*:k?(+( )*):.+( )~/.bash*:stty*:tmux?(+( )ls*( )*):?(terraform|tf)?(+( )?(init|get|plan|apply|destroy)):e?(c)[ftk]"
 unset HISTSIZE
 unset HISTFILESIZE
 export HISTSIZE=500000
