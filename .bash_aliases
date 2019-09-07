@@ -121,7 +121,8 @@ if [ $(uname -s) == 'Darwin' ]; then
     alias lscreen='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspendy'
 
     # macports
-    alias port_clean='sudo port -f clean --all all'
-    alias port_depclean='sudo port -f uninstall inactive || true && sudo port -f uninstall leaves'
+    alias port_clean='sudo port -f clean --all all `# build file clean up`'
+    alias port_depclean='sudo port -f uninstall inactive || true && sudo port -f uninstall leaves `# remove all necessary packages`'
+    alias port_uninstall='sudo port uninstall --follow-dependencies'
     alias port_update='sudo port selfupdate && sudo port upgrade outdated || true && sudo port clean --all installed && sudo port -f uninstall inactive'
 fi

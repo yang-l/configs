@@ -13,9 +13,9 @@ port -t install \
      rbenv ruby-build `# ruby` \
      the_silver_searcher `# code searching tool` \
      tmux `# terminal multiplexer` \
-     socat xorg-server `# docker/x11/gui` \
+     `# socat xorg-server` `# docker/x11/gui` \
      python37 py37-virtualenv py27-virtualenv `# python` \
-     pwsh `# powershell`
+     pwsh `# by emacs lsp-pwsh`
 
 # others to install
 ## xcode / iterm2 / docker / virtualbox & vagrant & packer / Terminus TTF / pwsh
