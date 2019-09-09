@@ -27,7 +27,7 @@ alias k='kill -9'
 alias nct='nc -v -w 2'
 alias psg='ps auxwww | grep -i'
 alias rm='rm -i'
-alias myip='dig +short myip.opendns.com @resolver1.opendns.com'
+alias myip='dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com | sed -e "s_\\\"\\(.*\\)\\\"_\\1_g" `# DNS based local IP lookup from google`'
 alias replstr='__lambda() { find . -type f | xargs perl -pi -e "s/$1/$2/g;" ; } ; __lambda'
 
 # emacs
