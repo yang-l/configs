@@ -43,6 +43,7 @@
     po       = "!git push --set-upstream origin \"$(git rev-parse --abbrev-ref HEAD)\""
     pom      = push origin master
     pullnr   = pull --no-rebase
+    rh       = "!git fetch --all && git reset --hard"
     ri       = rebase --interactive --autosquash
     s        = status -s
     sh       = show
