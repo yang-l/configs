@@ -12,6 +12,7 @@
     cl       = clean -fdX
     cld      = clean -fdx
     co       = checkout
+    cob      = checkout -b
     cp       = cherry-pick
     ctg      = commit --tag
     df       = diff
@@ -45,6 +46,7 @@
     pullnr   = pull --no-rebase
     rh       = "!git fetch --all && git reset --hard"
     ri       = rebase --interactive --autosquash
+    rrh      = reset --hard @{upstream}
     s        = status -s
     sh       = show
     sq       = commit --squash

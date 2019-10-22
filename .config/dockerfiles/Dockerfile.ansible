@@ -3,7 +3,7 @@ ARG BASE_VERSION=3.7-alpine3.10
 FROM python:${BASE_VERSION} as base
 
 FROM base as builder
-ARG ANSIBLE_RELEASE=2.8.4
+ARG ANSIBLE_RELEASE=2.8.5
 RUN set -ex && apk update && apk upgrade && apk add --no-cache build-base libffi-dev openssl-dev
 RUN set -ex \
   && python3 -m pip install -U pip \
