@@ -5,8 +5,8 @@ services:
   ansible:
     build:
       args:
-        ANSIBLE_RELEASE: '2.8.4'
-        BASE_VERSION: '3.7-alpine3.10'
+        ANSIBLE_RELEASE: '2.8.5'
+        BASE_VERSION: '3-alpine'
       context: .
       dockerfile: Dockerfile.ansible
     image: ops/ansible:latest
@@ -19,7 +19,7 @@ services:
   aws:
     build:
       args:
-        BASE_VERSION: '3.7-alpine3.10'
+        BASE_VERSION: '3-alpine'
       context: .
       dockerfile: Dockerfile.aws
     image: ops/awscli:latest
@@ -33,9 +33,11 @@ services:
     build:
       args:
         BASE_VERSION: '3.10'
-        K8S_RELEASE: 'v1.15.3'
+        K8S_RELEASE: 'v1.16.2'
       context: .
       dockerfile: Dockerfile.k8s
+    environment:
+      - KUBECONFIG=/root/.kube/config
     image: ops/k8scli:latest
     volumes:
       - "$HOME/.kube:/root/.kube"
@@ -44,7 +46,7 @@ services:
     entrypoint: ['/kubectl']
 
   terraform:
-    image: hashicorp/terraform:0.12.8
+    image: hashicorp/terraform:0.12.12
     volumes:
       - "$HOME/.aws:/root/.aws"
       - '.:/app'
