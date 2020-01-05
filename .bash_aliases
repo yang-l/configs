@@ -102,7 +102,7 @@ alias ansible-playbook="docker-compose -f $HOME/.config/dockerfiles/docker-compo
 alias ansible-setup="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -e ANSIBLE_HOST_KEY_CHECKING=False --entrypoint ansible -v $(pwd):/app --rm ansible -m setup `# collect host facts`"
 ### aws
 alias aws="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -v $(pwd):/app --rm aws"
-complete -C 'docker run -ti --rm --entrypoint /usr/local/bin/python3 -e COMP_LINE -e COMP_POINT ops/awscli /usr/local/bin/aws_completer' aws # bash-completion
+complete -C 'docker run --rm --entrypoint /usr/local/bin/python3 -e COMP_LINE -e COMP_POINT ops/awscli /usr/local/bin/aws_completer' aws # bash-completion
 alias cfn-flip="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run --entrypoint cfn-flip -v $(pwd):/app --rm aws"
 alias cfn-lint="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run --entrypoint cfn-lint -v $(pwd):/app --rm aws"
 ### k8s
