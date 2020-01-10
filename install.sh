@@ -20,7 +20,7 @@ do
 done
 
 # link folders
-for i in .aws .config/awesome .config/dockerfiles .config/iterm2 .config/keychain .config/vagrant
+for i in .aws .config/awesome .config/docker_n_k8s .config/iterm2 .config/keychain .config/vagrant
 do
     [ -L ~/"${i}" ] && rm -f ~/"${i}"
     ln -s $(pwd)/"${i}"/ ~/"${i}"

@@ -97,18 +97,24 @@ __lambda'
 
 ## dockerised commands
 ### ansible
-alias ansible-ping="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -e ANSIBLE_HOST_KEY_CHECKING=False --entrypoint ansible -v $(pwd):/app --rm ansible -m ping `# check host connectivity`"
-alias ansible-playbook="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -v $(pwd):/app --rm ansible"
-alias ansible-setup="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -e ANSIBLE_HOST_KEY_CHECKING=False --entrypoint ansible -v $(pwd):/app --rm ansible -m setup `# collect host facts`"
+alias ansible-ping="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -e ANSIBLE_HOST_KEY_CHECKING=False --entrypoint ansible -T --rm ansible -m ping `# check host connectivity`"
+alias ansible-playbook="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm ansible"
+alias ansible-setup="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -e ANSIBLE_HOST_KEY_CHECKING=False --entrypoint ansible -T --rm ansible -m setup `# collect host facts`"
 ### aws
-alias aws="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -v $(pwd):/app --rm aws"
-complete -C 'docker run --rm --entrypoint /usr/local/bin/python3 -e COMP_LINE -e COMP_POINT ops/awscli /usr/local/bin/aws_completer' aws # bash-completion
-alias cfn-flip="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run --entrypoint cfn-flip -v $(pwd):/app --rm aws"
-alias cfn-lint="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run --entrypoint cfn-lint -v $(pwd):/app --rm aws"
+alias aws="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm aws"
+if [ -z "$K8S_PROLOAD_AWSCLI_CONTAINER_ID" ] # bash-completion for awscli
+then
+  complete -C 'docker run --rm --entrypoint /usr/local/bin/python3 -e COMP_LINE -e COMP_POINT ops/awscli /usr/local/bin/aws_completer' aws # start a container everytime (slow)
+else
+  complete -C "docker exec -e COMP_LINE -e COMP_POINT $K8S_PROLOAD_AWSCLI_CONTAINER_ID /usr/local/bin/aws_completer" aws # with proloading container in k8s
+fi
+
+alias cfn-flip="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --entrypoint cfn-flip -T --rm aws"
+alias cfn-lint="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --entrypoint cfn-lint -T --rm aws"
 ### k8s
-alias kubectl="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -v $(pwd):/app --rm kubectl"
+alias kubectl="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm kubectl"
 ### terraform
-alias terraform="docker-compose -f $HOME/.config/dockerfiles/docker-compose.yml run -v $(pwd):/app --rm terraform"
+alias terraform="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm terraform"
 alias tf='terraform'
 
 # Linux

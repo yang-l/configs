@@ -4,7 +4,7 @@
 # to install, run `sudo ./macports.sh‘
 port -t install \
      `# replace out-of-date system installed packages` \
-     bash git \
+     bash bash-completion git gsed coreutils \
      openssl curl-ca-bundle \
      `# addtional packages` \
      emacs-app `#text editor` \
@@ -14,8 +14,13 @@ port -t install \
      the_silver_searcher `# code searching tool` \
      tmux `# terminal multiplexer` \
      `# socat xorg-server` `# docker/x11/gui` \
-     python37 py37-virtualenv py27-virtualenv `# python` \
-     pwsh `# by emacs lsp-pwsh`
+     python37 py37-virtualenv `# python` \
+     pwsh `# by emacs lsp-pwsh` \
+     go `# golang`
 
 # others to install
 ## xcode / iterm2 / docker / virtualbox & vagrant & packer / Terminus TTF / pwsh
+
+# change default bash
+## $ echo /opt/local/bin/bash | sudo tee /etc/shells
+## $ chsh -s /opt/local/bin/bash

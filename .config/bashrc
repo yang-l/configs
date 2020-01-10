@@ -46,9 +46,19 @@ if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 # macOS
 if [ $(uname) == 'Darwin' ]; then
     export CLICOLOR=1
+    TIMEOUT_CMD="/opt/local/bin/gtimeout 2"
 fi
 
 # emacs terminal emulators inside macOS
 if [[ -n $INSIDE_EMACS && $(uname) == 'Darwin' ]]; then
    stty ek
 fi
+
+# proloading container in k8s
+export K8S_PROLOAD_AWSCLI_CONTAINER_ID=$($TIMEOUT_CMD docker ps -f status=running -f name=aws-cli_cli-utils --format "{{.ID}}")
+
+# bash-completion
+if [ -f /opt/local/etc/profile.d/bash_completion.sh ]; then
+    . /opt/local/etc/profile.d/bash_completion.sh
+fi
+## kubectl - put output of `kubectl completion bash' into `/opt/local/etc/bash_completion.d/kubectl'
