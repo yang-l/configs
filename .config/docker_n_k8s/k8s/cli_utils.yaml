@@ -1,4 +1,4 @@
-# to apply this, execute 'kubectl apply -f cli_utils.yaml'
+# to apply this, execute 'cat cli_utils.yaml | sed "s|HOME_SUB|$HOME|" | kubectl apply -f -'
 
 ---
 
@@ -30,5 +30,32 @@ spec:
         - name: aws-cli
           image: ops/awscli:latest
           command: [ "/bin/sh", "-c" ]
-          args: [ "trap : TERM INT; (while true; do sleep 1000; done) & wait" ]
+          args: [ "trap : TERM INT; (while true; do sleep 86400; done) & wait" ]
           imagePullPolicy: Never
+          resources:
+            requests:
+              memory: "16Mi"
+              cpu: "8m"
+            limits:
+              memory: "512Mi"
+              cpu: "1"
+        - name: k8s-cli
+          image: ops/k8scli:latest
+          command: [ "/bin/sh", "-c" ]
+          args: [ "trap : TERM INT; (while true; do sleep 86400; done) & wait" ]
+          imagePullPolicy: Never
+          volumeMounts:
+            - mountPath: /root/.kube
+              name: kube-conf
+              readOnly: true
+          resources:
+            requests:
+              memory: "16Mi"
+              cpu: "8m"
+            limits:
+              memory: "512Mi"
+              cpu: "1"
+      volumes:
+        - name: kube-conf
+          hostPath:
+            path: HOME_SUB/.kube
