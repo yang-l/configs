@@ -28,11 +28,12 @@ services:
     working_dir: /app
     entrypoint: ['aws']
 
-  kubectl:
+  k8s: &base
     build:
       args:
         BASE_VERSION: '3.10'
-        K8S_RELEASE: 'v1.16.2'
+        K8S_RELEASE: 'v1.17.0'
+        HELM_RELEASE: 'v3.0.2'
       context: .
       dockerfile: Dockerfile.k8s
     environment:
@@ -42,7 +43,22 @@ services:
       - $HOME/.kube:/root/.kube:ro
       - $PWD:/app
     working_dir: /app
+
+  kubectl:
+    <<: *base
     entrypoint: ['/kubectl']
+
+  helm:
+    <<: *base
+    environment:
+      - XDG_CACHE_HOME=/root/.cache/helm/
+      - XDG_CONFIG_HOME=/root/.config/helm/
+      - XDG_DATA_HOME=/root/.local/share/helm/
+    volumes:
+      - $HOME/.helm/cache:/root/.cache/helm
+      - $HOME/.helm/config:/root/.config/helm/
+      - $HOME/.helm/data:/root/.local/share/helm/
+    entrypoint: ['/helm']
 
   terraform:
     image: hashicorp/terraform:0.12.12

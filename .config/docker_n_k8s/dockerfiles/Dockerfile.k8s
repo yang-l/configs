@@ -1,17 +1,27 @@
 ARG BASE_VERSION=3.10
 
 FROM alpine:${BASE_VERSION} as builder
-ARG K8S_RELEASE=v1.15.3
-RUN set -ex && apk add --no-cache curl
+ARG K8S_RELEASE=v1.17.0
+ARG HELM_RELEASE=v3.0.2
+RUN set -ex && apk add --no-cache curl tar
 RUN set -ex \
   && curl -sS -fL -o /kubectl https://storage.googleapis.com/kubernetes-release/release/${K8S_RELEASE}/bin/linux/amd64/kubectl \
   && chmod +x /kubectl
 RUN set -ex \
   && curl -sS -fL -o /kubeadm https://storage.googleapis.com/kubernetes-release/release/${K8S_RELEASE}/bin/linux/amd64/kubeadm \
   && chmod +x /kubeadm
+RUN set -ex \
+  && curl -sS -fL https://get.helm.sh/helm-${HELM_RELEASE}-linux-amd64.tar.gz | tar -xz --strip-components=1 linux-amd64 -C / \
+  && chmod +x /helm
+RUN set -ex \
+  && apk add ca-certificates \
+  && update-ca-certificates
 
 FROM busybox:musl
 WORKDIR /app
 COPY --from=builder /kubectl /kubectl
 COPY --from=builder /kubeadm /kubeadm
+COPY --from=builder /helm /helm
+RUN mkdir -p /etc/ssl/certs
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 ENTRYPOINT ["/kubectl"]

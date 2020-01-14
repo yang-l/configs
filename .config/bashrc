@@ -63,3 +63,4 @@ if [ -f /opt/local/etc/profile.d/bash_completion.sh ]; then
     . /opt/local/etc/profile.d/bash_completion.sh
 fi
 ## kubectl -> sed 's/"kubectl /"docker exec \$K8S_PROLOAD_K8SCLI_CONTAINER_ID \/kubectl /g' <(kubectl completion bash) > ~/.kube/kube-autocomplete
+## helm -> helm completion bash > ~/.helm/helm-autocomplete
