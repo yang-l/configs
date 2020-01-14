@@ -23,7 +23,7 @@ alias grep='grep -JZ --color=auto'
 alias grepf='grep -Hno'
 alias less='less -N'
 alias lsl='ls -lAGh'
-alias k='kill -9'
+alias k9='kill -9'
 alias nct='nc -v -w 2'
 alias psg='ps auxwww | grep -i'
 alias rm='rm -i'
@@ -113,6 +113,9 @@ alias cfn-flip="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-
 alias cfn-lint="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --entrypoint cfn-lint -T --rm aws"
 ### k8s
 alias kubectl="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm kubectl"
+source ~/.kube/kube-autocomplete
+alias k=kubectl
+complete -F __start_kubectl k
 ### terraform
 alias terraform="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm terraform"
 alias tf='terraform'
