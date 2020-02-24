@@ -116,6 +116,8 @@ alias kubectl="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-c
 source ~/.kube/kube-autocomplete
 alias k=kubectl
 complete -F __start_kubectl k
+alias kubeadm="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm kubeadm"
+source ~/.config/.k8s/kubeadm-autocomplete
 alias helm="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm helm"
 source ~/.config/.helm/helm-autocomplete
 ### terraform

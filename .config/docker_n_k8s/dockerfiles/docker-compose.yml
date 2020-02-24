@@ -48,6 +48,15 @@ services:
       - $PWD:/app
     entrypoint: ['/kubectl']
 
+  kubeadm:
+    <<: *base
+    environment:
+      - KUBECONFIG=/root/.kube/config
+    volumes:
+      - $HOME/.kube:/root/.kube:ro
+      - $PWD:/app
+    entrypoint: ['/kubeadm']
+
   helm:
     <<: *base
     environment:
