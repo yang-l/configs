@@ -56,9 +56,9 @@ services:
       - XDG_DATA_HOME=/root/.local/share/helm/
       - KUBECONFIG=/root/.kube/config
     volumes:
-      - $HOME/.helm/cache:/root/.cache/helm
-      - $HOME/.helm/config:/root/.config/helm/
-      - $HOME/.helm/data:/root/.local/share/helm/
+      - $HOME/.config/.helm/cache:/root/.cache/helm
+      - $HOME/.config/.helm/config:/root/.config/helm/
+      - $HOME/.config/.helm/data:/root/.local/share/helm/
       - $HOME/.kube:/root/.kube:ro
       - $PWD:/app
     entrypoint: ['/helm']
