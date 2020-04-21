@@ -28,6 +28,20 @@ services:
     working_dir: /app
     entrypoint: ['aws']
 
+  sam:
+    build:
+      args:
+        BASE_VERSION: '3-alpine'
+      context: .
+      dockerfile: Dockerfile.aws-sam
+    image: ops/awssamcli:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $HOME/.aws:/root/.aws:ro
+      - $PWD:/app
+    working_dir: /app
+    entrypoint: ['sam']
+
   k8s: &base
     build:
       args:

@@ -60,6 +60,21 @@ alias certp='__lambda() { cat $1 | sed "1d" | sed "\$d" | tr -d "\n" ; } ; __lam
 alias openssl_chkcrt='openssl x509 -text -noout -in'
 alias openssl_conn='openssl s_client -connect'
 alias ssh_getpubkey='__lambda() { ssh-keygen -y -f $1 ; } ; __lambda'
+alias openssl_get_pfx_key=' \
+__lambda() { \
+    openssl pkcs12 -in $1 -nocerts -nodes | sed -ne "/-BEGIN PRIVATE KEY-/,/-END PRIVATE KEY-/p" ; \
+} ; \
+__lambda'
+alias openssl_get_pfx_cert=' \
+__lambda() { \
+    openssl pkcs12 -in $1 -clcerts -nokeys | sed -ne "/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p" ; \
+} ; \
+__lambda'
+alias openssl_get_pfx_chain=' \
+__lambda() { \
+    openssl pkcs12 -in $1 -cacerts -nokeys -chain | sed -ne "/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p" ; \
+} ; \
+__lambda'
 
 # file
 alias openssl_sha256='openssl sha256'
@@ -111,6 +126,29 @@ fi
 
 alias cfn-flip="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --entrypoint cfn-flip -T --rm aws"
 alias cfn-lint="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --entrypoint cfn-lint -T --rm aws"
+
+alias sam='
+__lambda() {
+  case "$1" in
+    local)
+      case "$2" in
+        invoke)
+          docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm sam local $2 -v "${PWD}/.aws-sam/build" ${@:3}
+          ;;
+        start-api|start-lambda)
+          docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm -p 3000:3000 -p 3001:3001 sam local $2 -v "$PWD/.aws-sam/build" --host 0.0.0.0 ${@:3}
+          ;;
+        *)
+          docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm sam "$@"
+          ;;
+      esac
+      ;;
+    *)
+      docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm sam "$@"
+      ;;
+  esac ;
+} ;
+__lambda'
 ### k8s
 alias kubectl="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm kubectl"
 source ~/.kube/kube-autocomplete

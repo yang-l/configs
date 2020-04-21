@@ -1,0 +1,12 @@
+ARG BASE_VERSION=3.8-alpine3.10
+
+FROM python:${BASE_VERSION}
+RUN set -ex && apk update && apk upgrade && apk add --no-cache groff gcc musl-dev git
+RUN set -ex \
+  && python3 -m pip install -U pip setuptools wheel \
+  && python3 -m pip install -U aws-sam-cli
+
+ENV PAGER=more
+EXPOSE 3000 3001
+WORKDIR /app
+ENTRYPOINT ["/usr/local/bin/sam"]
