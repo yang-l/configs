@@ -1,11 +1,14 @@
-ARG BASE_VERSION=3.8-alpine3.10
+## aws-cli v1
+#ARG BASE_VERSION=3.8-alpine3.10
+#FROM python:${BASE_VERSION}
+#RUN set -ex && apk update && apk upgrade && apk add --no-cache groff
+#RUN set -ex \
+#  && python3 -m pip install -U pip setuptools wheel \
+#  && python3 -m pip install -U awscli cfn-flip cfn-lint
 
-FROM python:${BASE_VERSION}
-RUN set -ex && apk update && apk upgrade && apk add --no-cache groff
-RUN set -ex \
-  && python3 -m pip install -U pip setuptools wheel \
-  && python3 -m pip install -U awscli cfn-flip cfn-lint
-
+## aws-cli v2
+ARG BASE_VERSION=2.0.14
+FROM amazon/aws-cli:${BASE_VERSION}
 ENV PAGER=more
 WORKDIR /app
 ENTRYPOINT ["/usr/local/bin/aws"]

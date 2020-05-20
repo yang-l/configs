@@ -32,6 +32,10 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args: [ "trap : TERM INT; (while true; do sleep 86400; done) & wait" ]
           imagePullPolicy: Never
+          volumeMounts:
+            - mountPath: /root/.aws
+              name: aws-conf
+              readOnly: true
           resources:
             requests:
               memory: "16Mi"
@@ -46,7 +50,7 @@ spec:
           imagePullPolicy: Never
           volumeMounts:
             - mountPath: /root/.kube
-              name: kube-conf
+              name: k8s-conf
               readOnly: true
           resources:
             requests:
@@ -56,6 +60,9 @@ spec:
               memory: "512Mi"
               cpu: "1"
       volumes:
-        - name: kube-conf
+        - name: aws-conf
+          hostPath:
+            path: HOME_SUB/.aws
+        - name: k8s-conf
           hostPath:
             path: HOME_SUB/.kube

@@ -119,7 +119,7 @@ alias ansible-setup="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/do
 alias aws="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm aws"
 if [ -z "$K8S_PROLOAD_AWSCLI_CONTAINER_ID" ] # bash-completion for awscli
 then
-  complete -C 'docker run --rm --entrypoint /usr/local/bin/python3 -e COMP_LINE -e COMP_POINT ops/awscli /usr/local/bin/aws_completer' aws # start a container everytime (slow)
+  complete -C "docker run --rm -e COMP_LINE -e COMP_POINT -v ${HOME}/.aws:/root/.aws:ro --entrypoint /usr/local/bin/aws_completer ops/awscli" aws # start a container everytime (slow)
 else
   complete -C "docker exec -e COMP_LINE -e COMP_POINT $K8S_PROLOAD_AWSCLI_CONTAINER_ID /usr/local/bin/aws_completer" aws # with proloading container in k8s
 fi

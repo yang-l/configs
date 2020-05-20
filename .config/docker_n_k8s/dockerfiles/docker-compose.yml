@@ -18,7 +18,7 @@ services:
   aws:
     build:
       args:
-        BASE_VERSION: '3-alpine'
+        BASE_VERSION: '2.0.14'
       context: .
       dockerfile: Dockerfile.aws
     image: ops/awscli:latest
