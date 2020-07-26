@@ -150,7 +150,7 @@ __lambda() {
 } ;
 __lambda'
 ### k8s
-alias kubectl="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm kubectl"
+alias kubectl="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --rm kubectl"
 source ~/.kube/kube-autocomplete
 alias k=kubectl
 complete -F __start_kubectl k

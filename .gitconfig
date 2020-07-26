@@ -73,6 +73,7 @@
 
 [merge]
     conflictstyle = diff3
+    renamelimit = 15345
 
 [push]
     default = simple
