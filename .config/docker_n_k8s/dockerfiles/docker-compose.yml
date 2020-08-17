@@ -15,15 +15,23 @@ services:
     working_dir: /app
     entrypoint: ['ansible']
 
-  aws:
+  aws: &aws_base
     build:
       args:
-        BASE_VERSION: '2.0.14'
+        BASE_VERSION: '2.0.41'
+        BUILD_BASE_VERSION: "${ALPINE_VERSION}"
+        AWS_VAULT_RELEASE: "${AWS_VAULT_VERSION}"
       context: .
       dockerfile: Dockerfile.aws
+    environment:
+      - AWS_VAULT_BACKEND=file
+      - AWS_VAULT_FILE_PASSPHRASE=Ch@n93m4
+      - AWS_SESSION_TOKEN_TTL=12h
+      - AWS_ASSUME_ROLE_TTL=15m
     image: ops/awscli:latest
     volumes:
-      - $HOME/.aws:/root/.aws:ro
+      - $HOME/.aws:/root/.aws
+      - $HOME/.awsvault:/root/.awsvault
       - $PWD:/app
     working_dir: /app
     entrypoint: ['aws']
@@ -42,19 +50,19 @@ services:
     working_dir: /app
     entrypoint: ['sam']
 
-  k8s: &base
+  k8s: &k8s_base
     build:
       args:
-        BASE_VERSION: '3.10'
-        K8S_RELEASE: 'v1.17.0'
-        HELM_RELEASE: 'v3.0.2'
+        BASE_VERSION: "${ALPINE_VERSION}"
+        K8S_RELEASE: 'v1.18.8'
+        HELM_RELEASE: 'v3.3.0'
       context: .
       dockerfile: Dockerfile.k8s
     image: ops/k8scli:latest
     working_dir: /app
 
   kubectl:
-    <<: *base
+    <<: *k8s_base
     environment:
       - KUBECONFIG=/root/.kube/config
     volumes:
@@ -63,7 +71,7 @@ services:
     entrypoint: ['/kubectl']
 
   kubeadm:
-    <<: *base
+    <<: *k8s_base
     environment:
       - KUBECONFIG=/root/.kube/config
     volumes:
@@ -72,7 +80,7 @@ services:
     entrypoint: ['/kubeadm']
 
   helm:
-    <<: *base
+    <<: *k8s_base
     environment:
       - XDG_CACHE_HOME=/root/.cache/helm/
       - XDG_CONFIG_HOME=/root/.config/helm/
@@ -87,8 +95,22 @@ services:
     entrypoint: ['/helm']
 
   terraform:
-    image: hashicorp/terraform:0.12.12
+    build:
+      args:
+        BUILD_BASE_VERSION: "${ALPINE_VERSION}"
+        AWS_VAULT_RELEASE: "${AWS_VAULT_VERSION}"
+        BASE_VERSION: '0.13.0'
+      context: .
+      dockerfile: Dockerfile.tf
+    environment:
+      - AWS_VAULT_BACKEND=file
+      - AWS_VAULT_FILE_PASSPHRASE=Ch@n93m4
+      - AWS_SESSION_TOKEN_TTL=12h
+      - AWS_ASSUME_ROLE_TTL=15m
+    image: ops/tf:latest
     volumes:
+      - $HOME/.aws:/root/.aws:ro
+      - $HOME/.awsvault:/root/.awsvault:ro
       - $PWD:/app
     working_dir: /app
     entrypoint: ['terraform']
