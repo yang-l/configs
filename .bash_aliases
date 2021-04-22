@@ -117,7 +117,7 @@ alias ansible-ping="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/doc
 alias ansible-playbook="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm ansible"
 alias ansible-setup="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -e ANSIBLE_HOST_KEY_CHECKING=False --entrypoint ansible -T --rm ansible -m setup `# collect host facts`"
 ### aws
-alias aws="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -T --rm aws"
+alias aws="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN -T --rm aws"
 if [ -z "$K8S_PROLOAD_AWSCLI_CONTAINER_ID" ] # bash-completion for awscli
 then
   complete -C "docker run --rm -e COMP_LINE -e COMP_POINT -v ${HOME}/.aws:/root/.aws:ro --entrypoint /usr/local/bin/aws_completer ops/awscli" aws # start a container everytime (slow)
@@ -153,7 +153,7 @@ __lambda'
 
 alias aws-vault="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run --entrypoint aws-vault -T --rm aws"
 ### k8s
-alias kubectl="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run --rm kubectl"
+alias kubectl="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -T --rm kubectl" # -T is used by autocomplete
 source ~/.kube/kube-autocomplete
 alias k=kubectl
 complete -F __start_kubectl k
@@ -164,6 +164,9 @@ source ~/.config/.helm/helm-autocomplete
 ### terraform
 alias terraform="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -T --rm terraform"
 alias tf='terraform'
+### jupyter
+alias jupyter="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --service-ports -T --rm jupyter"
+alias jupyter-console="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --rm jupyter-console"
 
 # Linux
 if [ $(uname -s) == "Linux" ]; then

@@ -15,7 +15,7 @@ services:
     working_dir: /app
     entrypoint: ['ansible']
 
-  aws: &aws_base
+  aws:
     build:
       args:
         BASE_VERSION: '2.0.41'
@@ -26,7 +26,7 @@ services:
     environment:
       - AWS_VAULT_BACKEND=file
       - AWS_VAULT_FILE_PASSPHRASE=Ch@n93m4
-      - AWS_SESSION_TOKEN_TTL=12h
+      - AWS_SESSION_TOKEN_TTL=2h
       - AWS_ASSUME_ROLE_TTL=15m
     image: ops/awscli:latest
     volumes:
@@ -54,8 +54,8 @@ services:
     build:
       args:
         BASE_VERSION: "${ALPINE_VERSION}"
-        K8S_RELEASE: 'v1.18.8'
-        HELM_RELEASE: 'v3.3.0'
+        K8S_RELEASE: 'v1.19.3'
+        HELM_RELEASE: 'v3.3.4'
       context: .
       dockerfile: Dockerfile.k8s
     image: ops/k8scli:latest
@@ -114,3 +114,17 @@ services:
       - $PWD:/app
     working_dir: /app
     entrypoint: ['terraform']
+
+  jupyter: &jupyter_base
+    build:
+      args:
+        BASE_VERSION: 'latest'
+      context: .
+      dockerfile: Dockerfile.jupyter
+    image: ops/jupyter:latest
+    ports:
+      - 8888:8888
+
+  jupyter-console:
+    <<: *jupyter_base
+    entrypoint: ['jupyter', 'console']

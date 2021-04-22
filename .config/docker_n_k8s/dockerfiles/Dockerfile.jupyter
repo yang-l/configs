@@ -1,0 +1,4 @@
+ARG BASE_VERSION=latest
+
+FROM jupyter/minimal-notebook:${BASE_VERSION}
+RUN set -ex && pip3 install jupyter-console

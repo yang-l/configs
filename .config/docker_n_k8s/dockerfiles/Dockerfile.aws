@@ -19,7 +19,7 @@ RUN set -ex \
 
 ## aws-cli v2
 FROM amazon/aws-cli:${BASE_VERSION}
-ENV PAGER=more
+ENV PAGER=less
 WORKDIR /app
 COPY --from=builder /aws-vault /usr/local/bin/aws-vault
 ENTRYPOINT ["/usr/local/bin/aws"]
