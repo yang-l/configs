@@ -183,4 +183,5 @@ if [ $(uname -s) == 'Darwin' ]; then
     alias port_depclean='sudo port -f uninstall inactive || true && sudo port -f uninstall leaves `# remove all necessary packages`'
     alias port_uninstall='sudo port uninstall --follow-dependencies'
     alias port_update='sudo port selfupdate && sudo port upgrade outdated || true && sudo port clean --all installed && sudo port -f uninstall inactive'
+    alias port_cleanleaves='while sudo port uninstall leaves; do :; done'
 fi

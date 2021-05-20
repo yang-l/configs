@@ -8,4 +8,6 @@ else
     fi
 fi
 
+# MacPorts
+export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
 

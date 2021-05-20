@@ -26,6 +26,17 @@ do
     ln -s $(pwd)/"${i}"/ ~/"${i}"
 done
 
+# cleanup
+for i in Library/Preferences/com.googlecode.iterm2.plist .zprofile .zsh_history
+do
+    [ -f ~/"${i}" ] && rm -f ~/"${i}"
+done
+
+for i in .zsh_sessions
+do
+    [ -d ~/"${i}" ] && rm -fr ~/"${i}"
+done
+
 # install git-completion.bash
 curl -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/.git-completion.bash
 

@@ -4,9 +4,9 @@ FROM python:${BASE_VERSION} as base
 
 FROM base as builder
 ARG ANSIBLE_RELEASE=2.8.5
-RUN set -ex && apk update && apk upgrade && apk add --no-cache build-base libffi-dev openssl-dev
+RUN set -ex && apk update && apk upgrade && apk add --no-cache build-base libffi-dev openssl-dev cargo
 RUN set -ex \
-  && python3 -m pip install -U pip \
+  && python3 -m pip install -U pip setuptools_rust \
   && python3 -m pip install --prefix /install -U ansible==${ANSIBLE_RELEASE}
 
 FROM base

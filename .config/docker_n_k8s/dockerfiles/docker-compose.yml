@@ -1,12 +1,12 @@
 ---
-version: '3.7'
+version: '3.8'
 
 services:
   ansible:
     build:
       args:
-        ANSIBLE_RELEASE: '2.8.5'
-        BASE_VERSION: '3-alpine'
+        ANSIBLE_RELEASE: "${ANSIBLE_VERSION}"
+        BASE_VERSION: "${PYTHON_VERSION}"
       context: .
       dockerfile: Dockerfile.ansible
     image: ops/ansible:latest
@@ -18,7 +18,7 @@ services:
   aws:
     build:
       args:
-        BASE_VERSION: '2.0.41'
+        BASE_VERSION: "${AWS_CLI_VERSION}"
         BUILD_BASE_VERSION: "${ALPINE_VERSION}"
         AWS_VAULT_RELEASE: "${AWS_VAULT_VERSION}"
       context: .
@@ -39,7 +39,7 @@ services:
   sam:
     build:
       args:
-        BASE_VERSION: '3-alpine'
+        BASE_VERSION: "${PYTHON_VERSION}"
       context: .
       dockerfile: Dockerfile.aws-sam
     image: ops/awssamcli:latest
@@ -54,8 +54,8 @@ services:
     build:
       args:
         BASE_VERSION: "${ALPINE_VERSION}"
-        K8S_RELEASE: 'v1.19.3'
-        HELM_RELEASE: 'v3.3.4'
+        K8S_RELEASE: "${K8S_RELEASE_VERSION}"
+        HELM_RELEASE: "${HELM_RELEASE_VERSION}"
       context: .
       dockerfile: Dockerfile.k8s
     image: ops/k8scli:latest
@@ -99,7 +99,7 @@ services:
       args:
         BUILD_BASE_VERSION: "${ALPINE_VERSION}"
         AWS_VAULT_RELEASE: "${AWS_VAULT_VERSION}"
-        BASE_VERSION: '0.13.0'
+        BASE_VERSION: "${TERRAFORM_VERSION}"
       context: .
       dockerfile: Dockerfile.tf
     environment:
