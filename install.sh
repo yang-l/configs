@@ -2,8 +2,10 @@
 
 set -ex
 
-# bash history backup
-mkdir -p ~/.config/hist_backup
+for i in .config/hist_backup `# bash history backup` .config/local/bin .bundle `# bundler`
+do
+    mkdir -p ~/"${i}"
+done
 
 # ssh keychain setup
 for i in .keychain
@@ -13,7 +15,7 @@ do
 done
 
 # link files
-for i in .bash_aliases .bash_profile .inputrc .tmux.conf .Xdefaults .xsessionrc .config/bashrc
+for i in .asdfrc .bash_aliases .bash_profile .bashrc .default-npm-packages .default-python-packages .inputrc .tmux.conf .tool-versions .Xdefaults .xsessionrc .bundle/config .config/bashrc
 do
     [ -L ~/"${i}" ] && rm -f ~/"${i}"
     ln -s $(pwd)/"${i}" ~/"${i}"

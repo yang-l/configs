@@ -1,13 +1,3 @@
-# This file is called by login shell, whereas .bashrc is called by interactive non-login shell
-if [ -f ~/.bashrc ]; then
-    source ~/.bashrc
-else
-    source ~/.config/bashrc
-    if [ -f ~/.bash_aliases ]; then
-        source ~/.bash_aliases
-    fi
-fi
-
-# MacPorts
-export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
-
+# .bash_profile is called by login shell (note MacOS is running a login shell for each new terminal window)
+# .bashrc is called by interactive non-login shell
+case "$-" in *i*) if [ -r ~/.bashrc ]; then . ~/.bashrc; fi;; esac

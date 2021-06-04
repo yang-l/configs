@@ -30,6 +30,7 @@ alias rm='rm -i'
 alias myip='dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com | sed -e "s_\\\"\\(.*\\)\\\"_\\1_g" `# DNS based local IP lookup from google`'
 alias replstr='__lambda() { find . -type f | xargs perl -pi -e "s/$1/$2/g;" ; } ; __lambda'
 alias replstr1='__lambda() { LC_ALL=C find . -type f  -exec sed -i '' s/$1/$2/g {} + ; } ; __lambda'
+alias shellcheck='__lambda() { docker run -ti --rm -v $(pwd):/mnt koalaman/shellcheck "$@" ; } ; __lambda "$@"'
 
 # emacs
 case "$(uname -s)" in
@@ -85,11 +86,6 @@ alias pyprofile='python -m cProfile'
 alias py3profile='python3 -m cProfile'
 alias prettyjson='$(which python) -m json.tool'
 
-# ruby
-alias bundle='rbenv exec bundle'
-alias bundle-install='rbenv exec bundle install --path vendor/bundle'
-alias cap='rbenv exec bundle exec cap'
-
 # docker
 ## run gui app interactively in docker
 alias dockerapp='
@@ -117,7 +113,7 @@ alias ansible-ping="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/doc
 alias ansible-playbook="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm ansible"
 alias ansible-setup="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -e ANSIBLE_HOST_KEY_CHECKING=False --entrypoint ansible -T --rm ansible -m setup `# collect host facts`"
 ### aws
-alias aws="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN -T --rm aws"
+alias aws="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run $(for i in $(env | grep ^AWS_ | cut -d"=" -f1); do echo -n "-e $i " ; done) -T --rm aws"
 if [ -z "$K8S_PROLOAD_AWSCLI_CONTAINER_ID" ] # bash-completion for awscli
 then
   complete -C "docker run --rm -e COMP_LINE -e COMP_POINT -v ${HOME}/.aws:/root/.aws:ro --entrypoint /usr/local/bin/aws_completer ops/awscli" aws # start a container everytime (slow)
@@ -125,8 +121,8 @@ else
   complete -C "docker exec -e COMP_LINE -e COMP_POINT $K8S_PROLOAD_AWSCLI_CONTAINER_ID /usr/local/bin/aws_completer" aws # with proloading container in k8s
 fi
 
-alias cfn-flip="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run --entrypoint cfn-flip -T --rm aws"
-alias cfn-lint="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run --entrypoint cfn-lint -T --rm aws"
+#alias cfn-flip="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run --entrypoint cfn-flip -T --rm aws"
+#alias cfn-lint="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run --entrypoint cfn-lint -T --rm aws"
 
 alias sam='
 __lambda() {
@@ -151,7 +147,7 @@ __lambda() {
 } ;
 __lambda'
 
-alias aws-vault="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run --entrypoint aws-vault -T --rm aws"
+#alias aws-vault="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run --entrypoint aws-vault -T --rm aws"
 ### k8s
 alias kubectl="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -T --rm kubectl" # -T is used by autocomplete
 source ~/.kube/kube-autocomplete
@@ -162,7 +158,7 @@ source ~/.config/.k8s/kubeadm-autocomplete
 alias helm="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -T --rm helm"
 source ~/.config/.helm/helm-autocomplete
 ### terraform
-alias terraform="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -T --rm terraform"
+alias terraform="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run $(for i in $(env | grep '^AWS_\|^CLOUDFLARE_\|^CF_' | cut -d"=" -f1); do echo -n "-e $i " ; done) -T --rm terraform"
 alias tf='terraform'
 ### jupyter
 alias jupyter="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --service-ports -T --rm jupyter"
@@ -185,3 +181,6 @@ if [ $(uname -s) == 'Darwin' ]; then
     alias port_update='sudo port selfupdate && sudo port upgrade outdated || true && sudo port clean --all installed && sudo port -f uninstall inactive'
     alias port_cleanleaves='while sudo port uninstall leaves; do :; done'
 fi
+
+# misc
+alias hledger='__lambda() { docker run -ti --rm --entrypoint hledger -v $(pwd):/data dastapov/hledger "$@" ; } ; __lambda "$@"'

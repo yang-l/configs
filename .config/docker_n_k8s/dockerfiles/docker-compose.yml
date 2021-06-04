@@ -21,6 +21,7 @@ services:
         BASE_VERSION: "${AWS_CLI_VERSION}"
         BUILD_BASE_VERSION: "${ALPINE_VERSION}"
         AWS_VAULT_RELEASE: "${AWS_VAULT_VERSION}"
+        IAMY_RELEASE: "${IAMY_VERSION}"
       context: .
       dockerfile: Dockerfile.aws
     environment:
@@ -31,7 +32,7 @@ services:
     image: ops/awscli:latest
     volumes:
       - $HOME/.aws:/root/.aws
-      - $HOME/.awsvault:/root/.awsvault
+      - $HOME/.awsvault:/root/.awsvault:ro
       - $PWD:/app
     working_dir: /app
     entrypoint: ['aws']

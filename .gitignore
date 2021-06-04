@@ -2,3 +2,4 @@
 .config/vagrant-box/output-virtualbox-iso/
 .config/vagrant-box/*.box
 .config/iterm2/AppSupport
+.awsvault/keys/

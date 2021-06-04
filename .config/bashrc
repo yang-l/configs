@@ -1,9 +1,3 @@
-# Add below to .bashrc
-#
-#if [ -f ~/.config/bashrc ]; then
-#    . ~/.config/bashrc
-#fi
-
 # history
 shopt -s extglob
 export HISTIGNORE="&:ls*( )?(-l?(a?(h))):exit:clear:history*:top:git*( )?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*( )?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(sh?(ow))?(*()HEAD*)|?(fixup)|?(squash)|?(pull)|?(push)|?(ri*( )HEAD*)|?(a*( )*)|?(reflog)|?(m))*( ):docker*( )?(?(ps -a)|?(images)|?(info)|?(rmi*)|?(rm*)):?(p)kill*:k9?(+( )*):.+( )~/.bash*:stty*:tmux?(+( )ls*( )*):?(terraform|tf)?(+( )?(init|get|plan|apply|destroy)):e?(c)[ftk]"
@@ -67,3 +61,17 @@ fi
 ##            sed -i'' -e 's/"kubectl /"docker exec \$K8S_PROLOAD_K8SCLI_CONTAINER_ID \/kubectl /g' ~/.kube/kube-autocomplete
 ## kubeadm -> kubeadm completion bash > ~/.config/.k8s/kubeadm-autocomplete
 ## helm -> helm completion bash > ~/.config/.helm/helm-autocomplete
+
+# asdf
+## git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
+[ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh
+[ -f ~/.asdf/completions/asdf.bash ] && source ~/.asdf/completions/asdf.bash
+# asdf plugin-add ruby
+# asdf install ruby 2.7.3
+# asdf plugin-add python
+# asdf install python 3.9.5
+# asdf plugin-add nodejs
+# asdf install nodejs 14.17.0
+
+# aws-vault
+[ -x ~/.config/local/bin/aws-vault ] && eval "$(~/.config/local/bin/aws-vault --completion-script-bash)"
