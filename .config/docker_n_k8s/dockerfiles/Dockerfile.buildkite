@@ -1,0 +1,12 @@
+ARG BASE_VERSION=3.13
+
+FROM alpine:${BASE_VERSION} as builder
+ARG BK_RELEASE=v1.2.0
+RUN set -ex && apk add --no-cache curl tar
+RUN set -ex \
+  && curl -sS -fL -o /bk https://github.com/buildkite/cli/releases/download/${BK_RELEASE}/cli-linux-amd64 \
+  && chmod +x /bk
+
+FROM buildkite/agent:3
+WORKDIR /app
+COPY --from=builder /bk /bk

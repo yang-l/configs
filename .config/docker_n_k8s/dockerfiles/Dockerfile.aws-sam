@@ -7,6 +7,7 @@ RUN set -ex \
   && python3 -m pip install -U aws-sam-cli
 
 ENV PAGER=more
+ENV SAM_CLI_TELEMETRY=0
 EXPOSE 3000 3001
 WORKDIR /app
 ENTRYPOINT ["/usr/local/bin/sam"]

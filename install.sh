@@ -28,6 +28,13 @@ do
     ln -s $(pwd)/"${i}"/ ~/"${i}"
 done
 
+# git highlight
+for i in /opt/local/share/git/contrib/diff-highlight/diff-highlight
+do
+    [ -L ~/.config/local/bin/diff-highlight ] && rm -f ~/.config/local/bin/diff-highlight
+    [ -f "${i}" ] && ln -s "${i}" ~/.config/local/bin/diff-highlight
+done
+
 # cleanup
 for i in Library/Preferences/com.googlecode.iterm2.plist .zprofile .zsh_history
 do

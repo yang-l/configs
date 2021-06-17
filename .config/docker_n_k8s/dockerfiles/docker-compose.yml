@@ -40,7 +40,7 @@ services:
   sam:
     build:
       args:
-        BASE_VERSION: "${PYTHON_VERSION}"
+        BASE_VERSION: 3.8-alpine
       context: .
       dockerfile: Dockerfile.aws-sam
     image: ops/awssamcli:latest
@@ -129,3 +129,20 @@ services:
   jupyter-console:
     <<: *jupyter_base
     entrypoint: ['jupyter', 'console']
+
+  buildkite: &buildkite_base
+    build:
+      args:
+        BASE_VERSION: "${ALPINE_VERSION}"
+        BK_RELEASE: "${BUILDKITE_CLI_VERSION}"
+      context: .
+      dockerfile: Dockerfile.buildkite
+    image: ops/buildkite:latest
+    volumes:
+      - $HOME/.buildkite:/root/.buildkite
+      - $PWD:/app
+    working_dir: /app
+
+  bk:
+    <<: *buildkite_base
+    entrypoint: ['/bk']

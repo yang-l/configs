@@ -141,7 +141,7 @@ __lambda() {
       esac
       ;;
     *)
-      docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm sam "$@"
+      docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run $(for i in $(env | grep ^AWS_ | cut -d"=" -f1); do echo -n "-e $i " ; done) -T --rm sam "$@"
       ;;
   esac ;
 } ;
@@ -163,6 +163,11 @@ alias tf='terraform'
 ### jupyter
 alias jupyter="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --service-ports -T --rm jupyter"
 alias jupyter-console="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --rm jupyter-console"
+
+### dev
+alias bk='docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --rm bk'
+alias jq='docker run --rm -i imega/jq'
+alias redis-cli='docker run -ti --rm redis redis-cli -h host.docker.internal'
 
 # Linux
 if [ $(uname -s) == "Linux" ]; then

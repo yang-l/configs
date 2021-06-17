@@ -84,3 +84,7 @@
 
 [rebase]
     autosquash = true
+
+[pager]
+    diff = diff-highlight | less
+    show = diff-highlight | less

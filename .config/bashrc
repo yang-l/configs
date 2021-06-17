@@ -62,6 +62,9 @@ fi
 ## kubeadm -> kubeadm completion bash > ~/.config/.k8s/kubeadm-autocomplete
 ## helm -> helm completion bash > ~/.config/.helm/helm-autocomplete
 
+# MacPorts
+export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
+
 # asdf
 ## git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
 [ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh
@@ -75,3 +78,7 @@ fi
 
 # aws-vault
 [ -x ~/.config/local/bin/aws-vault ] && eval "$(~/.config/local/bin/aws-vault --completion-script-bash)"
+
+# local install
+export PATH="${HOME}/.config/local/bin:$PATH"
+## aws-vault / cf-vault

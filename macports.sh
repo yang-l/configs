@@ -12,6 +12,7 @@ port -t install \
      `# mas` `# mac app store cli` \
      p7zip `# archive tool` \
      gnupg2 `# asdf/nodejs` \
+     stunnel `# tls/ssl tunneling` \
      `# the_silver_searcher` `# code searching tool` \
      `# socat xorg-server` `# docker/x11/gui` \
      `# pwsh` `# by emacs lsp-pwsh` \
