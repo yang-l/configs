@@ -10,13 +10,7 @@ shopt -s histappend cmdhist
 export PROMPT_COMMAND='history -a; history -c; history -r; history -w; cp ~/.bash_history ~/.config/hist_backup/.bash_history.$(date +%y%m%d)'
 
 # prompt
-if [ "${_OLD_VIRTUAL_PS1}" ] ;
-then
-    # handle virtualenv prompt
-    export PS1='$(printf "%*s\r%s" $(( COLUMNS-1 )) "[$(git branch 2>/dev/null | grep '^*' | sed s/..//)] $(date +"%y-%m-%d %H:%M:%S")" "$(echo -e "(`basename \"$VIRTUAL_ENV\"`) [$?] \u@\h \w \$ ")")'
-else
-    export PS1='$(printf "%*s\r%s" $(( COLUMNS-1 )) "[$(git branch 2>/dev/null | grep '^*' | sed s/..//)] $(date +"%y-%m-%d %H:%M:%S")" "$(echo -en "[$?] \u@\h \w \$ ")")'
-fi
+export PS1='$(printf "%*s\r%s" $(( COLUMNS-1 )) "[$(git branch 2>/dev/null | grep '^*' | sed s/..//)] $(date +"%y-%m-%d %H:%M:%S")" "$(echo -en "[$?] $( [ -n "${_OLD_VIRTUAL_PS1}" ] && tput bold && echo -en "venv|$(basename ${VIRTUAL_ENV}) " && tput sgr0 `# virtualenv prompt`)\u@\h \w $( [ -n "${AWS_VAULT}" ] && tput bold && echo -en "aws-vault|${AWS_VAULT} " && tput sgr0 `# aws-vault prompt`)\$ ")")'
 
 # keychain
 KEYCHAIN=~/.config/keychain/keychain
