@@ -41,6 +41,10 @@ do
     [ -f ~/"${i}" ] && rm -f ~/"${i}"
 done
 
+## To fix/restore preferences from random iterm2 reset, do the following steps
+# $> cp ~/personal/configs/.config/iterm2/com.googlecode.iterm2.plist ~/Library/Preferences/com.googlecode.iterm2.plist
+# $> plutil -convert xml1 ~/Library/Preferences/com.googlecode.iterm2.plist
+
 for i in .zsh_sessions
 do
     [ -d ~/"${i}" ] && rm -fr ~/"${i}"

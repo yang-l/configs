@@ -10,7 +10,7 @@ shopt -s histappend cmdhist
 export PROMPT_COMMAND='history -a; history -c; history -r; history -w; cp ~/.bash_history ~/.config/hist_backup/.bash_history.$(date +%y%m%d)'
 
 # prompt
-export PS1='$(printf "%*s\r%s" $(( COLUMNS-1 )) "[$(git branch 2>/dev/null | grep '^*' | sed s/..//)] $(date +"%y-%m-%d %H:%M:%S")" "$(echo -en "[$?] $( [ -n "${_OLD_VIRTUAL_PS1}" ] && tput bold && echo -en "venv|$(basename ${VIRTUAL_ENV}) " && tput sgr0 `# virtualenv prompt`)\u@\h \w $( [ -n "${AWS_VAULT}" ] && tput bold && echo -en "aws-vault|${AWS_VAULT} " && tput sgr0 `# aws-vault prompt`)\$ ")")'
+export PS1='$(printf "%*s\r%s" $(( COLUMNS-1 )) "[$(git branch 2>/dev/null | grep '^*' | sed s/..//)] $(date +"%y-%m-%d %H:%M:%S")" "$(echo -en "[$?] $( [ -n "${_OLD_VIRTUAL_PS1:-}" ] && tput bold && echo -en "venv|$(basename ${VIRTUAL_ENV}) " && tput sgr0 `# virtualenv prompt`)\u@\h \w $( [ -n "${AWS_VAULT:-}" ] && tput bold && echo -en "aws-vault|${AWS_VAULT} " && tput sgr0 `# aws-vault prompt`)\$ ")")'
 
 # keychain
 KEYCHAIN=~/.config/keychain/keychain
@@ -38,7 +38,7 @@ if [ $(uname) == 'Darwin' ]; then
 fi
 
 # emacs terminal emulators inside macOS
-if [[ -n $INSIDE_EMACS && $(uname) == 'Darwin' ]]; then
+if [[ -n ${INSIDE_EMACS:-} && $(uname) == 'Darwin' ]]; then
    stty ek
 fi
 
