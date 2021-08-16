@@ -7,6 +7,12 @@ do
     mkdir -p ~/"${i}"
 done
 
+for i in $(ls .config/local/bin)
+do
+    [ -L ~/.config/local/bin/"${i}" ] && rm -f ~/.config/local/bin/"${i}"
+    ln -s $(pwd)/.config/local/bin/"${i}" ~/.config/local/bin/"${i}"
+done
+
 # ssh keychain setup
 for i in .keychain
 do

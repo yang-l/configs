@@ -113,7 +113,8 @@ alias ansible-ping="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/doc
 alias ansible-playbook="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm ansible"
 alias ansible-setup="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -e ANSIBLE_HOST_KEY_CHECKING=False --entrypoint ansible -T --rm ansible -m setup `# collect host facts`"
 ### aws
-alias aws="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run $(for i in $(env | grep ^AWS_ | cut -d"=" -f1); do echo -n "-e $i " ; done) -T --rm aws"
+# alias aws="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run $(for i in $(env | grep ^AWS_ | cut -d"=" -f1); do echo -n "-e $i " ; done) -T --rm aws"
+# ^^^^^^^^^ moved to a bash script under '.config/local/bin', leave here as a reference
 if [ -z "$K8S_PROLOAD_AWSCLI_CONTAINER_ID" ] # bash-completion for awscli
 then
   complete -C "docker run --rm -e COMP_LINE -e COMP_POINT -v ${HOME}/.aws:/root/.aws:ro --entrypoint /usr/local/bin/aws_completer ops/awscli" aws # start a container everytime (slow)
@@ -166,7 +167,8 @@ alias jupyter-console="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/
 
 ### dev
 alias bk='docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --rm bk'
-alias jq='docker run --rm -i imega/jq'
+# alias jq='docker run --rm -i imega/jq'
+# ^^^^^^^^^ moved to a bash script under '.config/local/bin', leave here as a reference
 alias redis-cli='docker run -ti --rm redis redis-cli -h host.docker.internal'
 
 # Linux

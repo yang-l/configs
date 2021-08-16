@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run $(for i in $(env | grep ^AWS_ | cut -d"=" -f1); do echo -n "-e $i " ; done) -T --rm aws "$@"

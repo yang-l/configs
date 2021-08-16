@@ -13,6 +13,7 @@ port -t install \
      p7zip `# archive tool` \
      gnupg2 `# asdf/nodejs` \
      stunnel `# tls/ssl tunneling` \
+     ispell multimarkdown `# emacs/text editing` \
      `# the_silver_searcher` `# code searching tool` \
      `# socat xorg-server` `# docker/x11/gui` \
      `# pwsh` `# by emacs lsp-pwsh` \
