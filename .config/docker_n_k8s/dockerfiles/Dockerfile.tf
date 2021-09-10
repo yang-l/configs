@@ -1,14 +1,17 @@
-ARG BUILD_BASE_VERSION=3.12
-ARG BASE_VERSION=0.13.0
+ARG BUILD_BASE_VERSION
+ARG TF_VERSION
 
 ## aws-vault
 FROM alpine:${BUILD_BASE_VERSION} as builder
-ARG AWS_VAULT_RELEASE=v5.4.4
+ARG TG_VERSION
+ARG TG_SHA512_SUM
 RUN set -ex && apk add --no-cache curl tar
 RUN set -ex \
-  && curl -sS -fL -o /aws-vault https://github.com/99designs/aws-vault/releases/download/${AWS_VAULT_RELEASE}/aws-vault-linux-amd64 \
-  && chmod +x /aws-vault
+  && curl -sS -fL -o /terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/${TG_VERSION}/terragrunt_linux_amd64 \
+  && echo "${TG_SHA512_SUM}  /terragrunt" | sha512sum -c \
+  && chmod +x /terragrunt
 
 ## terraform
-FROM hashicorp/terraform:${BASE_VERSION}
-COPY --from=builder /aws-vault /usr/local/bin/aws-vault
+FROM hashicorp/terraform:${TF_VERSION}
+RUN apk add --update --no-cache bash jq shellcheck
+COPY --from=builder /terragrunt /usr/local/bin/terragrunt

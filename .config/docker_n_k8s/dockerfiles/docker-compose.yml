@@ -99,19 +99,14 @@ services:
     build:
       args:
         BUILD_BASE_VERSION: "${ALPINE_VERSION}"
-        AWS_VAULT_RELEASE: "${AWS_VAULT_VERSION}"
-        BASE_VERSION: "${TERRAFORM_VERSION}"
+        TF_VERSION: "${TERRAFORM_VERSION}"
+        TG_VERSION: "${TERRAGRUNT_VERSION}"
+        TG_SHA512_SUM: "${TERRAGRUNT_SHA512_SUM}"
       context: .
       dockerfile: Dockerfile.tf
-    environment:
-      - AWS_VAULT_BACKEND=file
-      - AWS_VAULT_FILE_PASSPHRASE=Ch@n93m4
-      - AWS_SESSION_TOKEN_TTL=12h
-      - AWS_ASSUME_ROLE_TTL=15m
     image: ops/tf:latest
     volumes:
       - $HOME/.aws:/root/.aws:ro
-      - $HOME/.awsvault:/root/.awsvault:ro
       - $PWD:/app
     working_dir: /app
     entrypoint: ['terraform']

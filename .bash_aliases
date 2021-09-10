@@ -19,7 +19,7 @@ alias ....='cd ../../../../'
 alias .4='cd ../../../../'
 alias .5='cd ../../../../..'
 alias cp='cp -a'
-alias grep='grep -JZ --color=auto'
+alias grep='grep -JZs --color=auto'
 alias grepf='grep -Hno'
 alias less='less -N'
 alias lsl='ls -lAGh'
@@ -51,6 +51,7 @@ if [ ! -z "${_BASH_ALIAS_EMACS}" ] ; then
 fi
 
 # misc
+alias g='git'
 alias genpass='openssl rand -base64'
 alias rsync='time rsync -zhcPS'
 alias scp='time scp -Cpr -o Compression=yes -o CompressionLevel=9'
@@ -159,7 +160,7 @@ source ~/.config/.k8s/kubeadm-autocomplete
 alias helm="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -T --rm helm"
 source ~/.config/.helm/helm-autocomplete
 ### terraform
-alias terraform="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run $(for i in $(env | grep '^AWS_\|^CLOUDFLARE_\|^CF_' | cut -d"=" -f1); do echo -n "-e $i " ; done) -T --rm terraform"
+alias terraform="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run $(for i in $(env | grep '^AWS_\|^CLOUDFLARE_\|^CF_\|^TF_' | cut -d"=" -f1); do echo -n "-e $i " ; done) -T --rm terraform"
 alias tf='terraform'
 ### jupyter
 alias jupyter="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --service-ports -T --rm jupyter"
