@@ -1,5 +1,6 @@
-.config/vagrant-box/packer_cache/
-.config/vagrant-box/output-virtualbox-iso/
-.config/vagrant-box/*.box
-.config/iterm2/AppSupport
+.aws/sso
 .awsvault/keys/
+.config/iterm2/AppSupport
+.config/vagrant-box/*.box
+.config/vagrant-box/output-virtualbox-iso/
+.config/vagrant-box/packer_cache/
