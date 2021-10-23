@@ -3,4 +3,4 @@
 export ROOT_PATH=$( git rev-parse --show-toplevel 2> /dev/null || echo $(pwd) )
 export WORK_PATH=$( git rev-parse --show-prefix 2> /dev/null || echo '.' )
 
-docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run $(for i in $(env | grep '^AWS_\|^CLOUDFLARE_\|^CF_\|^TF_' | cut -d"=" -f1); do echo -n "-e $i " ; done) -T --rm --entrypoint terragrunt terraform  "$@"
+docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run $(for i in $(env | grep '^AWS_\|^CLOUDFLARE_\|^CF_\|^TF_\|^DD_\|^BUILDKITE_' | cut -d"=" -f1); do echo -n "-e $i " ; done) -T --rm --entrypoint terragrunt terraform  "$@"
