@@ -76,3 +76,8 @@ export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
 # local install
 export PATH="${HOME}/.config/local/bin:$PATH"
 ## aws-vault / cf-vault
+
+# go
+export GOPATH="$(go env GOPATH  2> /dev/null || echo -n)"
+export PATH="${PATH}:${GOPATH}/bin"
+export GO111MODULE=on

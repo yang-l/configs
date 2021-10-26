@@ -1,1 +1,9 @@
 virtualenv
+autoflake
+python-lsp-server[flake8,mccabe,pycodestyle,pydocstyle,pyflakes,pylint,rope,yapf]
+pyls-flake8
+pylsp-mypy
+pyls-isort
+pyls-memestra
+pylsp-rope
+ptvsd>=4.2

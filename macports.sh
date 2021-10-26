@@ -16,9 +16,8 @@ port -t install \
      ispell multimarkdown `# emacs/text editing` \
      socat `# networking` \
      `# the_silver_searcher` `# code searching tool` \
-     `# socat xorg-server` `# docker/x11/gui` \
-     `# pwsh` `# by emacs lsp-pwsh` \
-     `# go` `# golang`
+     `# xorg-server` `# docker/x11/gui` \
+     `# pwsh` `# by emacs lsp-pwsh`
 
 # others to install
 ## xcode / iterm2 / docker (& docker-compose (included)) / virtualbox & vagrant & packer / Terminus TTF / pwsh

@@ -21,7 +21,7 @@ do
 done
 
 # link files
-for i in .asdfrc .bash_aliases .bash_profile .bashrc .default-npm-packages .default-python-packages .inputrc .tmux.conf .tool-versions .Xdefaults .xsessionrc .bundle/config .config/bashrc
+for i in .asdfrc .bash_aliases .bash_profile .bashrc .default-gems .default-npm-packages .default-python-packages .inputrc .tmux.conf .tool-versions .Xdefaults .xsessionrc .bundle/config .config/bashrc
 do
     [ -L ~/"${i}" ] && rm -f ~/"${i}"
     ln -s $(pwd)/"${i}" ~/"${i}"
