@@ -184,6 +184,9 @@ if [ $(uname -s) == 'Darwin' ]; then
     alias port_uninstall='sudo port uninstall --follow-dependencies'
     alias port_update='sudo port selfupdate && sudo port upgrade outdated || true && sudo port clean --all installed && sudo port -f uninstall inactive'
     alias port_cleanleaves='while sudo port uninstall leaves; do :; done'
+
+    # iterm2
+    alias iterm2_reset='cp ~/.config/iterm2/com.googlecode.iterm2.plist ~/Library/Preferences/com.googlecode.iterm2.plist && plutil -convert xml1 ~/Library/Preferences/com.googlecode.iterm2.plist && pkill iTerm2'
 fi
 
 # misc
