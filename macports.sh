@@ -15,6 +15,7 @@ port -t install \
      stunnel `# tls/ssl tunneling` \
      aspell aspell-dict-en multimarkdown `# emacs/text editing` \
      socat `# networking` \
+     qemu `# colima` \
      `# the_silver_searcher` `# code searching tool` \
      `# xorg-server` `# docker/x11/gui` \
      `# pwsh` `# by emacs lsp-pwsh`

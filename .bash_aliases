@@ -114,12 +114,13 @@ alias ansible-ping="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/doc
 alias ansible-playbook="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -T --rm ansible"
 alias ansible-setup="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run -e ANSIBLE_HOST_KEY_CHECKING=False --entrypoint ansible -T --rm ansible -m setup `# collect host facts`"
 ### aws
-if [ -z "$K8S_PROLOAD_AWSCLI_CONTAINER_ID" ] # bash-completion for awscli
-then
-  complete -C "docker run --rm -e COMP_LINE -e COMP_POINT -v ${HOME}/.aws:/root/.aws:ro --entrypoint /usr/local/bin/aws_completer ops/awscli" aws # start a container everytime (slow)
-else
-  complete -C "docker exec -e COMP_LINE -e COMP_POINT $K8S_PROLOAD_AWSCLI_CONTAINER_ID /usr/local/bin/aws_completer" aws # with proloading container in k8s
-fi
+#if [ -z "$K8S_PROLOAD_AWSCLI_CONTAINER_ID" ] # bash-completion for awscli
+#then
+#  complete -C "docker run --rm -e COMP_LINE -e COMP_POINT -v ${HOME}/.aws:/root/.aws:ro --entrypoint /usr/local/bin/aws_completer ops/awscli" aws # start a container everytime (slow)
+#else
+#  complete -C "docker exec -e COMP_LINE -e COMP_POINT $K8S_PROLOAD_AWSCLI_CONTAINER_ID /usr/local/bin/aws_completer" aws # with proloading container in k8s
+#fi
+complete -C $(which aws_completer) aws
 
 #alias cfn-flip="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run --entrypoint cfn-flip -T --rm aws"
 #alias cfn-lint="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run --entrypoint cfn-lint -T --rm aws"
@@ -149,8 +150,9 @@ __lambda'
 
 #alias aws-vault="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run --entrypoint aws-vault -T --rm aws"
 ### k8s
-alias kubectl="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -T --rm kubectl" # -T is used by autocomplete
-source ~/.kube/kube-autocomplete
+#alias kubectl="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -T --rm kubectl" # -T is used by autocomplete
+#source ~/.kube/kube-autocomplete
+source <(kubectl completion bash)
 alias k=kubectl
 complete -F __start_kubectl k
 alias kubeadm="docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml --env-file $HOME/.config/docker_n_k8s/dockerfiles/.env run -T --rm kubeadm"
@@ -186,7 +188,12 @@ if [ $(uname -s) == 'Darwin' ]; then
     alias port_cleanleaves='while sudo port uninstall leaves; do :; done'
 
     # iterm2
-    alias iterm2_reset='cp ~/.config/iterm2/com.googlecode.iterm2.plist ~/Library/Preferences/com.googlecode.iterm2.plist && plutil -convert xml1 ~/Library/Preferences/com.googlecode.iterm2.plist && pkill iTerm2'
+    alias iterm2_reset='~/Library/Preferences/com.googlecode.iterm2.plist && cp ~/.config/iterm2/com.googlecode.iterm2.plist ~/Library/Preferences/com.googlecode.iterm2.plist && plutil -convert xml1 ~/Library/Preferences/com.googlecode.iterm2.plist && pkill iTerm2'
+
+    # colima
+    alias colima_start='colima start --with-kubernetes'
+    source <(colima completion bash)
+    source <(limactl completion bash)
 fi
 
 # misc
