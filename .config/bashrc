@@ -81,3 +81,8 @@ export PATH="${HOME}/.config/local/bin:$PATH"
 export GOPATH="$(go env GOPATH  2> /dev/null || echo -n)"
 export PATH="${PATH}:${GOPATH}/bin"
 export GO111MODULE=on
+
+# fzf
+export FZF_DEFAULT_OPTS='--height 30% --layout=reverse --border'
+source /opt/local/share/fzf/shell/key-bindings.bash
+source /opt/local/share/fzf/shell/completion.bash

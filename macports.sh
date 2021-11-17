@@ -7,7 +7,7 @@ port -t install \
      bash bash-completion git gsed coreutils \
      openssl curl-ca-bundle \
      `# addtional packages` \
-     tmux `# terminal multiplexer` \
+     tmux fzf `# terminal multiplexer & tools` \
      emacs-app `#text editor` \
      `# mas` `# mac app store cli` \
      p7zip `# archive tool` \
@@ -15,10 +15,7 @@ port -t install \
      stunnel `# tls/ssl tunneling` \
      aspell aspell-dict-en multimarkdown `# emacs/text editing` \
      socat `# networking` \
-     qemu `# colima` \
-     `# the_silver_searcher` `# code searching tool` \
-     `# xorg-server` `# docker/x11/gui` \
-     `# pwsh` `# by emacs lsp-pwsh`
+     qemu `# colima`
 
 # others to install
 ## xcode / iterm2 / docker (& docker-compose (included)) / virtualbox & vagrant & packer / Terminus TTF / pwsh
