@@ -7,7 +7,7 @@ port -t install \
      bash bash-completion git gsed coreutils \
      openssl curl-ca-bundle \
      `# addtional packages` \
-     tmux fzf `# terminal multiplexer & tools` \
+     tmux fzf ripgrep `# terminal multiplexer & tools` \
      emacs-app `#text editor` \
      `# mas` `# mac app store cli` \
      p7zip `# archive tool` \

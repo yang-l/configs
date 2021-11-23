@@ -87,6 +87,9 @@ export PATH="${PATH}:${GOPATH}/bin"
 export GO111MODULE=on
 
 # fzf
-export FZF_DEFAULT_OPTS='--height 30% --layout=reverse --border'
+export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore-vcs --no-messages --smart-case'
+export FZF_DEFAULT_OPTS='--height 30% --layout=reverse --border --info=inline --multi'
+export FZF_CTRL_R_OPTS='--preview "builtin history -r "${HOME}/.bash_history" && builtin fc -l $(expr {1} - $(expr $FZF_PREVIEW_LINES / 2)) $(expr {1} + $(expr $FZF_PREVIEW_LINES / 2))"' # show the history around the matched one in the preview window
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 source /opt/local/share/fzf/shell/key-bindings.bash
 source /opt/local/share/fzf/shell/completion.bash
