@@ -3,3 +3,4 @@ bash-language-server
 dockerfile-language-server-nodejs
 typescript-language-server
 typescript
+vscode-json-languageserver

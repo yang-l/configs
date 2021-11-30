@@ -25,6 +25,8 @@ alias less='less -N'
 alias lsl='ls -lAGh'
 alias k9='kill -9'
 alias nct='nc -v -w 2'
+alias nc-server='__lambda() { while true ; do echo -e "HTTP/1.1 200 OK\n\n $(date)" | nc -l "${1:-80}" ; done ; } ;  __lambda "$@"'
+alias sc-proxy='__lambda() { socat -v -d -d TCP-LISTEN:"${1:-8080}",bind=127.0.0.1,fork TCP:"${2:-localhost}":"${3:-80}" ; } ;  __lambda "$@"'
 alias psg='ps auxwww | grep -i'
 alias rm='rm -i'
 alias myip='dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com | sed -e "s_\\\"\\(.*\\)\\\"_\\1_g" `# DNS based local IP lookup from google`'
@@ -191,7 +193,7 @@ if [ $(uname -s) == 'Darwin' ]; then
     alias iterm2_reset='~/Library/Preferences/com.googlecode.iterm2.plist && cp ~/.config/iterm2/com.googlecode.iterm2.plist ~/Library/Preferences/com.googlecode.iterm2.plist && plutil -convert xml1 ~/Library/Preferences/com.googlecode.iterm2.plist && pkill iTerm2'
 
     # colima
-    alias colima_start='colima start --with-kubernetes'
+    alias colima_start='colima start --with-kubernetes --mount $HOME/devel:w --mount $HOME/personal:w'
     source <(colima completion bash)
     source <(limactl completion bash)
 fi

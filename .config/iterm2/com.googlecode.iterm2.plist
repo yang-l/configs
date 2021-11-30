@@ -655,6 +655,8 @@
 			<false/>
 			<key>Reduce Flicker</key>
 			<true/>
+			<key>Right Option Key Changeable</key>
+			<false/>
 			<key>Right Option Key Sends</key>
 			<integer>0</integer>
 			<key>Rows</key>
