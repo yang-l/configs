@@ -31,10 +31,6 @@ stty -ixon
 # git-completion
 [ -f ~/.git-completion.bash ] && source ~/.git-completion.bash
 
-# ruby
-## rbenv
-if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
-
 # macOS
 if [ $(uname) == 'Darwin' ]; then
     export CLICOLOR=1
@@ -67,24 +63,14 @@ export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
 ## git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
 [ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh
 [ -f ~/.asdf/completions/asdf.bash ] && source ~/.asdf/completions/asdf.bash
-# asdf plugin-add ruby
-# asdf install ruby 2.7.3
-# asdf plugin-add python
-# asdf install python 3.9.5
-# asdf plugin-add nodejs
-# asdf install nodejs 14.17.0
+export DIRENV_LOG_FORMAT=""
+eval "$(asdf exec direnv hook bash)"
 
 # aws-vault
 [ -x ~/.config/local/bin/aws-vault ] && eval "$(~/.config/local/bin/aws-vault --completion-script-bash)"
 
-# local install
+# local installed binary
 export PATH="${HOME}/.config/local/bin:$PATH"
-## aws-vault / cf-vault
-
-# go
-export GOPATH="$(go env GOPATH  2> /dev/null || echo -n)"
-export PATH="${PATH}:${GOPATH}/bin"
-export GO111MODULE=on
 
 # fzf
 export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore-vcs --no-messages --smart-case'

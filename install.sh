@@ -21,14 +21,14 @@ do
 done
 
 # link files
-for i in .asdfrc .bash_aliases .bash_profile .bashrc .default-gems .default-npm-packages .default-python-packages .inputrc .tmux.conf .tool-versions .Xdefaults .xsessionrc .bundle/config .config/bashrc
+for i in .asdfrc .bash_aliases .bash_profile .bashrc .default-gems .default-npm-packages .default-python-packages .envrc .inputrc .tmux.conf .tool-versions .Xdefaults .xsessionrc .bundle/config .config/bashrc
 do
     [ -L ~/"${i}" ] && rm -f ~/"${i}"
     ln -s $(pwd)/"${i}" ~/"${i}"
 done
 
 # link folders
-for i in .aws .awsvault .config/awesome .config/docker_n_k8s .config/iterm2 .config/keychain .config/vagrant
+for i in .aws .awsvault .config/awesome .config/direnv .config/docker_n_k8s .config/iterm2 .config/keychain .config/vagrant
 do
     [ -L ~/"${i}" ] && rm -f ~/"${i}"
     ln -s $(pwd)/"${i}"/ ~/"${i}"
