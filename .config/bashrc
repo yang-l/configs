@@ -17,10 +17,10 @@ export PS1='$(printf "%*s\r%s" \
            )'
 
 # keychain
-KEYCHAIN=~/.config/keychain/keychain
+KEYCHAIN=$(which keychain)
 if [ -f "${KEYCHAIN}" ]
 then
-    eval $("${KEYCHAIN}" -q --eval `find ~/.ssh -type f -name "*.pem"`)
+    eval $("${KEYCHAIN}" -q --eval --agents ssh --inherit any `find ~/.ssh -type f -name "*.pem"`)
     [ -f '~/.keychain/$HOSTNAME-sh' ] && . ~/.keychain/$HOSTNAME-sh
     [ -f '~/.keychain/$HOSTNAME-sh-gpg' ] && . ~/.keychain/$HOSTNAME-sh-gpg
 fi
@@ -34,7 +34,7 @@ stty -ixon
 # macOS
 if [ $(uname) == 'Darwin' ]; then
     export CLICOLOR=1
-    TIMEOUT_CMD="/opt/local/bin/gtimeout 2"
+    TIMEOUT_CMD="$(which gtimeout) 2"
 fi
 
 # emacs terminal emulators inside macOS
@@ -47,17 +47,20 @@ fi
 #export K8S_PROLOAD_K8SCLI_CONTAINER_ID=$($TIMEOUT_CMD docker ps -f status=running -f name=k8s-cli_cli-utils --format "{{.ID}}")
 
 # bash-completion
-if [ -f /opt/local/etc/profile.d/bash_completion.sh ]; then
-    . /opt/local/etc/profile.d/bash_completion.sh
-fi
+if [ -e $HOME/.nix-profile/etc/profile.d/bash_completion.sh ]; then source $HOME/.nix-profile/etc/profile.d/bash_completion.sh; fi
 ## kubectl -> sed 's/"kubectl /"docker exec \$K8S_PROLOAD_K8SCLI_CONTAINER_ID \/kubectl /g' <(kubectl completion bash) > ~/.kube/kube-autocomplete
 ##      or -> kubectl completion bash > ~/.kube/kube-autocomplete
 ##            sed -i'' -e 's/"kubectl /"docker exec \$K8S_PROLOAD_K8SCLI_CONTAINER_ID \/kubectl /g' ~/.kube/kube-autocomplete
 ## kubeadm -> kubeadm completion bash > ~/.config/.k8s/kubeadm-autocomplete
 ## helm -> helm completion bash > ~/.config/.helm/helm-autocomplete
 
-# MacPorts
-export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
+if [ $(uname) == 'Darwin' ]; then
+  # Nix
+  [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ] && source '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+  export NIX_PATH=$HOME/.nix-defexpr/channels${NIX_PATH:+:}$NIX_PATH
+  unset __HM_SESS_VARS_SOURCED
+  [ -e "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ] && source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+fi
 
 # asdf
 ## git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
@@ -75,7 +78,9 @@ export PATH="${HOME}/.config/local/bin:$PATH"
 # fzf
 export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore-vcs --no-messages --smart-case'
 export FZF_DEFAULT_OPTS='--height 30% --layout=reverse --border --info=inline --multi'
-export FZF_CTRL_R_OPTS='--preview "builtin history -r "${HOME}/.bash_history" && builtin fc -l $(expr {1} - $(expr $FZF_PREVIEW_LINES / 2)) $(expr {1} + $(expr $FZF_PREVIEW_LINES / 2))"' # show the history around the matched one in the preview window
+export FZF_CTRL_R_OPTS='--preview "builtin history -r "${HOME}/.bash_history" && builtin fc -l $(expr {1} - $(expr $FZF_PREVIEW_LINES / 2)) $(expr {1} + $(expr $FZF_PREVIEW_LINES / 2)) | bat --style=changes --color=always --theme \"Solarized (dark)\""' # show the history around the matched one in the preview window
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-source /opt/local/share/fzf/shell/key-bindings.bash
-source /opt/local/share/fzf/shell/completion.bash
+if command -v fzf-share >/dev/null; then
+  source "$(fzf-share)/key-bindings.bash"
+  source "$(fzf-share)/completion.bash"
+fi

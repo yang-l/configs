@@ -18,7 +18,9 @@ alias ...='cd ../../../'
 alias ....='cd ../../../../'
 alias .4='cd ../../../../'
 alias .5='cd ../../../../..'
+alias cat='bat --style=plain'
 alias cp='cp -a'
+alias diff='diff --color'
 alias grep='grep -JZs --color=auto'
 alias grepf='grep -Hno'
 alias less='less -N'
@@ -36,9 +38,9 @@ alias shellcheck='__lambda() { docker run -ti --rm -v $(pwd):/mnt koalaman/shell
 
 # emacs
 case "$(uname -s)" in
-    Darwin*)      # alias to macports emacs-app's emacsclient
-                  _BASH_ALIAS_EMACSCLIENT='/Applications/MacPorts/Emacs.app/Contents/MacOS/bin/emacsclient'
-                  _BASH_ALIAS_EMACS='/Applications/MacPorts/Emacs.app/Contents/MacOS/Emacs'
+    Darwin*)      # alias to nix emacsMacport
+                  _BASH_ALIAS_EMACSCLIENT='emacsclient'
+                  _BASH_ALIAS_EMACS="$HOME/.nix-profile/Applications/Emacs.app/Contents/MacOS/Emacs"
                   ;;
     Linux* | *)   _BASH_ALIAS_EMACSCLIENT='/usr/bin/emacsclient' ;;
 esac
@@ -51,6 +53,7 @@ if [ ! -z "${_BASH_ALIAS_EMACS}" ] ; then
    alias et="${_BASH_ALIAS_EMACS} -nw"
    alias ef="${_BASH_ALIAS_EMACS}"
 fi
+alias e=ect
 
 # misc
 alias g='git'
@@ -193,7 +196,7 @@ if [ $(uname -s) == 'Darwin' ]; then
     alias iterm2_reset='~/Library/Preferences/com.googlecode.iterm2.plist && cp ~/.config/iterm2/com.googlecode.iterm2.plist ~/Library/Preferences/com.googlecode.iterm2.plist && plutil -convert xml1 ~/Library/Preferences/com.googlecode.iterm2.plist && pkill iTerm2'
 
     # colima
-    alias colima_start='colima start --with-kubernetes --mount $HOME/devel:w --mount $HOME/personal:w'
+    alias colima_start='colima start --with-kubernetes --mount $HOME/devel:w --mount $HOME/personal:w --mount $HOME/.ejson --mount $HOME/.ssh'
     source <(colima completion bash)
     source <(limactl completion bash)
 fi

@@ -70,11 +70,37 @@
     ui = auto
 
 [core]
-    pager = less -R
+    pager = delta
+    sshCommand = /usr/bin/ssh
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    features = side-by-side line-numbers decorations
+    syntax-theme = Solarized (dark)
+    plus-style = syntax "#003800"
+    minus-style = syntax "#3f0001"
+    navigate = true
+
+[delta "decorations"]
+    commit-decoration-style = bold yellow box ul
+    file-style = bold yellow ul
+    file-decoration-style = none
+    hunk-header-decoration-style = cyan box ul
+
+[delta "line-numbers"]
+    line-numbers-left-style = cyan
+    line-numbers-right-style = cyan
+    line-numbers-minus-style = 124
+    line-numbers-plus-style = 28
 
 [merge]
     conflictstyle = diff3
     renamelimit = 15345
+
+[diff]
+    colorMoved = default
 
 [push]
     default = simple
@@ -85,7 +111,3 @@
 
 [rebase]
     autosquash = true
-
-[pager]
-    diff = diff-highlight | less
-    show = diff-highlight | less

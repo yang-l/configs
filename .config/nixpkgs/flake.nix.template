@@ -1,0 +1,107 @@
+{
+  ## bootstrap
+  #  sh <(curl -L https://nixos.org/nix/install) --darwin-use-unencrypted-nix-store-volume --daemon
+  #
+  #  nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+  #  nix-channel --update
+  #  nix-shell '<home-manager>' -A install
+  # or
+  #  nix-shell '<home-manager>' -A install -I home-manager=https://github.com/nix-community/home-manager/archive/master.tar.gz
+  #
+  #  nix --extra-experimental-features 'nix-command flakes' build '.#homeConfigurations.macbook-pro.activationPackage'
+  #  ./result/activate
+
+  #  sudo sh -c "echo $(which bash) >> /etc/shells"
+  #  chsh -s $(which bash)
+
+  ## update
+  #  nix flake lock --update-input home-manager
+  #  nix flake lock --update-input nixpkgs
+
+  ## on-going
+  #  home-manager build --flake .#macbook-pro
+  # or
+  #  home-manager switch --flake .#macbook-pro
+  #
+  #  ../../nix.sh
+  # or
+  #  ../../nix.sh switch
+
+  description = "A Home Manager flake";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  outputs = {self, ... }@inputs:
+  {
+    homeConfigurations = {
+      macbook-pro = inputs.home-manager.lib.homeManagerConfiguration {
+        system = "x86_64-darwin";
+        homeDirectory = "/Users/yangliu";
+        username = "yangliu";
+
+        # This value determines the Home Manager release that your
+        # configuration is compatible with. This helps avoid breakage
+        # when a new Home Manager release introduces backwards
+        # incompatible changes.
+        #
+        # You can update Home Manager without changing this value. See
+        # the Home Manager release notes for a list of state version
+        # changes in each release.
+        stateVersion = "21.11";
+
+        configuration = { config, lib, pkgs, ... }:
+        {
+          # For Nix flake
+          xdg.configFile."nix/nix.conf".text = ''
+            experimental-features = nix-command flakes
+          '';
+
+          # Let Home Manager install and manage itself.
+          programs.home-manager.enable = true;
+
+          # Allow unfree software
+          nixpkgs.config = { allowUnfree = true; };
+
+          # Packages to install
+          home.packages = with pkgs; [
+            coreutils-prefixed diffutils gnused # replace out-of-date system installed packages
+            cacert curl openssl_3_0 keychain
+            gettext # for 'envsubst'
+            fzf delta # cli toolings
+            (p7zip.override { enableUnfree = true; }) # archive tool
+            socat stunnel # networking & tls/ssl tunneling
+            aspell aspellDicts.en emacsMacport multimarkdown # emacs/text editing
+            qemu # colima
+          ];
+
+          ## base setup
+          home.sessionVariables = {
+            _BASE_CONFIG_FOLDER_PATH = "${__FULL_BASE_FOLDER_PATH}";
+            XDG_CONFIG_HOME = "$HOME/.config";
+          };
+
+          imports = [
+            ./modules/asdf.nix
+            ./modules/aws.nix
+            ./modules/awsvault.nix
+            ./modules/bat.nix
+            ./modules/bash.nix
+            ./modules/cleanup.nix
+            ./modules/git.nix
+            ./modules/iterm2.nix
+            ./modules/local-bin.nix
+            ./modules/misc-dockerfiles.nix
+            ./modules/ripgrep.nix
+            ./modules/ruby.nix
+            ./modules/terminal-truecolor.nix
+            ./modules/tmux.nix
+          ];
+        };
+      };
+    };
+  };
+}
