@@ -26,6 +26,10 @@
   #  ../../nix.sh
   # or
   #  ../../nix.sh switch
+  #
+  #  make
+  # or
+  #  make switch
 
   description = "A Home Manager flake";
 
@@ -71,11 +75,10 @@
             coreutils-prefixed diffutils gnused # replace out-of-date system installed packages
             cacert curl openssl_3_0 keychain
             gettext # for 'envsubst'
-            fzf delta # cli toolings
             (p7zip.override { enableUnfree = true; }) # archive tool
             socat stunnel # networking & tls/ssl tunneling
-            aspell aspellDicts.en emacsMacport multimarkdown # emacs/text editing
-            qemu # colima
+            aspell aspellDicts.en emacs multimarkdown # emacs/text editing
+            qemu dive # colima, docker
           ];
 
           ## base setup

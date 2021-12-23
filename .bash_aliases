@@ -45,9 +45,9 @@ case "$(uname -s)" in
     Linux* | *)   _BASH_ALIAS_EMACSCLIENT='/usr/bin/emacsclient' ;;
 esac
 
-alias ecf="${_BASH_ALIAS_EMACSCLIENT} -c -n -a ''"
-alias ect="${_BASH_ALIAS_EMACSCLIENT} -t -a ''"
-alias eck="${_BASH_ALIAS_EMACSCLIENT} -e '(kill-emacs)'"
+alias ecf="${_BASH_ALIAS_EMACSCLIENT} -q -c -a ''"
+alias ect="${_BASH_ALIAS_EMACSCLIENT} -q -t -a ''"
+alias eck="${_BASH_ALIAS_EMACSCLIENT} -q -e '(kill-emacs)'"
 
 if [ ! -z "${_BASH_ALIAS_EMACS}" ] ; then
    alias et="${_BASH_ALIAS_EMACS} -nw"

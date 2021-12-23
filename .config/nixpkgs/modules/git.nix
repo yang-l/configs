@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     git
+    delta
   ];
 
   home.file.".gitconfig".source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.gitconfig";

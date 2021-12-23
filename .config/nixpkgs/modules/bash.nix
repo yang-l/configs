@@ -4,6 +4,7 @@
   home.packages = with pkgs; [
     bashInteractive
     bash-completion
+    fzf
   ];
 
   home.file = {
