@@ -94,6 +94,7 @@
             ./modules/bat.nix
             ./modules/bash.nix
             ./modules/cleanup.nix
+            ./modules/editorconfig
             ./modules/git.nix
             ./modules/iterm2.nix
             ./modules/local-bin.nix

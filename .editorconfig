@@ -1,0 +1,26 @@
+root = true
+
+[*]
+charset = utf-8
+
+indent_style = space
+indent_size = 2
+
+[{go.mod,go.sum,*.go,.gitmodules}]
+indent_style = tab
+indent_size = 4
+
+[*.html]
+indent_size = 2
+
+[*.{json,json.erb}]
+indent_size = 2
+
+[*.{py,wsgi}]
+indent_size = 4
+
+[*.{ts,tsx}]
+indent_size = 2
+
+[*.sh]
+indent_size = 2
