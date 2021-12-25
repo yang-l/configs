@@ -70,17 +70,6 @@
           # Allow unfree software
           nixpkgs.config = { allowUnfree = true; };
 
-          # Packages to install
-          home.packages = with pkgs; [
-            coreutils-prefixed diffutils gnused # replace out-of-date system installed packages
-            cacert curl openssl_3_0 keychain
-            gettext # for 'envsubst'
-            (p7zip.override { enableUnfree = true; }) # archive tool
-            socat stunnel # networking & tls/ssl tunneling
-            aspell aspellDicts.en emacs multimarkdown # emacs/text editing
-            qemu dive # colima, docker
-          ];
-
           ## base setup
           home.sessionVariables = {
             _BASE_CONFIG_FOLDER_PATH = "${__FULL_BASE_FOLDER_PATH}";
@@ -99,6 +88,7 @@
             ./modules/iterm2.nix
             ./modules/local-bin.nix
             ./modules/misc-dockerfiles.nix
+            ./modules/packages.nix
             ./modules/ripgrep.nix
             ./modules/ruby.nix
             ./modules/terminal-truecolor.nix
