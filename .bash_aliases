@@ -199,6 +199,10 @@ if [ $(uname -s) == 'Darwin' ]; then
     alias colima_start='colima start --with-kubernetes --mount $HOME/devel:w --mount $HOME/personal:w --mount $HOME/.ejson --mount $HOME/.ssh:w'
     source <(colima completion bash)
     source <(limactl completion bash)
+
+    # asdf
+    alias asdf_update='asdf update && asdf plugin-update --all'
+    alias asdf_direnv_gen='__lambda() { echo "use asdf" > "${1:-.}"/.envrc ; } ; __lambda'
 fi
 
 # misc
