@@ -29,7 +29,11 @@ fi
 stty -ixon
 
 # git-completion
-[ -f ~/.git-completion.bash ] && source ~/.git-completion.bash
+if [ -f ~/.git-completion.bash ]
+then
+  source ~/.git-completion.bash
+  __git_complete g __git_main   # git autocompletion for bash alias for git
+fi
 
 # macOS
 if [ $(uname) == 'Darwin' ]; then

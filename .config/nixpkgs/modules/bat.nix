@@ -9,7 +9,7 @@
     enable = true;
     config = {
       color = "always";
-      pager = "less -EFRSX";
+      pager = "less -FRSX";
       theme = "Solarized (dark)";
     };
   };
