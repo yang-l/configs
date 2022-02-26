@@ -93,6 +93,7 @@
             ./modules/ruby.nix
             ./modules/terminal-truecolor.nix
             ./modules/tmux.nix
+            ./modules/zsh.nix
           ];
         };
       };
