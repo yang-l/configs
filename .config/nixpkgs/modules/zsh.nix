@@ -3,7 +3,6 @@
 {
   home.packages = with pkgs; [
     zsh
-    # terminus-nerdfont
   ];
 
   programs.zsh = {
@@ -244,54 +243,5 @@
         fi
       } &!
     '';
-  };
-
-  programs.starship = {
-    enable = false;
-    enableZshIntegration = true;
-
-    settings = {
-      add_newline = false;
-      right_format = "$time";
-
-      character = {
-        format = "$symbol ";
-        success_symbol = "[\\$](bold green)";
-        error_symbol = "[\\$](bold red)";
-      };
-
-      cmd_duration = {
-        min_time = 100;
-        show_milliseconds = true;
-        format = " [\\[$duration\\]]($style)";
-        style = "yellow";
-      };
-
-      directory = {
-        truncation_symbol = "…/";
-      };
-
-      git_status = {
-        ahead = "⇡$count";
-        diverged = "⤮⇡$ahead_count⇣$behind_count";
-        behind = "⇣$count";
-
-        # local
-        conflicted = "[✘$count](red)";
-        deleted = "[$count](red)";
-        modified = "[✚$count](red)";
-        renamed = "[$count](yellow)";
-        staged = "[ﱣ$count](green)";
-        stashed = "[⚑$count](blue)";
-        untracked = "…$count";
-        up_to_date = "✔(bold green)";
-      };
-
-      time = {
-        disabled = false;
-        time_format	= "%F %T %Z";
-        format = "[$time]($style)";
-      };
-    };
   };
 }
