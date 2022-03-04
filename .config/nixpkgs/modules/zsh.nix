@@ -16,6 +16,7 @@
       ignorePatterns = [
         "*--help" "*-h"
         "exit" "clear" "top" "stty*"
+        "sh" "bash" "zsh"
         "ls*( )?(-l?(a?(h)))"
         "g?(it)*( )?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*( )?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(sh?(ow))?(*()HEAD*)|?(fixup)|?(squash)|?(pull)|?(push)|?(ri*( )HEAD*)|?(a*( )*)|?(reflog)|?(m))*( )"
         "docker*( )?(?(ps -a)|?(images)|?(info)|?(rmi*)|?(rm*))"
@@ -92,14 +93,46 @@
     ];
 
     shellAliases = {
+      # asdf
+      asdf_direnv_gen = ''__lambda() { echo "use asdf" > "''${1:-.}"/.envrc ; } ; __lambda'';
+      asdf_update = ''asdf update && asdf plugin-update --all'';
+      # core
+      cp = "cp -a";
+      diff = "diff --color";
+      grep = "grep -JZs --color=auto";
+      grepf = "grep -Hno";
+      less = "less -N";
+      rm = "rm -i";
+      # app
+      cat = "bat --style=plain";
+      catn = "cat -n";
       g = "git";
       git = "noglob git";
+      k = "kubectl";
+      tf = "terraform";
+      # dev
+      shellcheck = ''__lambda() { docker run -ti --rm -v $(pwd):/mnt koalaman/shellcheck "$@" ; } ; __lambda "$@"'';
+      # cert/key
+      ssh_getpubkey = ''__lambda() { ssh-keygen -y -f $1 ; } ; __lambda'';
+      # net
+      myip = ''dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com | sed -e "s_\\\"\\(.*\\)\\\"_\\1_g" `# DNS based local IP lookup from google`'';
+      nct = "nc -v -w 2";
+      nc-server = ''__lambda() { while true ; do echo -e "HTTP/1.1 200 OK\n\n $(date)" | nc -l "''${1:-80}" ; done ; } ;  __lambda "$@"'';
+      rsync = "time rsync -zhcPS";
+      sc-proxy = ''__lambda() { socat -v -d -d TCP-LISTEN:"''${1:-8080}",bind=127.0.0.1,fork TCP:"''${2:-localhost}":"''${3:-80}" ; } ;  __lambda "$@"'';
+      scp = "time scp -Cpr -o Compression=yes -o CompressionLevel=9";
+      ssh-bg = "ssh -fNC2T";
     };
 
     initExtraFirst = ''
       setopt extended_glob
       path=("''${HOME}/.config/local/bin" $path)
+      setopt interactivecomments # bash-style comments
     '';
+
+    localVariables = {
+      PURE_CMD_MAX_EXEC_TIME=3;
+    };
 
     initExtraBeforeCompInit = ''
       fpath=(~/.config/zsh/completion $fpath) # for autocompletion
@@ -123,6 +156,16 @@
       fi
     '';
 
+    completionInit = ''
+      # https://gist.github.com/ctechols/ca1035271ad134841284#gistcomment-2308206
+      autoload -Uz compinit
+      if [[ -n ''${ZDOTDIR:-~/.config/zsh}/.zcompdump(#qN.mh+24) ]]; then
+        compinit
+      else
+        compinit -C
+      fi
+    '';
+
     initExtra = ''
       #####
       ## PROMPT
@@ -136,6 +179,9 @@
       function set_rprompt() {
         local _aws_vault_prompt='''
         local _aws_vault_prompt_size=0
+
+        local _cf_vault_prompt='''
+        local _cf_vault_prompt_size=0
 
         local _zero='%([BSUbfksu]|([FK]|){*})' # https://stackoverflow.com/a/10564427
         local _prompt_size=$(( ''${#''${(S%%)PROMPT//$~_zero/}} - 4 )) # offset by 4 (?) spaces in the second line
@@ -152,25 +198,32 @@
           [[ $_expiration_delta_s -gt 0 ]] && _expiration_detal_text="$(gdate -d @"''${_expiration_delta_s}" +"%-Mm%-Ss")"
 
           local _aws_vault_text="aws-vault|''${AWS_VAULT} "
-          _aws_vault_prompt_size="$(( ''${#_aws_vault_text} + ''${#_expiration_detal_text} + 3 ))"
+          _aws_vault_prompt_size="$(( ''${#_aws_vault_text} + ''${#_expiration_detal_text} + 3 ))" # 3 is for '[] '
           _aws_vault_prompt="%B''${_aws_vault_text}%b[%{%F{yellow}%}''${_expiration_detal_text}%{%f%}] "
         fi
 
+        # cf-vault
+        if [ -n "''${CLOUDFLARE_VAULT_SESSION:-}" ] ; then
+           local _cf_vault_text="cf-vault|''${CLOUDFLARE_VAULT_SESSION} "
+           _cf_vault_prompt_size="$(( ''${#_cf_vault_text} + 2 ))" # 2 is for '┊ '
+           _cf_vault_prompt="┊ %B''${_cf_vault_text}%b"
+        fi
+
         # final calculation
-        local _final_leftover_spaces=$(( $_available_prompt_width - $_aws_vault_prompt_size - _timestamp_width ))
-        local _final_spaces_padding="$([[ $_final_leftover_spaces -gt 0 ]] && printf '%*s' $_final_leftover_spaces || echo ''')"
-        local _final_prompt="''${_aws_vault_prompt}"
+        local _home_directory_offset=0
+        [[ $PWD == $HOME ]] && _home_directory_offset=1 # for some unknown reason, this value is needed
+        local _final_leftover_spaces=$(( _available_prompt_width - _aws_vault_prompt_size - _cf_vault_prompt_size - _timestamp_width - _home_directory_offset ))
+        local _final_spaces_padding="$([[ $_final_leftover_spaces -gt 0 ]] && printf '%*s' $_final_leftover_spaces)"
+        local _final_prompt="''${_aws_vault_prompt}''${_cf_vault_prompt}"
 
         if [[ $_available_prompt_width -gt 0 ]]
         then
-          echo -n "%''${_available_prompt_width}<...<''${_final_prompt}''${_final_spaces_padding}[%{%F{yellow}%}$(date '+%y-%m-%d %H:%M:%S')%{%f%}]"
-          #                                         | <--- prompt ---> | <--- space padding --->| <------------      Timestamp       ------------> |
+          echo -n "%$(( _available_prompt_width - 2 ))<...<''${_final_prompt}''${_final_spaces_padding}[%{%F{yellow}%}$(date '+%y-%m-%d %H:%M:%S')%{%f%}]"
+          #                                               | <--- prompt ---> | <--- space padding --->| <------------      Timestamp       ------------> |
         fi
       }
 
-      autoload -U colors
-      colors
-      setopt PROMPT_SUBST
+      setopt promptsubst
       _lineup=$'\e[1A' # https://superuser.com/a/737454
       _linedown=$'\e[1B'
       RPROMPT='%{''${_lineup}%}$(set_rprompt)%{''${_linedown}%}'
@@ -210,8 +263,17 @@
       # autocompletion
       setopt noautomenu # don't autocomplete prompt
       setopt nomenucomplete
+
       _comp_options+=(globdots) # show hidden files and directories
+
       zstyle ':completion:*' insert-tab false # no tab when no char to the left of the cursor
+
+      zstyle ':completion:*' use-cache on # use cache
+      zstyle ':completion:*' cache-path ~/.config/zsh/cache
+
+      # keybinding
+      bindkey "^[[1;3C" forward-word
+      bindkey "^[[1;3D" backward-word
 
       # evalcache
       ZSH_EVALCACHE_DIR="''${ZDOTDIR:-~/.config/zsh}/.zsh-evalcache"
@@ -224,12 +286,29 @@
         _evalcache asdf exec direnv hook zsh
       fi
 
+      # aws-cli
+      if [ "$(command -v aws_completer)" ] ; then
+        autoload bashcompinit && bashcompinit
+        complete -C $(which aws_completer) aws
+      fi
+
       # aws-vault
       [ "$(command -v aws-vault)" ] && _evalcache aws-vault --completion-script-zsh
+
+      # colima/lima
+      if [[ $(uname) == 'Darwin' ]] && [ "$(command -v colima)" ]; then
+         alias colima_start='colima start --with-kubernetes'
+         _evalcache colima completion zsh
+         _evalcache limactl completion zsh
+      fi
 
       # emacs
       ## lsp / https://emacs-lsp.github.io/lsp-mode/page/performance/#use-plists-for-deserialization
       export LSP_USE_PLISTS=true
+
+      # kubectl
+      _evalcache kubectl completion zsh
+      compdef __start_kubectl k
     '';
 
     loginExtra = ''

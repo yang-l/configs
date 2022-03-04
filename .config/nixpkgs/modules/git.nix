@@ -17,8 +17,4 @@
   home.activation.bash-git-completion = lib.hm.dag.entryAfter ["writeBoundary"] ''
     $DRY_RUN_CMD bash -c 'set -x ; curl -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/.git-completion.bash'
   '';
-  home.activation.zsh-git-completions = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD bash -c 'set -x ; curl -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh -o ~/.config/zsh/completion/_git --create-dirs'
-    $DRY_RUN_CMD bash -c 'set -x ; curl -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/.config/zsh/completion/git-completion.bash'
-  '';
 }
