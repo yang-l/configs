@@ -297,7 +297,7 @@
 
       # colima/lima
       if [[ $(uname) == 'Darwin' ]] && [ "$(command -v colima)" ]; then
-         alias colima_start='colima start --with-kubernetes'
+         alias colima_start='colima start --dns 1.1.1.1 --dns 8.8.8.8 --with-kubernetes'
          _evalcache colima completion zsh
          _evalcache limactl completion zsh
       fi

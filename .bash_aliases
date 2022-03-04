@@ -196,7 +196,7 @@ if [ $(uname -s) == 'Darwin' ]; then
     alias iterm2_reset='~/Library/Preferences/com.googlecode.iterm2.plist && cp ~/.config/iterm2/com.googlecode.iterm2.plist ~/Library/Preferences/com.googlecode.iterm2.plist && plutil -convert xml1 ~/Library/Preferences/com.googlecode.iterm2.plist && pkill iTerm2'
 
     # colima
-    alias colima_start='colima start --with-kubernetes'
+    alias colima_start='colima start --dns 1.1.1.1 --dns 8.8.8.8 --with-kubernetes'
     source <(colima completion bash)
     source <(limactl completion bash)
 
