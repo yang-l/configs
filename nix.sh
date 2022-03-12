@@ -2,6 +2,8 @@
 
 set -ex
 
+cp ~/.config/iterm2/com.googlecode.iterm2.plist ~/personal/configs/.config/iterm2/com.googlecode.iterm2.plist
+
 export __FULL_BASE_FOLDER_PATH=$( cd "$( dirname "$0" )" && pwd )
 
 cd $__FULL_BASE_FOLDER_PATH

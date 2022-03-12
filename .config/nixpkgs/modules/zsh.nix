@@ -61,6 +61,7 @@
         };
       }
       {
+        # loading before autosuggestion & syntax-highlighting
         name = "fzf-tab";
         file = "fzf-tab.plugin.zsh";
         src = pkgs.fetchFromGitHub {
@@ -99,7 +100,7 @@
       # core
       cp = "cp -a";
       diff = "diff --color";
-      grep = "grep -JZs --color=auto";
+      grep = "grep -s --color=auto";
       grepf = "grep -Hno";
       less = "less -N";
       rm = "rm -i";
@@ -112,6 +113,20 @@
       tf = "terraform";
       # dev
       shellcheck = ''__lambda() { docker run -ti --rm -v $(pwd):/mnt koalaman/shellcheck "$@" ; } ; __lambda "$@"'';
+      ## nix
+      nix-shell = ''__lambda() {
+        local -a ARGS; ARGS=("$@")
+        local NIX_SHELL_PACKAGES="''${NIX_SHELL_PACKAGES}"
+        while [[ ''${#ARGS[@]} -gt 0 ]] ; do
+          key=''${ARGS[1]}
+          if [[ $key = "-p" || $key = "--packages" ]] ; then
+            NIX_SHELL_PACKAGES+=''${NIX_SHELL_PACKAGES:+ }''${ARGS[2]}
+            ARGS=("''${ARGS[@]:1}")
+          fi
+          ARGS=("''${ARGS[@]:1}")
+        done
+        NIX_SHELL_PACKAGES="$NIX_SHELL_PACKAGES" command nix-shell "$@" --run zsh ;
+      } ; __lambda'';
       # cert/key
       ssh_getpubkey = ''__lambda() { ssh-keygen -y -f $1 ; } ; __lambda'';
       # net
@@ -128,6 +143,17 @@
       setopt extended_glob
       path=("''${HOME}/.config/local/bin" $path)
       setopt interactivecomments # bash-style comments
+
+      # Nix
+      [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ] && source '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+      export NIX_PATH=$HOME/.nix-defexpr/channels''${NIX_PATH:+:}$NIX_PATH
+
+      # keybindings
+      bindkey "^[[1;3C" forward-word
+      bindkey "^[[1;3D" backward-word
+
+      autoload -U select-word-style # bash like moving and editing words
+      select-word-style bash
     '';
 
     localVariables = {
@@ -148,7 +174,7 @@
       # fzf
       export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore-vcs --no-messages --smart-case'
       export FZF_DEFAULT_OPTS='--height 30% --layout=reverse --border --info=inline --multi'
-      export FZF_CTRL_R_OPTS='--preview "builtin history -r "''${HOME}/.zsh_history" && builtin fc -l $(expr {1} - $(expr $FZF_PREVIEW_LINES / 2)) $(expr {1} + $(expr $FZF_PREVIEW_LINES / 2)) | bat --style=changes --color=always --theme \"Solarized (dark)\""' # show the history around the matched one in the preview window
+      export FZF_CTRL_R_OPTS='--preview "builtin fc -R "''${HOME}/.zsh_history" && builtin fc -l $(expr {1} - $(expr $FZF_PREVIEW_LINES / 2)) $(expr {1} + $(expr $FZF_PREVIEW_LINES / 2)) | bat --style=changes --color=always --theme \"Solarized (dark)\""' # show the history around the matched one in the preview window
       export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
       if [ " $(command -v fzf-share)" ]; then
         source "$(fzf-share)/key-bindings.zsh"
@@ -174,6 +200,7 @@
       # pure-prompt
       PURE_PROMPT_SYMBOL='$'
       zstyle :prompt:pure:git:stash show yes
+      zstyle :prompt:pure:environment:nix-shell show no
 
       # RPROMPT setup
       function set_rprompt() {
@@ -182,6 +209,12 @@
 
         local _cf_vault_prompt='''
         local _cf_vault_prompt_size=0
+
+        local _nix_shell_prompt='''
+        local _nix_shell_prompt_size=0
+
+        local _direnv_prompt='''
+        local _direnv_prompt_size=0
 
         local _zero='%([BSUbfksu]|([FK]|){*})' # https://stackoverflow.com/a/10564427
         local _prompt_size=$(( ''${#''${(S%%)PROMPT//$~_zero/}} - 4 )) # offset by 4 (?) spaces in the second line
@@ -198,23 +231,38 @@
           [[ $_expiration_delta_s -gt 0 ]] && _expiration_detal_text="$(gdate -d @"''${_expiration_delta_s}" +"%-Mm%-Ss")"
 
           local _aws_vault_text="aws-vault|''${AWS_VAULT} "
-          _aws_vault_prompt_size="$(( ''${#_aws_vault_text} + ''${#_expiration_detal_text} + 3 ))" # 3 is for '[] '
-          _aws_vault_prompt="%B''${_aws_vault_text}%b[%{%F{yellow}%}''${_expiration_detal_text}%{%f%}] "
+          _aws_vault_prompt_size="$(( ''${#_aws_vault_text} + ''${#_expiration_detal_text} + 3 + 2 ))" # 3 is for '[] ' 2 is for '┊ '
+          _aws_vault_prompt="┊ %B%F{066}''${_aws_vault_text}%f%b[%{%F{yellow}%}''${_expiration_detal_text}%{%f%}] "
         fi
 
         # cf-vault
         if [ -n "''${CLOUDFLARE_VAULT_SESSION:-}" ] ; then
            local _cf_vault_text="cf-vault|''${CLOUDFLARE_VAULT_SESSION} "
            _cf_vault_prompt_size="$(( ''${#_cf_vault_text} + 2 ))" # 2 is for '┊ '
-           _cf_vault_prompt="┊ %B''${_cf_vault_text}%b"
+           _cf_vault_prompt="┊ %B%F{115}''${_cf_vault_text}%b"
+        fi
+
+        # nix-shell
+        if [ -n "''${IN_NIX_SHELL:-}" ] ; then
+          local _nix_shell_text='nix-shell '
+          [ -n "''${NIX_SHELL_PACKAGES:-}" ] && _nix_shell_text="nix-shell(''${NIX_SHELL_PACKAGES}) "
+          _nix_shell_prompt_size="$(( ''${#_nix_shell_text} + 2 + _nix_shell_offset ))" # 2 is for '┊ '
+          _nix_shell_prompt="┊ %B%F{107}''${_nix_shell_text}%f%b"
+        fi
+
+        # direnv
+        if [[ "''${DIRENV_DIR:-}" != "-''${HOME}" ]] ; then
+          local _direnv_text="direnv|''${DIRENV_DIR##*/} "
+          _direnv_prompt_size="$(( ''${#_direnv_text} + 2 ))" # 2 is for '┊ '
+          _direnv_prompt="┊ %B%F{130}''${_direnv_text}%f%b"
         fi
 
         # final calculation
         local _home_directory_offset=0
-        [[ $PWD == $HOME ]] && _home_directory_offset=1 # for some unknown reason, this value is needed
-        local _final_leftover_spaces=$(( _available_prompt_width - _aws_vault_prompt_size - _cf_vault_prompt_size - _timestamp_width - _home_directory_offset ))
+        [[ "$PWD" == "$HOME" ]] && _home_directory_offset=1 # for some unknown reason at the $HOME directory only
+        local _final_leftover_spaces=$(( _available_prompt_width - _direnv_prompt_size - _nix_shell_prompt_size - _aws_vault_prompt_size - _cf_vault_prompt_size - _timestamp_width - _home_directory_offset ))
         local _final_spaces_padding="$([[ $_final_leftover_spaces -gt 0 ]] && printf '%*s' $_final_leftover_spaces)"
-        local _final_prompt="''${_aws_vault_prompt}''${_cf_vault_prompt}"
+        local _final_prompt="''${_direnv_prompt}''${_nix_shell_prompt}''${_aws_vault_prompt}''${_cf_vault_prompt}"
 
         if [[ $_available_prompt_width -gt 0 ]]
         then
@@ -271,10 +319,6 @@
       zstyle ':completion:*' use-cache on # use cache
       zstyle ':completion:*' cache-path ~/.config/zsh/cache
 
-      # keybinding
-      bindkey "^[[1;3C" forward-word
-      bindkey "^[[1;3D" backward-word
-
       # evalcache
       ZSH_EVALCACHE_DIR="''${ZDOTDIR:-~/.config/zsh}/.zsh-evalcache"
 
@@ -293,7 +337,7 @@
       fi
 
       # aws-vault
-      [ "$(command -v aws-vault)" ] && _evalcache aws-vault --completion-script-zsh
+      [ "$(command -v aws-vault)" ] && _evalcache aws-vault --completion-script-bash
 
       # colima/lima
       if [[ $(uname) == 'Darwin' ]] && [ "$(command -v colima)" ]; then
@@ -305,6 +349,25 @@
       # emacs
       ## lsp / https://emacs-lsp.github.io/lsp-mode/page/performance/#use-plists-for-deserialization
       export LSP_USE_PLISTS=true
+
+      ## alias
+      case "$(uname -s)" in
+          Darwin*)      # alias to nix emacsMacport
+                        _BASH_ALIAS_EMACSCLIENT='emacsclient'
+                        _BASH_ALIAS_EMACS="$HOME/.nix-profile/Applications/Emacs.app/Contents/MacOS/Emacs"
+                        ;;
+          Linux* | *)   _BASH_ALIAS_EMACSCLIENT='/usr/bin/emacsclient' ;;
+      esac
+
+      alias ecf="''${_BASH_ALIAS_EMACSCLIENT} -q -c -a '''"
+      alias ect="''${_BASH_ALIAS_EMACSCLIENT} -q -t -a '''"
+      alias eck="''${_BASH_ALIAS_EMACSCLIENT} -q -e '(kill-emacs)'"
+
+      if [ ! -z "''${_BASH_ALIAS_EMACS}" ] ; then
+         alias et="''${_BASH_ALIAS_EMACS} -nw"
+         alias ef="''${_BASH_ALIAS_EMACS}"
+      fi
+      alias e=ect
 
       # kubectl
       _evalcache kubectl completion zsh

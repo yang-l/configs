@@ -13,6 +13,9 @@
 
   #  sudo sh -c "echo $(which bash) >> /etc/shells"
   #  chsh -s $(which bash)
+  # or
+  #  sudo sh -c "echo $(which zsh) >> /etc/shells"
+  #  chsh -s $(which zsh)
 
   ## update
   #  nix flake lock --update-input home-manager
@@ -91,6 +94,7 @@
             ./modules/packages.nix
             ./modules/ripgrep.nix
             ./modules/ruby.nix
+            ./modules/shell.nix
             ./modules/terminal-truecolor.nix
             ./modules/tmux.nix
             ./modules/zsh.nix
