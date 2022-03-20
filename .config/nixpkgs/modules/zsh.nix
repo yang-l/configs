@@ -31,16 +31,6 @@
 
     plugins = [
       {
-        name = "zsh-async";
-        file = "async.plugin.zsh";
-        src = pkgs.fetchFromGitHub {
-          owner = "mafredri";
-          repo = "zsh-async";
-          rev = "v1.8.5";
-          sha256 = "mpXT3Hoz0ptVOgFMBCuJa0EPkqP4wZLvr81+1uHDlCc=";
-        };
-      }
-      {
         name = "pure-prompt";
         file = "prompt_pure_setup";
         src = pkgs.fetchFromGitHub {
@@ -95,7 +85,7 @@
 
     shellAliases = {
       # asdf
-      asdf_direnv_gen = ''__lambda() { echo "use asdf" > "''${1:-.}"/.envrc ; } ; __lambda'';
+      asdf_direnv_gen = ''__lambda() { echo "use asdf" >> "''${1:-.}"/.envrc ; direnv allow ; } ; __lambda'';
       asdf_update = ''asdf update && asdf plugin-update --all'';
       # core
       cp = "cp -a";
@@ -201,6 +191,15 @@
       PURE_PROMPT_SYMBOL='$'
       zstyle :prompt:pure:git:stash show yes
       zstyle :prompt:pure:environment:nix-shell show no
+      prompt_pure_set_title() {} # https://github.com/sindresorhus/pure/wiki/Customizations,-hacks-and-tweaks#disable-pure-terminal-title-updates
+
+      # https://github.com/sindresorhus/pure/wiki/Customizations,-hacks-and-tweaks#include-initial-newline-when-clearing-screen-ctrll
+      custom_prompt_pure_clear_screen() {
+        zle -I                   # Enable output to terminal.
+        print -n '\e[2J\e[4;0H'  # Clear screen and move cursor to (4, 0).
+        zle .redisplay           # Redraw prompt.
+      }
+      zle -N clear-screen custom_prompt_pure_clear_screen
 
       # RPROMPT setup
       function set_rprompt() {
@@ -215,6 +214,9 @@
 
         local _direnv_prompt='''
         local _direnv_prompt_size=0
+
+        local _pipestatus_prompt='''
+        local _pipestatus_prompt_size=0
 
         local _zero='%([BSUbfksu]|([FK]|){*})' # https://stackoverflow.com/a/10564427
         local _prompt_size=$(( ''${#''${(S%%)PROMPT//$~_zero/}} - 4 )) # offset by 4 (?) spaces in the second line
@@ -257,12 +259,18 @@
           _direnv_prompt="┊ %B%F{130}''${_direnv_text}%f%b"
         fi
 
+        # pipestatus
+        if [[ "$_PIPESTATUS" != "0" ]]; then
+          _pipestatus_prompt_size="$(( ''${#_PIPESTATUS} + 3 ))" # 3 is for '[] '
+          _pipestatus_prompt="%F{$prompt_pure_colors[prompt:error]}[$_PIPESTATUS]%f "
+        fi
+
         # final calculation
         local _home_directory_offset=0
         [[ "$PWD" == "$HOME" ]] && _home_directory_offset=1 # for some unknown reason at the $HOME directory only
-        local _final_leftover_spaces=$(( _available_prompt_width - _direnv_prompt_size - _nix_shell_prompt_size - _aws_vault_prompt_size - _cf_vault_prompt_size - _timestamp_width - _home_directory_offset ))
+        local _final_leftover_spaces=$(( _available_prompt_width - _pipestatus_prompt_size - _direnv_prompt_size - _nix_shell_prompt_size - _aws_vault_prompt_size - _cf_vault_prompt_size - _timestamp_width - _home_directory_offset ))
         local _final_spaces_padding="$([[ $_final_leftover_spaces -gt 0 ]] && printf '%*s' $_final_leftover_spaces)"
-        local _final_prompt="''${_direnv_prompt}''${_nix_shell_prompt}''${_aws_vault_prompt}''${_cf_vault_prompt}"
+        local _final_prompt="''${_pipestatus_prompt}''${_direnv_prompt}''${_nix_shell_prompt}''${_aws_vault_prompt}''${_cf_vault_prompt}"
 
         if [[ $_available_prompt_width -gt 0 ]]
         then
@@ -270,6 +278,11 @@
           #                                               | <--- prompt ---> | <--- space padding --->| <------------      Timestamp       ------------> |
         fi
       }
+
+      precmd_pipestatus() {
+        _PIPESTATUS="''${(j.|.)pipestatus}"
+      }
+      add-zsh-hook precmd precmd_pipestatus
 
       setopt promptsubst
       _lineup=$'\e[1A' # https://superuser.com/a/737454
