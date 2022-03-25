@@ -1,6 +1,6 @@
-golang 1.17.2
-nodejs 16.13.2
-python 3.10.0
+golang 1.18
+nodejs 16.14.2
+python 3.10.4
 ruby 2.7.4
 awscli 2.3.2
 kubectl 1.22.3

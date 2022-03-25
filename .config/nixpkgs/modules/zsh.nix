@@ -88,11 +88,13 @@
       asdf_direnv_gen = ''__lambda() { echo "use asdf" >> "''${1:-.}"/.envrc ; direnv allow ; } ; __lambda'';
       asdf_update = ''asdf update && asdf plugin-update --all'';
       # core
+      clear_history=''echo "" > ~/.zsh_history & exec $SHELL -l'';
       cp = "cp -a";
       diff = "diff --color";
       grep = "grep -s --color=auto";
       grepf = "grep -Hno";
       less = "less -N";
+      ls = "ls --color=auto";
       rm = "rm -i";
       # app
       cat = "bat --style=plain";
@@ -151,20 +153,20 @@
     };
 
     initExtraBeforeCompInit = ''
-      fpath=(~/.config/zsh/completion $fpath) # for autocompletion
+      fpath=("''${HOME}/.config/zsh/completion" $fpath) # for autocompletion
 
       # asdf-vm
       ## git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
       if [ -f ~/.asdf/asdf.sh ]
       then
         source ~/.asdf/asdf.sh
-        fpath=(~/.asdf/completions $fpath)
+        fpath=(''${ASDF_DIR}/completions $fpath)
       fi
 
       # fzf
       export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore-vcs --no-messages --smart-case'
       export FZF_DEFAULT_OPTS='--height 30% --layout=reverse --border --info=inline --multi'
-      export FZF_CTRL_R_OPTS='--preview "builtin fc -R "''${HOME}/.zsh_history" && builtin fc -l $(expr {1} - $(expr $FZF_PREVIEW_LINES / 2)) $(expr {1} + $(expr $FZF_PREVIEW_LINES / 2)) | bat --style=changes --color=always --theme \"Solarized (dark)\""' # show the history around the matched one in the preview window
+      export FZF_CTRL_R_OPTS='--preview "export HISTSIZE=500000 && builtin fc -R "''${HOME}/.zsh_history" && builtin fc -l $(expr {1} - $(expr $FZF_PREVIEW_LINES / 2)) $(expr {1} + $(expr $FZF_PREVIEW_LINES / 2)) | bat --style=changes --color=always --theme \"Solarized (dark)\""' # show the history around the matched one in the preview window
       export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
       if [ " $(command -v fzf-share)" ]; then
         source "$(fzf-share)/key-bindings.zsh"
@@ -253,7 +255,7 @@
         fi
 
         # direnv
-        if [[ "''${DIRENV_DIR:-}" != "-''${HOME}" ]] ; then
+        if [[ -v DIRENV_DIR ]] ; then
           local _direnv_text="direnv|''${DIRENV_DIR##*/} "
           _direnv_prompt_size="$(( ''${#_direnv_text} + 2 ))" # 2 is for '┊ '
           _direnv_prompt="┊ %B%F{130}''${_direnv_text}%f%b"

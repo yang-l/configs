@@ -21,6 +21,19 @@
     aspellDicts.en
     emacs # editor
     multimarkdown # markdown
+    ### LSP
+    gopls
+    nodePackages.bash-language-server
+    nodePackages.dockerfile-language-server-nodejs
+    nodePackages.typescript-language-server
+    nodePackages.typescript
+    nodePackages.vscode-json-languageserver
+    nodePackages.yaml-language-server
+    solargraph
+    # python
+    autoflake
+    python310Packages.python-lsp-server
+    python310Packages.debugpy
 
     ## Misc
     gettext # for 'envsubst'
