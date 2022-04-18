@@ -19,7 +19,8 @@
     ## Emacs
     aspell # spelling check
     aspellDicts.en
-    emacs # editor
+    # editor
+    ((emacsGcc.override { withGTK3 = false; }).pkgs.withPackages (epkgs: with epkgs; [ vterm ]))
     multimarkdown # markdown
     ### LSP
     gopls

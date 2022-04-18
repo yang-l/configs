@@ -37,9 +37,14 @@
   description = "A Home Manager flake";
 
   inputs = {
+    # main sets
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    # overlays
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
+    declarative-cachix.url = "github:jonascarpay/declarative-cachix";
   };
 
   outputs = {self, ... }@inputs:
@@ -63,7 +68,7 @@
         configuration = { config, lib, pkgs, ... }:
         {
           # For Nix flake
-          xdg.configFile."nix/nix.conf".text = ''
+          home.file.nixConf.text = ''
             experimental-features = nix-command flakes
           '';
 
@@ -80,6 +85,14 @@
           };
 
           imports = [
+            self.inputs.declarative-cachix.homeManagerModules.declarative-cachix-experimental
+            {
+              # overlays
+              nixpkgs.overlays = [ (import self.inputs.emacs-overlay) ];
+            }
+            # note - need to run the command below
+            # echo "trusted-users = root yangliu" | sudo tee -a /etc/nix/nix.conf && sudo pkill nix-daemon
+
             ./modules/asdf.nix
             ./modules/aws.nix
             ./modules/awsvault.nix
@@ -99,6 +112,11 @@
             ./modules/tmux.nix
             ./modules/zsh.nix
           ];
+
+          caches.cachix = [{
+            name = "nix-community";
+            sha256 = "00lpx4znr4dd0cc4w4q8fl97bdp7q19z1d3p50hcfxy26jz5g21g";
+          }];
         };
       };
     };

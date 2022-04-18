@@ -365,6 +365,13 @@
       ## lsp / https://emacs-lsp.github.io/lsp-mode/page/performance/#use-plists-for-deserialization
       export LSP_USE_PLISTS=true
 
+      ## vterm
+      if [[ "$INSIDE_EMACS" = 'vterm' ]] \
+        && [[ -n "''${EMACS_VTERM_PATH}" ]] \
+        && [[ -f "''${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh" ]]; then
+        source "''${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh"
+      fi
+
       ## alias
       case "$(uname -s)" in
           Darwin*)      # alias to nix emacsMacport
