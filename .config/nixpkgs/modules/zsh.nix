@@ -85,7 +85,7 @@
 
     shellAliases = {
       # asdf
-      asdf_direnv_gen = ''__lambda() { echo "use asdf" >> "''${1:-.}"/.envrc ; direnv allow ; } ; __lambda'';
+      asdf_direnv_gen = ''__lambda() { asdf direnv local "$@" ; } ; __lambda'';
       asdf_update = ''asdf update && asdf plugin-update --all'';
       # core
       clear_history=''echo "" > ~/.zsh_history & exec $SHELL -l'';
@@ -342,7 +342,7 @@
       then
         # asdf-direnv
         export DIRENV_LOG_FORMAT=""
-        _evalcache asdf exec direnv hook zsh
+        _evalcache direnv hook zsh
       fi
 
       # aws-cli

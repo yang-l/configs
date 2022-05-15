@@ -13,5 +13,4 @@
     ".default-python-packages".source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.default-python-packages";
     ".tool-versions".source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.tool-versions";
   };
-  xdg.configFile."direnv/direnvrc".source = ../../../.config/direnv/direnvrc;
 }
