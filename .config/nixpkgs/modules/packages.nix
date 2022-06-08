@@ -33,7 +33,7 @@
     solargraph
     # python
     autoflake
-    python310Packages.python-lsp-server
+    nodePackages.pyright
     python310Packages.debugpy
 
     ## Misc

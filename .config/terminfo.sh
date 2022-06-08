@@ -14,6 +14,10 @@ printf '\t%s\n' "setf24=\E[38\:2\:\:%p1%{65536}%/%d\:%p1%{256}%/%{255}%&%d\:%p1%
 printf '\t%s\n' "setab=\E[%?%p1%{8}%<%t4%p1%d%e48\:2\:\:%p1%{65536}%/%d\:%p1%{256}%/%{255}%&%d\:%p1%{255}%&%d%;m," >> ${TMP_MI}
 printf '\t%s\n' "setaf=\E[%?%p1%{8}%<%t3%p1%d%e38\:2\:\:%p1%{65536}%/%d\:%p1%{256}%/%{255}%&%d\:%p1%{255}%&%d%;m," >> ${TMP_MI}
 
+# Italic
+## https://weibeld.net/terminals-and-shells/italics.html
+printf '\t%s\n' "ritm=\E[23m, sitm=\E[3m, Ms@," >> ${TMP_MI}
+
 tic -x ${TMP_MI}
 
 rm -f ${TMP_MI}

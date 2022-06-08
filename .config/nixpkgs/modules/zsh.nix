@@ -86,6 +86,7 @@
     shellAliases = {
       # asdf
       asdf_direnv_gen = ''__lambda() { asdf direnv local "$@" ; } ; __lambda'';
+      asdf_shell = ''__lambda() { asdf direnv shell "$@" ; } ; __lambda'';
       asdf_update = ''asdf update && asdf plugin-update --all'';
       # core
       clear_history=''echo "" > ~/.zsh_history & exec $SHELL -l'';
