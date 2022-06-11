@@ -106,6 +106,12 @@
       tf = "terraform";
       # dev
       shellcheck = ''__lambda() { docker run -ti --rm -v $(pwd):/mnt koalaman/shellcheck "$@" ; } ; __lambda "$@"'';
+      ## python
+      pyprofile = "python -m cProfile";
+      py3profile = "python3 -m cProfile";
+      prettyjson = ''$(which python) -m json.tool'';
+      jupyter = "docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --service-ports -T --rm jupyter";
+      jupyter-console = "docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --rm jupyter-console";
       ## nix
       nix-shell = ''__lambda() {
         local -a ARGS; ARGS=("$@")

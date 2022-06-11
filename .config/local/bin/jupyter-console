@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker-compose -f $HOME/.config/docker_n_k8s/dockerfiles/docker-compose.yml run --rm jupyter-console "$@"
