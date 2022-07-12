@@ -26,15 +26,18 @@
     gopls
     nodePackages.bash-language-server
     nodePackages.dockerfile-language-server-nodejs
-    nodePackages.typescript-language-server
-    nodePackages.typescript
     nodePackages.vscode-json-languageserver
     nodePackages.yaml-language-server
     solargraph
+    # typescript
+    nodePackages.typescript-language-server
+    nodePackages.typescript
+    nodePackages.prettier
     # python
     autoflake
     nodePackages.pyright
     python310Packages.debugpy
+    black
 
     ## Misc
     gettext # for 'envsubst'

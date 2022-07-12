@@ -104,6 +104,12 @@
       git = "noglob git";
       k = "kubectl";
       tf = "terraform";
+      # cert
+      openssl_conn = "openssl s_client -showcerts -connect";
+      openssl_conn_verify = "openssl s_client -verify_return_error -showcerts -connect";
+      openssl_check_cert = "openssl x509 -text -noout -in";
+      openssl_extract_certs = ''__lambda() { openssl crl2pkcs7 -nocrl -certfile "$1" | openssl pkcs7 -print_certs -text -noout ; } ; __lambda'';
+      openssl_sha256 = "openssl sha256";
       # dev
       shellcheck = ''__lambda() { docker run -ti --rm -v $(pwd):/mnt koalaman/shellcheck "$@" ; } ; __lambda "$@"'';
       ## python
