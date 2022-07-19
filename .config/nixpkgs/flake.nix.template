@@ -18,8 +18,12 @@
   #  chsh -s $(which zsh)
 
   ## update
+  #  nix-channel --update
   #  nix flake lock --update-input home-manager
   #  nix flake lock --update-input nixpkgs
+
+  ## upgrade nix
+  #  nix upgrade-nix
 
   ## on-going
   #  home-manager build --flake .#macbook-pro
@@ -39,85 +43,89 @@
   inputs = {
     # main sets
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    home-manager.url = "github:nix-community/home-manager";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # overlays
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     declarative-cachix.url = "github:jonascarpay/declarative-cachix";
   };
 
-  outputs = {self, ... }@inputs:
-  {
+  outputs = { self, nixpkgs, home-manager, emacs-overlay, declarative-cachix, ... }@inputs:
+  let
+    system = "x86_64-darwin";
+    pkgs = import nixpkgs {
+      inherit system;
+      config = { allowUnfree = true; };
+    };
+  in {
     homeConfigurations = {
-      macbook-pro = inputs.home-manager.lib.homeManagerConfiguration {
-        system = "x86_64-darwin";
-        homeDirectory = "/Users/yangliu";
-        username = "yangliu";
+      macbook-pro = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
 
-        # This value determines the Home Manager release that your
-        # configuration is compatible with. This helps avoid breakage
-        # when a new Home Manager release introduces backwards
-        # incompatible changes.
-        #
-        # You can update Home Manager without changing this value. See
-        # the Home Manager release notes for a list of state version
-        # changes in each release.
-        stateVersion = "21.11";
+        modules = [
+          {
+            # 'home.nix' configurations
+            home = {
+              homeDirectory = "/Users/yangliu";
+              username = "yangliu";
 
-        configuration = { config, lib, pkgs, ... }:
-        {
-          # For Nix flake
-          home.file.nixConf.text = ''
-            experimental-features = nix-command flakes
-          '';
+              # no default value since home-manager v22.11
+              stateVersion = "22.05";
 
-          # Let Home Manager install and manage itself.
-          programs.home-manager.enable = true;
+              # For Nix flake
+              file.nixConf.text = ''
+                experimental-features = nix-command flakes
+              '';
 
-          # Allow unfree software
-          nixpkgs.config = { allowUnfree = true; };
+              ## base setup
+              sessionVariables = {
+                _BASE_CONFIG_FOLDER_PATH = "${__FULL_BASE_FOLDER_PATH}";
+                XDG_CONFIG_HOME = "$HOME/.config";
+              };
+            };
 
-          ## base setup
-          home.sessionVariables = {
-            _BASE_CONFIG_FOLDER_PATH = "${__FULL_BASE_FOLDER_PATH}";
-            XDG_CONFIG_HOME = "$HOME/.config";
-          };
+            # Let Home Manager install and manage itself.
+            programs.home-manager.enable = true;
 
-          imports = [
-            self.inputs.declarative-cachix.homeManagerModules.declarative-cachix-experimental
-            {
-              # overlays
-              nixpkgs.overlays = [ (import self.inputs.emacs-overlay) ];
-            }
-            # note - need to run the command below
-            # echo "trusted-users = root yangliu" | sudo tee -a /etc/nix/nix.conf && sudo pkill nix-daemon
+            # setup cachix
+            caches.cachix = [{
+              name = "nix-community";
+              sha256 = "1955r436fs102ny80wfzy99d4253bh2i1vv1x4d4sh0zx2ssmhrk";
+            }];
+          }
 
-            ./modules/asdf.nix
-            ./modules/aws.nix
-            ./modules/awsvault.nix
-            ./modules/bat.nix
-            ./modules/bash.nix
-            ./modules/cleanup.nix
-            ./modules/editorconfig
-            ./modules/git.nix
-            ./modules/iterm2.nix
-            ./modules/local-bin.nix
-            ./modules/misc-dockerfiles.nix
-            ./modules/packages.nix
-            ./modules/ripgrep.nix
-            ./modules/ruby.nix
-            ./modules/shell.nix
-            ./modules/terminal-truecolor.nix
-            ./modules/tmux.nix
-            ./modules/zsh.nix
-          ];
+          # cachix / nix-community
+          declarative-cachix.homeManagerModules.declarative-cachix-experimental
 
-          caches.cachix = [{
-            name = "nix-community";
-            sha256 = "00lpx4znr4dd0cc4w4q8fl97bdp7q19z1d3p50hcfxy26jz5g21g";
-          }];
-        };
+          {
+            # overlays
+            nixpkgs.overlays = [ (import emacs-overlay) ];
+          }
+          # note - need to run the command below
+          # echo "trusted-users = root yangliu" | sudo tee -a /etc/nix/nix.conf && sudo pkill nix-daemon
+
+          ./modules/asdf.nix
+          ./modules/aws.nix
+          ./modules/awsvault.nix
+          ./modules/bat.nix
+          ./modules/bash.nix
+          ./modules/cleanup.nix
+          ./modules/editorconfig
+          ./modules/git.nix
+          ./modules/iterm2.nix
+          ./modules/local-bin.nix
+          ./modules/misc-dockerfiles.nix
+          ./modules/packages.nix
+          ./modules/ripgrep.nix
+          ./modules/ruby.nix
+          ./modules/shell.nix
+          ./modules/terminal-truecolor.nix
+          ./modules/tmux.nix
+          ./modules/zsh.nix
+        ];
       };
     };
   };

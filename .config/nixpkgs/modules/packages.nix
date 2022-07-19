@@ -14,7 +14,7 @@
     colima # replace docker desktop on mac
     lima
     qemu
-    dive # analysis image size
+    #dive # analysis image size
 
     ## Emacs
     aspell # spelling check
