@@ -37,7 +37,10 @@
     autoflake
     nodePackages.pyright
     python310Packages.debugpy
+    poetry
     black
+    mypy
+    python310Packages.flake8
 
     ## Misc
     gettext # for 'envsubst'
