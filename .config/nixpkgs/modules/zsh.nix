@@ -421,4 +421,8 @@
       } &!
     '';
   };
+
+  home.activation.zsh-docker-completion = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD bash -c 'set -x ; mkdir -p ~/.config/zsh/completion ; curl -s https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker -o ~/.config/zsh/completion/_docker'
+  '';
 }

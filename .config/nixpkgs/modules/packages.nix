@@ -15,6 +15,8 @@
     lima
     qemu
     #dive # analysis image size
+    docker-slim
+    docker-client
 
     ## Emacs
     aspell # spelling check
@@ -49,7 +51,7 @@
     ## Networking
     keychain # ssh
     socat # tcp port forwarder / relay
-    stunnel # tls/ssl wrapper
+    #stunnel # tls/ssl wrapper
 
     ## Security
     john # John the Ripper password auditing and recovery tool
