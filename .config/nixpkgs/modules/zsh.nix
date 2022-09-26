@@ -24,6 +24,7 @@
         "tmux?(+( )ls*( )*)"
         "?(terraform|tf)?(+( )?(init|get|plan|apply|destroy))"
         "e?(c)?(f|t|k)"
+        "go*( )?(?(build)|?(test))"
       ];
       save = 500000;
       size = 500000;
@@ -46,8 +47,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "mroth";
           repo = "evalcache";
-          rev = "dce3fd1ca74f791f538942d7e829c5c74c867e61";
-          sha256 = "rIng+sqXOmhS6+OTRH5JK9vta4xgtgS/t6/Fw2Wsg0M=";
+          rev = "4c7fb8d5b319ae177fead3ec666e316ff2e13b90";
+          sha256 = "qzpnGTrLnq5mNaLlsjSA6VESA88XBdN3Ku/YIgLCb28=";
         };
       }
       {
@@ -57,8 +58,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "Aloxaf";
           repo = "fzf-tab";
-          rev = "e8145d541a35d8a03df49fbbeefa50c4a0076bbf";
-          sha256 = "h/3XP/BiNnUgQI29gEBl6RFee77WDhFyvsnTi1eRbKg=";
+          rev = "938eef72e93ddb0609205a663bf0783f4e1b5fae";
+          sha256 = "xP0IoCeyZyYU+iKUkIoIAMn75r6R3TJYhAKoQgC1dWg=";
         };
       }
       {
@@ -77,8 +78,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "zsh-users";
           repo = "zsh-syntax-highlighting";
-          rev = "c5ce0014677a0f69a10b676b6038ad127f40c6b1";
-          sha256 = "UqeK+xFcKMwdM62syL2xkV8jwkf/NWfubxOTtczWEwA=";
+          rev = "caa749d030d22168445c4cb97befd406d2828db0";
+          sha256 = "YV9lpJ0X2vN9uIdroDWEize+cp9HoKegS3sZiSpNk50=";
         };
       }
     ];
@@ -98,7 +99,7 @@
       ls = "ls --color=auto";
       rm = "rm -i";
       # app
-      cat = "bat --style=plain";
+      cat = "bat --color=auto --style=plain";
       catn = "cat -n";
       g = "git";
       git = "noglob git";
@@ -112,6 +113,7 @@
       openssl_sha256 = "openssl sha256";
       # dev
       shellcheck = ''__lambda() { docker run -ti --rm -v $(pwd):/mnt koalaman/shellcheck "$@" ; } ; __lambda "$@"'';
+      json_format = "pbpaste | jq '.' | pbcopy";
       ## python
       pyprofile = "python -m cProfile";
       py3profile = "python3 -m cProfile";
@@ -369,7 +371,7 @@
 
       # colima/lima
       if [[ $(uname) == 'Darwin' ]] && [ "$(command -v colima)" ]; then
-         alias colima_start='colima start --dns 1.1.1.1 --dns 8.8.8.8 --with-kubernetes --layer=true'
+         alias colima_start='colima start --dns 192.168.107.1 --dns 1.1.1.1 --dns 8.8.8.8 --with-kubernetes --layer'
          _evalcache colima completion zsh
          _evalcache limactl completion zsh
       fi
@@ -407,6 +409,9 @@
       # kubectl
       _evalcache kubectl completion zsh
       compdef __start_kubectl k
+
+      # jq
+      [ -f ~/.config/local/bin/jq-completion.bash ] && source ~/.config/local/bin/jq-completion.bash
     '';
 
     loginExtra = ''

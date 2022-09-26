@@ -113,8 +113,9 @@
           ./modules/bat.nix
           ./modules/bash.nix
           ./modules/cleanup.nix
-          ./modules/editorconfig
+          ./modules/editorconfig.nix
           ./modules/git.nix
+          ./modules/jq.nix
           ./modules/iterm2.nix
           ./modules/local-bin.nix
           ./modules/misc-dockerfiles.nix
