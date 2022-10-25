@@ -17,7 +17,7 @@
         "*--help" "*-h"
         "exit" "clear" "top" "stty*"
         "sh" "bash" "zsh"
-        "ls*( )?(-l?(a?(h)))"
+        "ls*( )?(-l?(a?(h)))" "cd -"
         "g?(it)*( )?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*( )?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(sh?(ow))?(*()HEAD*)|?(fixup)|?(squash)|?(pull)|?(push)|?(ri*( )HEAD*)|?(a*( )*)|?(reflog)|?(m))*( )"
         "docker*( )?(?(ps -a)|?(images)|?(info)|?(rmi*)|?(rm*))"
         "(p)kill" "k9?(+( )*)"
@@ -90,7 +90,12 @@
       asdf_shell = ''__lambda() { asdf direnv shell "$@" ; } ; __lambda'';
       asdf_update = ''asdf update && asdf plugin-update --all'';
       # core
-      clear_history=''echo "" > ~/.zsh_history & exec $SHELL -l'';
+      ".."   = ''cd ..'';
+      "..."  = ''cd ../..'';
+      "...." = ''cd ../../..'';
+      ".4"   = ''cd ../../../..'';
+      ".5"   = ''cd ../../../../..'';
+      clear_history = ''echo "" > ~/.zsh_history & exec $SHELL -l'';
       cp = "cp -a";
       diff = "diff --color";
       grep = "grep -s --color=auto";
@@ -104,6 +109,9 @@
       g = "git";
       git = "noglob git";
       k = "kubectl";
+      mycli = ''docker run --rm -ti mycli mycli "$@"'';
+      pgcli = ''docker run --rm -ti pgcli pgcli "$@"'';
+      redis-cli = ''docker run -ti --rm redis redis-cli -h host.docker.internal'';
       tf = "terraform";
       # cert
       openssl_conn = "openssl s_client -showcerts -connect";
@@ -144,6 +152,8 @@
       sc-proxy = ''__lambda() { socat -v -d -d TCP-LISTEN:"''${1:-8080}",bind=127.0.0.1,fork TCP:"''${2:-localhost}":"''${3:-80}" ; } ;  __lambda "$@"'';
       scp = "time scp -Cpr -o Compression=yes -o CompressionLevel=9";
       ssh-bg = "ssh -fNC2T";
+      # misc
+      hledger =''__lambda() { docker run -ti --rm --entrypoint hledger -v $(pwd):/data dastapov/hledger "$@" ; } ; __lambda "$@"'';
     };
 
     initExtraFirst = ''

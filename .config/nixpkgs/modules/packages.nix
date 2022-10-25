@@ -11,6 +11,7 @@
     openssl_3_0
 
     ## Docker
+    podman
     colima # replace docker desktop on mac
     lima
     qemu
@@ -51,7 +52,7 @@
     ## Networking
     keychain # ssh
     socat # tcp port forwarder / relay
-    #stunnel # tls/ssl wrapper
+    stunnel # tls/ssl wrapper
 
     ## Security
     john # John the Ripper password auditing and recovery tool
