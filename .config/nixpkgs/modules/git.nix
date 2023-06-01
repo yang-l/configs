@@ -15,6 +15,6 @@
   };
 
   home.activation.bash-git-completion = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD bash -c 'set -x ; curl -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/.git-completion.bash'
+    $DRY_RUN_CMD bash -c 'set -x ; /Users/$USER/.nix-profile/bin/curl -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o ~/.git-completion.bash'
   '';
 }

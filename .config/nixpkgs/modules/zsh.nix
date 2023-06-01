@@ -17,7 +17,7 @@
         "*--help" "*-h"
         "exit" "clear" "top" "stty*"
         "sh" "bash" "zsh"
-        "ls*( )?(-l?(a?(h)))" "cd -"
+        "ls*( )?(-l?(a?(h)))" "cd*( )?(-)"
         "g?(it)*( )?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*( )?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(sh?(ow))?(*()HEAD*)|?(fixup)|?(squash)|?(pull)|?(push)|?(ri*( )HEAD*)|?(a*( )*)|?(reflog)|?(m))*( )"
         "docker*( )?(?(ps -a)|?(images)|?(info)|?(rmi*)|?(rm*))"
         "(p)kill" "k9?(+( )*)"
@@ -438,6 +438,6 @@
   };
 
   home.activation.zsh-docker-completion = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD bash -c 'set -x ; mkdir -p ~/.config/zsh/completion ; curl -s https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker -o ~/.config/zsh/completion/_docker'
+    $DRY_RUN_CMD bash -c 'set -x ; mkdir -p ~/.config/zsh/completion ; /Users/$USER/.nix-profile/bin/curl -s https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker -o ~/.config/zsh/completion/_docker'
   '';
 }

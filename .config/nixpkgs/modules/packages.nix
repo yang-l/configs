@@ -22,6 +22,7 @@
     ## Emacs
     aspell # spelling check
     aspellDicts.en
+    gcc # used during installation and for native-compilation
     # editor
     ((emacsGcc.override { withGTK3 = false; }).pkgs.withPackages (epkgs: with epkgs; [ vterm ]))
     multimarkdown # markdown
