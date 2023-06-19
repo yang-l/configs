@@ -131,6 +131,7 @@
           ./modules/ripgrep.nix
           ./modules/ruby.nix
           ./modules/shell.nix
+          ./modules/ssh.nix
           ./modules/terminal-truecolor.nix
           ./modules/tmux.nix
           ./modules/zsh.nix
