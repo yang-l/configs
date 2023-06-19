@@ -10,4 +10,6 @@
   ];
 
   home.file.".tmux.conf".source = ../../../.tmux.conf;
+
+  # Prefix + I to install plugins
 }

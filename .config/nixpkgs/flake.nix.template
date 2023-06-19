@@ -1,15 +1,20 @@
 {
+  #  /usr/sbin/softwareupdate --install-rosetta --agree-to-license
   ## bootstrap
-  #  sh <(curl -L https://nixos.org/nix/install) --darwin-use-unencrypted-nix-store-volume --daemon
+  #  sh <(curl -L https://nixos.org/nix/install)
   #
-  #  nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-  #  nix-channel --update
-  #  nix-shell '<home-manager>' -A install
+  # # nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+  # # nix-channel --update
+  # # nix-shell '<home-manager>' -A install
   # or
   #  nix-shell '<home-manager>' -A install -I home-manager=https://github.com/nix-community/home-manager/archive/master.tar.gz
   #
-  #  nix --extra-experimental-features 'nix-command flakes' build '.#homeConfigurations.macbook-pro.activationPackage'
-  #  ./result/activate
+  #  nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs-unstable
+  #
+  # # nix --extra-experimental-features 'nix-command flakes' build '.#homeConfigurations.macbook-pro.activationPackage'
+  # # ./result/activate
+  # or
+  #  make / make switch
 
   #  sudo sh -c "echo $(which bash) >> /etc/shells"
   #  chsh -s $(which bash)
@@ -55,14 +60,14 @@
 
   outputs = { self, nixpkgs, home-manager, emacs-overlay, declarative-cachix, ... }@inputs:
   let
-    system = "x86_64-darwin";
+    system = "aarch64-darwin";
     pkgs = import nixpkgs {
       inherit system;
       config = { allowUnfree = true; };
     };
   in {
     homeConfigurations = {
-      macbook-pro = home-manager.lib.homeManagerConfiguration {
+      macbook-pro_m2 = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
 
         modules = [
@@ -73,11 +78,14 @@
               username = "yangliu";
 
               # no default value since home-manager v22.11
-              stateVersion = "22.11";
+              # https://github.com/nix-community/home-manager/tree/master/docs/release-notes
+              stateVersion = "23.05";
 
               # For Nix flake
               file.nixConf.text = ''
+                auto-optimise-store = true
                 experimental-features = nix-command flakes
+                extra-platforms = x86_64-darwin aarch64-darwin
               '';
 
               ## base setup
@@ -93,7 +101,7 @@
             # setup cachix
             caches.cachix = [{
               name = "nix-community";
-              sha256 = "1rgbl9hzmpi5x2xx9777sf6jamz5b9qg72hkdn1vnhyqcy008xwg";
+              sha256 = "0m6kb0a0m3pr6bbzqz54x37h5ri121sraj1idfmsrr6prknc7q3x";
             }];
           }
 
@@ -111,11 +119,11 @@
           ./modules/aws.nix
           ./modules/awsvault.nix
           ./modules/bat.nix
-          ./modules/bash.nix
+          # ./modules/bash.nix
           ./modules/cleanup.nix
           ./modules/editorconfig.nix
           ./modules/git.nix
-          ./modules/jq.nix
+          # ./modules/jq.nix
           ./modules/iterm2.nix
           ./modules/local-bin.nix
           ./modules/misc-dockerfiles.nix

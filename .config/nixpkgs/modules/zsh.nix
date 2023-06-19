@@ -88,7 +88,7 @@
       # asdf
       asdf_direnv_gen = ''__lambda() { asdf direnv local "$@" ; } ; __lambda'';
       asdf_shell = ''__lambda() { asdf direnv shell "$@" ; } ; __lambda'';
-      asdf_update = ''asdf update && asdf plugin-update --all'';
+      #asdf_update = ''asdf update && asdf plugin-update --all'';
       # core
       ".."   = ''cd ..'';
       "..."  = ''cd ../..'';
@@ -111,7 +111,6 @@
       k = "kubectl";
       mycli = ''docker run --rm -ti mycli mycli "$@"'';
       pgcli = ''docker run --rm -ti pgcli pgcli "$@"'';
-      redis-cli = ''docker run -ti --rm redis redis-cli -h host.docker.internal'';
       tf = "terraform";
       # cert
       openssl_conn = "openssl s_client -showcerts -connect";
@@ -181,12 +180,12 @@
       fpath=("''${HOME}/.config/zsh/completion" $fpath) # for autocompletion
 
       # asdf-vm
-      ## git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
-      if [ -f ~/.asdf/asdf.sh ]
+      if [ -f ~/.asdf/nixsrc/share/asdf-vm/asdf.sh ]
       then
-        source ~/.asdf/asdf.sh
+        source $(realpath ~/.asdf/nixsrc/share/asdf-vm/asdf.sh)
         fpath=(''${ASDF_DIR}/completions $fpath)
       fi
+      export ASDF_GOLANG_MOD_VERSION_ENABLED=true # https://github.com/kennyp/asdf-golang/pull/101
 
       # fzf
       export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore-vcs --no-messages --smart-case'
@@ -411,14 +410,16 @@
       alias eck="''${_BASH_ALIAS_EMACSCLIENT} -q -e '(kill-emacs)'"
 
       if [ ! -z "''${_BASH_ALIAS_EMACS}" ] ; then
-         alias et="''${_BASH_ALIAS_EMACS} -nw"
-         alias ef="''${_BASH_ALIAS_EMACS}"
+        alias et="''${_BASH_ALIAS_EMACS} -nw"
+        alias ef="''${_BASH_ALIAS_EMACS}"
       fi
       alias e=ect
 
       # kubectl
-      _evalcache kubectl completion zsh
-      compdef __start_kubectl k
+      if [ -x "$(command -v kubectl)" ]; then
+        _evalcache kubectl completion zsh
+        compdef __start_kubectl k
+      fi
 
       # jq
       [ -f ~/.config/local/bin/jq-completion.bash ] && source ~/.config/local/bin/jq-completion.bash

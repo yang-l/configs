@@ -1,7 +1,7 @@
-golang 1.19.1
-nodejs 16.14.2
-python 3.10.4
-ruby 2.7.4
-awscli 2.3.2
-kubectl 1.22.3
-direnv 2.31.0
+direnv 2.32.3
+
+#awscli 2.12.1
+#kubectl 1.27.2
+
+# the rest should be project specific
+# https://github.com/asdf-community/asdf-direnv/issues/117
