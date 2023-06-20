@@ -254,7 +254,7 @@
 
         # aws-vault
         if [ -n "''${AWS_VAULT:-}" ] ; then
-          local _expiration_delta_s=$(( $(gdate --date="''${AWS_SESSION_EXPIRATION}" +"%s") - $(gdate +"%s") ))
+          local _expiration_delta_s=$(( $(gdate --date="''${AWS_CREDENTIAL_EXPIRATION:-$AWS_SESSION_EXPIRATION}" +"%s") - $(gdate +"%s") ))
           local _expiration_detal_text="X"
           [[ $_expiration_delta_s -gt 0 ]] && _expiration_detal_text="$(gdate -d @"''${_expiration_delta_s}" +"%-Mm%-Ss")"
 
@@ -324,9 +324,9 @@
       setopt HIST_VERIFY               # Don't execute immediately upon history expansion
 
       zshaddhistory_ignore_pattern() {
-	      emulate -L zsh
+        emulate -L zsh
         setopt localoptions kshglob
-	      [[ $(echo $1 | tr -d '\n') != ''${~HISTORY_IGNORE} ]] # https://unix.stackexchange.com/a/593637
+        [[ $(echo $1 | tr -d '\n') != ''${~HISTORY_IGNORE} ]] # https://unix.stackexchange.com/a/593637
       }
       zshaddhistory_functions+=( zshaddhistory_ignore_pattern )
 
@@ -362,25 +362,28 @@
       ZSH_EVALCACHE_DIR="''${ZDOTDIR:-~/.config/zsh}/.zsh-evalcache"
 
       # asdf-vm
-      if [ "$(command -v asdf)" ]
-      then
-        # asdf-direnv
-        export DIRENV_LOG_FORMAT=""
-        _evalcache direnv hook zsh
+      if [ "$(command -v asdf)" ]; then
+        if [ "$(command -v direnv)" ]; then
+          # asdf-direnv
+          export DIRENV_LOG_FORMAT=""
+          _evalcache direnv hook zsh
+        fi
       fi
 
+      # for compatible bash completion
+      autoload bashcompinit && bashcompinit
+
       # aws-cli
-      if [ "$(command -v aws_completer)" ] ; then
-        autoload bashcompinit && bashcompinit
-        complete -C $(which aws_completer) aws
-      fi
+      ## if [ "$(command -v aws_completer)" ] ; then
+      ##   complete -C $(which aws_completer) aws
+      ## fi
 
       # aws-vault
       [ "$(command -v aws-vault)" ] && _evalcache aws-vault --completion-script-bash
 
       # colima/lima
       if [[ $(uname) == 'Darwin' ]] && [ "$(command -v colima)" ]; then
-         alias colima_start='colima start --dns 192.168.107.1 --dns 1.1.1.1 --dns 8.8.8.8 --with-kubernetes --layer'
+         alias colima_start='colima start --dns 192.168.107.1 --dns 1.1.1.1 --dns 8.8.8.8 --with-kubernetes'
          _evalcache colima completion zsh
          _evalcache limactl completion zsh
       fi
@@ -422,7 +425,7 @@
       fi
 
       # jq
-      [ -f ~/.config/local/bin/jq-completion.bash ] && source ~/.config/local/bin/jq-completion.bash
+      ## [ -f ~/.config/local/bin/jq-completion.bash ] && source ~/.config/local/bin/jq-completion.bash
     '';
 
     loginExtra = ''
@@ -440,5 +443,13 @@
 
   home.activation.zsh-docker-completion = lib.hm.dag.entryAfter ["writeBoundary"] ''
     $DRY_RUN_CMD bash -c 'set -x ; mkdir -p ~/.config/zsh/completion ; /Users/$USER/.nix-profile/bin/curl -s https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker -o ~/.config/zsh/completion/_docker'
+  '';
+
+  home.activation.direnv-config = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD bash -c 'set -x ; mkdir -p ~/.config/direnv/lib/ ; cat <<-EOF | tee ~/.config/direnv/lib/use_asdf.sh
+use_asdf() {
+  source_env "\$(asdf direnv envrc "\$@")"
+}
+EOF'
   '';
 }

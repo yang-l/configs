@@ -2,3 +2,5 @@
 .config/vagrant-box/*.box
 .config/vagrant-box/output-virtualbox-iso/
 .config/vagrant-box/packer_cache/
+.ssh/
+!.ssh/config

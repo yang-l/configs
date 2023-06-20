@@ -1,7 +1,7 @@
 direnv 2.32.3
 
 #awscli 2.12.1
-#kubectl 1.27.2
+kubectl 1.27.2
 
 # the rest should be project specific
 # https://github.com/asdf-community/asdf-direnv/issues/117
