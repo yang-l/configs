@@ -256,7 +256,7 @@
         if [ -n "''${AWS_VAULT:-}" ] ; then
           local _expiration_delta_s=$(( $(gdate --date="''${AWS_CREDENTIAL_EXPIRATION:-$AWS_SESSION_EXPIRATION}" +"%s") - $(gdate +"%s") ))
           local _expiration_detal_text="X"
-          [[ $_expiration_delta_s -gt 0 ]] && _expiration_detal_text="$(gdate -d @"''${_expiration_delta_s}" +"%-Mm%-Ss")"
+          [[ $_expiration_delta_s -gt 0 ]] && _expiration_detal_text="$(gdate -d @"''${_expiration_delta_s}" +"%-Hh%-Mm%-Ss")"
 
           local _aws_vault_text="aws-vault|''${AWS_VAULT} "
           _aws_vault_prompt_size="$(( ''${#_aws_vault_text} + ''${#_expiration_detal_text} + 3 + 2 ))" # 3 is for '[] ' 2 is for '┊ '
@@ -383,9 +383,10 @@
 
       # colima/lima
       if [[ $(uname) == 'Darwin' ]] && [ "$(command -v colima)" ]; then
-         alias colima_start='colima start --dns 192.168.107.1 --dns 1.1.1.1 --dns 8.8.8.8 --with-kubernetes'
+         alias colima_start='colima start --with-kubernetes --layer=true'
          _evalcache colima completion zsh
          _evalcache limactl completion zsh
+         export DOCKER_HOST="unix://''${HOME}/.colima/default/docker.sock"
       fi
 
       # emacs

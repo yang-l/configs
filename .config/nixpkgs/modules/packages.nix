@@ -11,13 +11,15 @@
     openssl_3_0
 
     ## Docker
-    podman
+    # (co)lima
     colima # replace docker desktop on mac
     lima
     qemu
-    #dive # analysis image size
-    docker-slim
     docker-client
+    # misc
+    ##dive # analysis image size
+    #podman
+    docker-slim
 
     ## Emacs
     aspell # spelling check
@@ -51,7 +53,7 @@
     (p7zip.override { enableUnfree = true; }) # archive tool
 
     ## Networking
-    keychain # ssh
+    #keychain # ssh
     socat # tcp port forwarder / relay
     stunnel # tls/ssl wrapper
 
