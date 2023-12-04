@@ -104,6 +104,7 @@
       ls = "ls --color=auto";
       rm = "rm -i";
       # app
+      aws_comp_conf = "complete -C '$(which aws_completer)' aws";
       cat = "bat --color=auto --style=plain";
       catn = "cat -n";
       g = "git";
@@ -374,16 +375,15 @@
       autoload bashcompinit && bashcompinit
 
       # aws-cli
-      ## if [ "$(command -v aws_completer)" ] ; then
-      ##   complete -C $(which aws_completer) aws
-      ## fi
+      ## v2
+      export AWS_CLI_AUTO_PROMPT=on
 
       # aws-vault
       [ "$(command -v aws-vault)" ] && _evalcache aws-vault --completion-script-bash
 
       # colima/lima
       if [[ $(uname) == 'Darwin' ]] && [ "$(command -v colima)" ]; then
-         alias colima_start='colima start --with-kubernetes --layer=true'
+         alias colima_start='colima start --cpu 2 --memory 4 --with-kubernetes --layer=true'
          _evalcache colima completion zsh
          _evalcache limactl completion zsh
          export DOCKER_HOST="unix://''${HOME}/.colima/default/docker.sock"
