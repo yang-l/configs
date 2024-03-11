@@ -97,6 +97,13 @@
             programs.home-manager.enable = true;
           }
 
+          # https://github.com/nix-community/home-manager/issues/2033#issuecomment-1848326144
+          {
+            news.display = "silent";
+            news.json = pkgs.lib.mkForce { };
+            news.entries = pkgs.lib.mkForce [ ];
+          }
+
           ./modules/asdf.nix
           ./modules/aws.nix
           ./modules/awsvault.nix
