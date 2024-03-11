@@ -81,7 +81,7 @@
 
               # no default value since home-manager v22.11
               # https://github.com/nix-community/home-manager/tree/master/docs/release-notes
-              stateVersion = "23.05";
+              stateVersion = "24.05";
 
               # For Nix flake
               file.nixConf.text = ''
