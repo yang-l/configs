@@ -54,13 +54,9 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # overlays
-    emacs-overlay.url = "github:nix-community/emacs-overlay";
-    declarative-cachix.url = "github:jonascarpay/declarative-cachix";
   };
 
-  outputs = { self, nixpkgs, home-manager, emacs-overlay, declarative-cachix, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, ... }@inputs:
   let
     system = "aarch64-darwin";
     pkgs = import nixpkgs {
@@ -99,23 +95,7 @@
 
             # Let Home Manager install and manage itself.
             programs.home-manager.enable = true;
-
-            # setup cachix
-            caches.cachix = [{
-              name = "nix-community";
-              sha256 = "0m6kb0a0m3pr6bbzqz54x37h5ri121sraj1idfmsrr6prknc7q3x";
-            }];
           }
-
-          # cachix / nix-community
-          declarative-cachix.homeManagerModules.declarative-cachix-experimental
-
-          {
-            # overlays
-            nixpkgs.overlays = [ (import emacs-overlay) ];
-          }
-          # note - need to run the command below
-          # echo "trusted-users = root yangliu" | sudo tee -a /etc/nix/nix.conf && sudo pkill nix-daemon
 
           ./modules/asdf.nix
           ./modules/aws.nix
