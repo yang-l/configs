@@ -37,8 +37,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "sindresorhus";
           repo = "pure";
-          rev = "v1.20.1";
-          sha256 = "iuLi0o++e0PqK81AKWfIbCV0CTIxq2Oki6U2oEYsr68=";
+          rev = "v1.23.0";
+          sha256 = "BmQO4xqd/3QnpLUitD2obVxL0UulpboT8jGNEh4ri8k=";
         };
       }
       {
@@ -47,8 +47,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "mroth";
           repo = "evalcache";
-          rev = "4c7fb8d5b319ae177fead3ec666e316ff2e13b90";
-          sha256 = "qzpnGTrLnq5mNaLlsjSA6VESA88XBdN3Ku/YIgLCb28=";
+          rev = "3153dcd77a2c93aa8fdf5d17cece7edb1aa3e040";
+          sha256 = "GAjsTQJs9JdBEf9LGurme3zqXN//kVUM2YeBo0sCR2c=";
         };
       }
       {
@@ -58,8 +58,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "Aloxaf";
           repo = "fzf-tab";
-          rev = "938eef72e93ddb0609205a663bf0783f4e1b5fae";
-          sha256 = "xP0IoCeyZyYU+iKUkIoIAMn75r6R3TJYhAKoQgC1dWg=";
+          rev = "v1.1";
+          sha256 = "5vQodWvw9akVvvmpVQH0KjdWmCP7vQz2QOK4Yn24MbA=";
         };
       }
       {
@@ -68,8 +68,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "zsh-users";
           repo = "zsh-autosuggestions";
-          rev = "v0.7.0";
-          sha256 = "KLUYpUu4DHRumQZ3w59m9aTW6TBKMCXl2UcKi4uMd7w=";
+          rev = "c3d4e576c9c86eac62884bd47c01f6faed043fc5";
+          sha256 = "B+Kz3B7d97CM/3ztpQyVkE6EfMipVF8Y4HJNfSRXHtU=";
         };
       }
       {
@@ -78,8 +78,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "zsh-users";
           repo = "zsh-syntax-highlighting";
-          rev = "caa749d030d22168445c4cb97befd406d2828db0";
-          sha256 = "YV9lpJ0X2vN9uIdroDWEize+cp9HoKegS3sZiSpNk50=";
+          rev = "e0165eaa730dd0fa321a6a6de74f092fe87630b0";
+          sha256 = "4rW2N+ankAH4sA6Sa5mr9IKsdAg7WTgrmyqJ2V1vygQ=";
         };
       }
     ];
