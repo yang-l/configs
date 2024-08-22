@@ -38,6 +38,7 @@
     ls       = ls-files
     lu       = log -u
     m        = commit --amend --verbose
+    mf       = merge --no-commit --squash
     new      = log HEAD@{1}..HEAD@{0}
     pl       = pull
     plo      = "!git pull origin \"$(git rev-parse --abbrev-ref HEAD)\""
@@ -48,6 +49,7 @@
     pullnr   = pull --no-rebase
     rh       = "!git fetch --all && git reset --hard"
     ri       = rebase --interactive --autosquash
+    rmc      = rm --cached -r
     rrh      = reset --hard @{upstream}
     s        = status -s
     sh       = show
@@ -116,5 +118,6 @@
 
 [rebase]
     autosquash = true
+
 [credential]
 	helper = cache

@@ -383,7 +383,7 @@
 
       # colima/lima
       if [[ $(uname) == 'Darwin' ]] && [ "$(command -v colima)" ]; then
-         alias colima_start='colima start --cpu 2 --memory 4 --with-kubernetes --layer=true'
+         alias colima_start='colima start --cpu 2 --memory 4 --with-kubernetes'
          _evalcache colima completion zsh
          _evalcache limactl completion zsh
          export DOCKER_HOST="unix://''${HOME}/.colima/default/docker.sock"
