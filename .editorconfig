@@ -29,3 +29,6 @@ indent_size = 2
 
 [*.sh]
 indent_size = 2
+
+[*.org]
+indent_size = 8
