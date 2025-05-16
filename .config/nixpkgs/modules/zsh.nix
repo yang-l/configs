@@ -22,7 +22,7 @@
         "docker*( )?(?(ps -a)|?(images)|?(info)|?(rmi*)|?(rm*))"
         "(p)kill" "k9?(+( )*)"
         "tmux?(+( )ls*( )*)"
-        "?(terraform|tf)?(+( )?(init|get|plan|apply|destroy))"
+        "?(terraform|tf)?(+( )?(init|get|plan|apply|destroy|fmt))"
         "e?(c)?(f|t|k)"
         "go*( )?(?(build)|?(test))"
       ];
@@ -58,8 +58,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "Aloxaf";
           repo = "fzf-tab";
-          rev = "v1.1";
-          sha256 = "5vQodWvw9akVvvmpVQH0KjdWmCP7vQz2QOK4Yn24MbA=";
+          rev = "v1.2.0";
+          sha256 = "q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
         };
       }
       {
@@ -68,8 +68,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "zsh-users";
           repo = "zsh-autosuggestions";
-          rev = "c3d4e576c9c86eac62884bd47c01f6faed043fc5";
-          sha256 = "B+Kz3B7d97CM/3ztpQyVkE6EfMipVF8Y4HJNfSRXHtU=";
+          rev = "0e810e5afa27acbd074398eefbe28d13005dbc15";
+          sha256 = "85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk=";
         };
       }
       {
@@ -78,8 +78,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "zsh-users";
           repo = "zsh-syntax-highlighting";
-          rev = "e0165eaa730dd0fa321a6a6de74f092fe87630b0";
-          sha256 = "4rW2N+ankAH4sA6Sa5mr9IKsdAg7WTgrmyqJ2V1vygQ=";
+          rev = "5eb677bb0fa9a3e60f0eff031dc13926e093df92";
+          sha256 = "KRsQEDRsJdF7LGOMTZuqfbW6xdV5S38wlgdcCM98Y/Q=";
         };
       }
     ];
