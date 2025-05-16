@@ -40,7 +40,7 @@
     nodePackages.prettier
     # python
     autoflake
-    nodePackages.pyright
+    pyright
     python310Packages.debugpy
     poetry
     black

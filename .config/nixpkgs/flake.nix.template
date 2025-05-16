@@ -29,6 +29,9 @@
   #  nix flake lock --update-input home-manager
   #  nix flake lock --update-input nixpkgs
 
+  #  nix flake update home-manager --extra-experimental-features "nix-command flakes"
+  #  nix flake update nixpkgs --extra-experimental-features "nix-command flakes"
+
   ## upgrade nix
   #  nix upgrade-nix
 
