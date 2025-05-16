@@ -48,9 +48,9 @@
     pom      = push origin master
     pullnr   = pull --no-rebase
     rh       = "!git fetch --all && git reset --hard"
+    rhu      = reset --hard @{upstream}
     ri       = rebase --interactive --autosquash
     rmc      = rm --cached -r
-    rrh      = reset --hard @{upstream}
     s        = status -s
     sh       = show
     sq       = commit --squash
