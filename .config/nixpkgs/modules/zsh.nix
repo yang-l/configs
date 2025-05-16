@@ -156,48 +156,9 @@
       hledger =''__lambda() { docker run -ti --rm --entrypoint hledger -v $(pwd):/data dastapov/hledger "$@" ; } ; __lambda "$@"'';
     };
 
-    initExtraFirst = ''
-      setopt extended_glob
-      path=("''${HOME}/.config/local/bin" $path)
-      setopt interactivecomments # bash-style comments
-
-      # Nix
-      [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ] && source '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-      export NIX_PATH=$HOME/.nix-defexpr/channels''${NIX_PATH:+:}$NIX_PATH
-
-      # keybindings
-      bindkey "^[[1;3C" forward-word
-      bindkey "^[[1;3D" backward-word
-
-      autoload -U select-word-style # bash like moving and editing words
-      select-word-style bash
-    '';
-
     localVariables = {
       PURE_CMD_MAX_EXEC_TIME=3;
     };
-
-    initExtraBeforeCompInit = ''
-      fpath=("''${HOME}/.config/zsh/completion" $fpath) # for autocompletion
-
-      # asdf-vm
-      if [ -f ~/.asdf/nixsrc/share/asdf-vm/asdf.sh ]
-      then
-        source $(realpath ~/.asdf/nixsrc/share/asdf-vm/asdf.sh)
-        fpath=(''${ASDF_DIR}/completions $fpath)
-      fi
-      export ASDF_GOLANG_MOD_VERSION_ENABLED=true # https://github.com/kennyp/asdf-golang/pull/101
-
-      # fzf
-      export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore-vcs --no-messages --smart-case'
-      export FZF_DEFAULT_OPTS='--height 30% --layout=reverse --border --info=inline --multi'
-      export FZF_CTRL_R_OPTS='--preview "export HISTSIZE=500000 && builtin fc -R "''${HOME}/.zsh_history" && builtin fc -l $(expr {1} - $(expr $FZF_PREVIEW_LINES / 2)) $(expr {1} + $(expr $FZF_PREVIEW_LINES / 2)) | bat --style=changes --color=always --theme \"Solarized (dark)\""' # show the history around the matched one in the preview window
-      export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-      if [ " $(command -v fzf-share)" ]; then
-        source "$(fzf-share)/key-bindings.zsh"
-        source "$(fzf-share)/completion.zsh"
-      fi
-    '';
 
     completionInit = ''
       # https://gist.github.com/ctechols/ca1035271ad134841284#gistcomment-2308206
@@ -209,225 +170,265 @@
       fi
     '';
 
-    initExtra = ''
-      #####
-      ## PROMPT
-      #####
+    initContent = let
+      earlyInit = lib.mkOrder 500 ''
+        setopt extended_glob
+        path=("''${HOME}/.config/local/bin" $path)
+        setopt interactivecomments # bash-style comments
 
-      # pure-prompt
-      PURE_PROMPT_SYMBOL='$'
-      zstyle :prompt:pure:git:stash show yes
-      zstyle :prompt:pure:environment:nix-shell show no
-      prompt_pure_set_title() {} # https://github.com/sindresorhus/pure/wiki/Customizations,-hacks-and-tweaks#disable-pure-terminal-title-updates
+        # Nix
+        [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ] && source '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+        export NIX_PATH=$HOME/.nix-defexpr/channels''${NIX_PATH:+:}$NIX_PATH
 
-      # https://github.com/sindresorhus/pure/wiki/Customizations,-hacks-and-tweaks#include-initial-newline-when-clearing-screen-ctrll
-      custom_prompt_pure_clear_screen() {
-        zle -I                   # Enable output to terminal.
-        print -n '\e[2J\e[4;0H'  # Clear screen and move cursor to (4, 0).
-        zle .redisplay           # Redraw prompt.
-      }
-      zle -N clear-screen custom_prompt_pure_clear_screen
+        # keybindings
+        bindkey "^[[1;3C" forward-word
+        bindkey "^[[1;3D" backward-word
 
-      # RPROMPT setup
-      function set_rprompt() {
-        local _aws_vault_prompt='''
-        local _aws_vault_prompt_size=0
+        autoload -U select-word-style # bash like moving and editing words
+        select-word-style bash
+      '';
+      beforCompletionInit = lib.mkOrder 550 ''
+        fpath=("''${HOME}/.config/zsh/completion" $fpath) # for autocompletion
 
-        local _cf_vault_prompt='''
-        local _cf_vault_prompt_size=0
+        # asdf-vm
+        if [ -f ~/.asdf/nixsrc/share/asdf-vm/asdf.sh ]
+        then
+          source $(realpath ~/.asdf/nixsrc/share/asdf-vm/asdf.sh)
+          fpath=(''${ASDF_DIR}/completions $fpath)
+        fi
+        export ASDF_GOLANG_MOD_VERSION_ENABLED=true # https://github.com/kennyp/asdf-golang/pull/101
 
-        local _nix_shell_prompt='''
-        local _nix_shell_prompt_size=0
+        # fzf
+        export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore-vcs --no-messages --smart-case'
+        export FZF_DEFAULT_OPTS='--height 30% --layout=reverse --border --info=inline --multi'
+        export FZF_CTRL_R_OPTS='--preview "export HISTSIZE=500000 && builtin fc -R "''${HOME}/.zsh_history" && builtin fc -l $(expr {1} - $(expr $FZF_PREVIEW_LINES / 2)) $(expr {1} + $(expr $FZF_PREVIEW_LINES / 2)) | bat --style=changes --color=always --theme \"Solarized (dark)\""' # show the history around the matched one in the preview window
+        export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+        if [ " $(command -v fzf-share)" ]; then
+          source "$(fzf-share)/key-bindings.zsh"
+          source "$(fzf-share)/completion.zsh"
+        fi
+      '';
+      init = lib.mkOrder 1000 ''
+        #####
+        ## PROMPT
+        #####
 
-        local _direnv_prompt='''
-        local _direnv_prompt_size=0
+        # pure-prompt
+        PURE_PROMPT_SYMBOL='$'
+        zstyle :prompt:pure:git:stash show yes
+        zstyle :prompt:pure:environment:nix-shell show no
+        prompt_pure_set_title() {} # https://github.com/sindresorhus/pure/wiki/Customizations,-hacks-and-tweaks#disable-pure-terminal-title-updates
 
-        local _pipestatus_prompt='''
-        local _pipestatus_prompt_size=0
+        # https://github.com/sindresorhus/pure/wiki/Customizations,-hacks-and-tweaks#include-initial-newline-when-clearing-screen-ctrll
+        custom_prompt_pure_clear_screen() {
+          zle -I                   # Enable output to terminal.
+          print -n '\e[2J\e[4;0H'  # Clear screen and move cursor to (4, 0).
+          zle .redisplay           # Redraw prompt.
+        }
+        zle -N clear-screen custom_prompt_pure_clear_screen
 
-        local _zero='%([BSUbfksu]|([FK]|){*})' # https://stackoverflow.com/a/10564427
-        local _prompt_size=$(( ''${#''${(S%%)PROMPT//$~_zero/}} - 4 )) # offset by 4 (?) spaces in the second line
+        # RPROMPT setup
+        function set_rprompt() {
+          local _aws_vault_prompt='''
+          local _aws_vault_prompt_size=0
 
-        local _column_width=$COLUMNS # total available space
-        local _timestamp_width=21 # e.g. ' [22-02-07 21:23:17] '
+          local _cf_vault_prompt='''
+          local _cf_vault_prompt_size=0
 
-        local _available_prompt_width=$(( _column_width - _prompt_size ))
+          local _nix_shell_prompt='''
+          local _nix_shell_prompt_size=0
+
+          local _direnv_prompt='''
+          local _direnv_prompt_size=0
+
+          local _pipestatus_prompt='''
+          local _pipestatus_prompt_size=0
+
+          local _zero='%([BSUbfksu]|([FK]|){*})' # https://stackoverflow.com/a/10564427
+          local _prompt_size=$(( ''${#''${(S%%)PROMPT//$~_zero/}} - 4 )) # offset by 4 (?) spaces in the second line
+
+          local _column_width=$COLUMNS # total available space
+          local _timestamp_width=21 # e.g. ' [22-02-07 21:23:17] '
+
+          local _available_prompt_width=$(( _column_width - _prompt_size ))
+
+          # aws-vault
+          if [ -n "''${AWS_VAULT:-}" ] ; then
+            local _expiration_delta_s=$(( $(gdate --date="''${AWS_CREDENTIAL_EXPIRATION:-$AWS_SESSION_EXPIRATION}" +"%s") - $(gdate +"%s") ))
+            local _expiration_detal_text="X"
+            [[ $_expiration_delta_s -gt 0 ]] && _expiration_detal_text="$(gdate -d @"''${_expiration_delta_s}" +"%-Hh%-Mm%-Ss")"
+
+            local _aws_vault_text="aws-vault|''${AWS_VAULT} "
+            _aws_vault_prompt_size="$(( ''${#_aws_vault_text} + ''${#_expiration_detal_text} + 3 + 2 ))" # 3 is for '[] ' 2 is for '┊ '
+            _aws_vault_prompt="┊ %B%F{066}''${_aws_vault_text}%f%b[%{%F{yellow}%}''${_expiration_detal_text}%{%f%}] "
+          fi
+
+          # cf-vault
+          if [ -n "''${CLOUDFLARE_VAULT_SESSION:-}" ] ; then
+             local _cf_vault_text="cf-vault|''${CLOUDFLARE_VAULT_SESSION} "
+             _cf_vault_prompt_size="$(( ''${#_cf_vault_text} + 2 ))" # 2 is for '┊ '
+             _cf_vault_prompt="┊ %B%F{115}''${_cf_vault_text}%b"
+          fi
+
+          # nix-shell
+          if [ -n "''${IN_NIX_SHELL:-}" ] ; then
+            local _nix_shell_text='nix-shell '
+            [ -n "''${NIX_SHELL_PACKAGES:-}" ] && _nix_shell_text="nix-shell(''${NIX_SHELL_PACKAGES}) "
+            _nix_shell_prompt_size="$(( ''${#_nix_shell_text} + 2 + _nix_shell_offset ))" # 2 is for '┊ '
+            _nix_shell_prompt="┊ %B%F{107}''${_nix_shell_text}%f%b"
+          fi
+
+          # direnv
+          if [[ -v DIRENV_DIR ]] ; then
+            local _direnv_text="direnv|''${DIRENV_DIR##*/} "
+            _direnv_prompt_size="$(( ''${#_direnv_text} + 2 ))" # 2 is for '┊ '
+            _direnv_prompt="┊ %B%F{130}''${_direnv_text}%f%b"
+          fi
+
+          # pipestatus
+          if [[ "$_PIPESTATUS" != "0" ]]; then
+            _pipestatus_prompt_size="$(( ''${#_PIPESTATUS} + 3 ))" # 3 is for '[] '
+            _pipestatus_prompt="%F{$prompt_pure_colors[prompt:error]}[$_PIPESTATUS]%f "
+          fi
+
+          # final calculation
+          local _home_directory_offset=0
+          [[ "$PWD" == "$HOME" ]] && _home_directory_offset=1 # for some unknown reason at the $HOME directory only
+          local _final_leftover_spaces=$(( _available_prompt_width - _pipestatus_prompt_size - _direnv_prompt_size - _nix_shell_prompt_size - _aws_vault_prompt_size - _cf_vault_prompt_size - _timestamp_width - _home_directory_offset ))
+          local _final_spaces_padding="$([[ $_final_leftover_spaces -gt 0 ]] && printf '%*s' $_final_leftover_spaces)"
+          local _final_prompt="''${_pipestatus_prompt}''${_direnv_prompt}''${_nix_shell_prompt}''${_aws_vault_prompt}''${_cf_vault_prompt}"
+
+          if [[ $_available_prompt_width -gt 0 ]]
+          then
+            echo -n "%$(( _available_prompt_width - 2 ))<...<''${_final_prompt}''${_final_spaces_padding}[%{%F{yellow}%}$(date '+%y-%m-%d %H:%M:%S')%{%f%}]"
+            #                                               | <--- prompt ---> | <--- space padding --->| <------------      Timestamp       ------------> |
+          fi
+        }
+
+        precmd_pipestatus() {
+          _PIPESTATUS="''${(j.|.)pipestatus}"
+        }
+        add-zsh-hook precmd precmd_pipestatus
+
+        setopt promptsubst
+        _lineup=$'\e[1A' # https://superuser.com/a/737454
+        _linedown=$'\e[1B'
+        RPROMPT='%{''${_lineup}%}$(set_rprompt)%{''${_linedown}%}'
+
+        #####
+        ## HISTORY
+        #####
+
+        setopt HIST_NO_STORE
+        setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording entry.
+        setopt HIST_VERIFY               # Don't execute immediately upon history expansion
+
+        zshaddhistory_ignore_pattern() {
+          emulate -L zsh
+          setopt localoptions kshglob
+          [[ $(echo $1 | tr -d '\n') != ''${~HISTORY_IGNORE} ]] # https://unix.stackexchange.com/a/593637
+        }
+        zshaddhistory_functions+=( zshaddhistory_ignore_pattern )
+
+        precmd_history_file_backup() {
+          if [ ! -f "$HISTFILE" ] || [ $(wc -l < $HISTFILE) -lt '10' ]
+          then
+            fc -W
+          fi
+          cp "$HISTFILE" ~/.config/hist_backup/.zsh_history.$(date +%y%m%d)
+        }
+        precmd_functions+=( precmd_history_file_backup )
+
+        #####
+        ## SETUP
+        #####
+
+        # zsh-autosuggestions
+        ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+        ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+
+        # autocompletion
+        setopt noautomenu # don't autocomplete prompt
+        setopt nomenucomplete
+
+        _comp_options+=(globdots) # show hidden files and directories
+
+        zstyle ':completion:*' insert-tab false # no tab when no char to the left of the cursor
+
+        zstyle ':completion:*' use-cache on # use cache
+        zstyle ':completion:*' cache-path ~/.config/zsh/cache
+
+        # evalcache
+        ZSH_EVALCACHE_DIR="''${ZDOTDIR:-~/.config/zsh}/.zsh-evalcache"
+
+        # asdf-vm
+        if [ "$(command -v asdf)" ]; then
+          if [ "$(command -v direnv)" ]; then
+            # asdf-direnv
+            export DIRENV_LOG_FORMAT=""
+            _evalcache direnv hook zsh
+          fi
+        fi
+
+        # for compatible bash completion
+        autoload bashcompinit && bashcompinit
+
+        # aws-cli
+        ## v2
+        export AWS_CLI_AUTO_PROMPT=on
 
         # aws-vault
-        if [ -n "''${AWS_VAULT:-}" ] ; then
-          local _expiration_delta_s=$(( $(gdate --date="''${AWS_CREDENTIAL_EXPIRATION:-$AWS_SESSION_EXPIRATION}" +"%s") - $(gdate +"%s") ))
-          local _expiration_detal_text="X"
-          [[ $_expiration_delta_s -gt 0 ]] && _expiration_detal_text="$(gdate -d @"''${_expiration_delta_s}" +"%-Hh%-Mm%-Ss")"
+        [ "$(command -v aws-vault)" ] && _evalcache aws-vault --completion-script-bash
 
-          local _aws_vault_text="aws-vault|''${AWS_VAULT} "
-          _aws_vault_prompt_size="$(( ''${#_aws_vault_text} + ''${#_expiration_detal_text} + 3 + 2 ))" # 3 is for '[] ' 2 is for '┊ '
-          _aws_vault_prompt="┊ %B%F{066}''${_aws_vault_text}%f%b[%{%F{yellow}%}''${_expiration_detal_text}%{%f%}] "
+        # colima/lima
+        if [[ $(uname) == 'Darwin' ]] && [ "$(command -v colima)" ]; then
+           alias colima_start='colima start --cpu 2 --memory 4 --with-kubernetes'
+           _evalcache colima completion zsh
+           _evalcache limactl completion zsh
+           export DOCKER_HOST="unix://''${HOME}/.colima/default/docker.sock"
         fi
 
-        # cf-vault
-        if [ -n "''${CLOUDFLARE_VAULT_SESSION:-}" ] ; then
-           local _cf_vault_text="cf-vault|''${CLOUDFLARE_VAULT_SESSION} "
-           _cf_vault_prompt_size="$(( ''${#_cf_vault_text} + 2 ))" # 2 is for '┊ '
-           _cf_vault_prompt="┊ %B%F{115}''${_cf_vault_text}%b"
+        # emacs
+        ## lsp / https://emacs-lsp.github.io/lsp-mode/page/performance/#use-plists-for-deserialization
+        export LSP_USE_PLISTS=true
+
+        # ## vterm
+        # if [[ "$INSIDE_EMACS" = 'vterm' ]] \
+        #   && [[ -n "''${EMACS_VTERM_PATH}" ]] \
+        #   && [[ -f "''${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh" ]]; then
+        #   source "''${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh"
+        # fi
+
+        ## alias
+        case "$(uname -s)" in
+            Darwin*)      # alias to nix emacsMacport
+                          _BASH_ALIAS_EMACSCLIENT='emacsclient'
+                          _BASH_ALIAS_EMACS="$HOME/.nix-profile/Applications/Emacs.app/Contents/MacOS/Emacs"
+                          ;;
+            Linux* | *)   _BASH_ALIAS_EMACSCLIENT='/usr/bin/emacsclient' ;;
+        esac
+
+        alias ecf="''${_BASH_ALIAS_EMACSCLIENT} -q -c -a '''"
+        alias ect="''${_BASH_ALIAS_EMACSCLIENT} -q -t -a '''"
+        alias eck="''${_BASH_ALIAS_EMACSCLIENT} -q -e '(kill-emacs)'"
+
+        if [ ! -z "''${_BASH_ALIAS_EMACS}" ] ; then
+          alias et="''${_BASH_ALIAS_EMACS} -nw"
+          alias ef="''${_BASH_ALIAS_EMACS}"
+        fi
+        alias e=ect
+
+        # kubectl
+        if [ -x "$(command -v kubectl)" ]; then
+          _evalcache kubectl completion zsh
+          compdef __start_kubectl k
         fi
 
-        # nix-shell
-        if [ -n "''${IN_NIX_SHELL:-}" ] ; then
-          local _nix_shell_text='nix-shell '
-          [ -n "''${NIX_SHELL_PACKAGES:-}" ] && _nix_shell_text="nix-shell(''${NIX_SHELL_PACKAGES}) "
-          _nix_shell_prompt_size="$(( ''${#_nix_shell_text} + 2 + _nix_shell_offset ))" # 2 is for '┊ '
-          _nix_shell_prompt="┊ %B%F{107}''${_nix_shell_text}%f%b"
-        fi
-
-        # direnv
-        if [[ -v DIRENV_DIR ]] ; then
-          local _direnv_text="direnv|''${DIRENV_DIR##*/} "
-          _direnv_prompt_size="$(( ''${#_direnv_text} + 2 ))" # 2 is for '┊ '
-          _direnv_prompt="┊ %B%F{130}''${_direnv_text}%f%b"
-        fi
-
-        # pipestatus
-        if [[ "$_PIPESTATUS" != "0" ]]; then
-          _pipestatus_prompt_size="$(( ''${#_PIPESTATUS} + 3 ))" # 3 is for '[] '
-          _pipestatus_prompt="%F{$prompt_pure_colors[prompt:error]}[$_PIPESTATUS]%f "
-        fi
-
-        # final calculation
-        local _home_directory_offset=0
-        [[ "$PWD" == "$HOME" ]] && _home_directory_offset=1 # for some unknown reason at the $HOME directory only
-        local _final_leftover_spaces=$(( _available_prompt_width - _pipestatus_prompt_size - _direnv_prompt_size - _nix_shell_prompt_size - _aws_vault_prompt_size - _cf_vault_prompt_size - _timestamp_width - _home_directory_offset ))
-        local _final_spaces_padding="$([[ $_final_leftover_spaces -gt 0 ]] && printf '%*s' $_final_leftover_spaces)"
-        local _final_prompt="''${_pipestatus_prompt}''${_direnv_prompt}''${_nix_shell_prompt}''${_aws_vault_prompt}''${_cf_vault_prompt}"
-
-        if [[ $_available_prompt_width -gt 0 ]]
-        then
-          echo -n "%$(( _available_prompt_width - 2 ))<...<''${_final_prompt}''${_final_spaces_padding}[%{%F{yellow}%}$(date '+%y-%m-%d %H:%M:%S')%{%f%}]"
-          #                                               | <--- prompt ---> | <--- space padding --->| <------------      Timestamp       ------------> |
-        fi
-      }
-
-      precmd_pipestatus() {
-        _PIPESTATUS="''${(j.|.)pipestatus}"
-      }
-      add-zsh-hook precmd precmd_pipestatus
-
-      setopt promptsubst
-      _lineup=$'\e[1A' # https://superuser.com/a/737454
-      _linedown=$'\e[1B'
-      RPROMPT='%{''${_lineup}%}$(set_rprompt)%{''${_linedown}%}'
-
-      #####
-      ## HISTORY
-      #####
-
-      setopt HIST_NO_STORE
-      setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording entry.
-      setopt HIST_VERIFY               # Don't execute immediately upon history expansion
-
-      zshaddhistory_ignore_pattern() {
-        emulate -L zsh
-        setopt localoptions kshglob
-        [[ $(echo $1 | tr -d '\n') != ''${~HISTORY_IGNORE} ]] # https://unix.stackexchange.com/a/593637
-      }
-      zshaddhistory_functions+=( zshaddhistory_ignore_pattern )
-
-      precmd_history_file_backup() {
-        if [ ! -f "$HISTFILE" ] || [ $(wc -l < $HISTFILE) -lt '10' ]
-        then
-          fc -W
-        fi
-        cp "$HISTFILE" ~/.config/hist_backup/.zsh_history.$(date +%y%m%d)
-      }
-      precmd_functions+=( precmd_history_file_backup )
-
-      #####
-      ## SETUP
-      #####
-
-      # zsh-autosuggestions
-      ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-      ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
-
-      # autocompletion
-      setopt noautomenu # don't autocomplete prompt
-      setopt nomenucomplete
-
-      _comp_options+=(globdots) # show hidden files and directories
-
-      zstyle ':completion:*' insert-tab false # no tab when no char to the left of the cursor
-
-      zstyle ':completion:*' use-cache on # use cache
-      zstyle ':completion:*' cache-path ~/.config/zsh/cache
-
-      # evalcache
-      ZSH_EVALCACHE_DIR="''${ZDOTDIR:-~/.config/zsh}/.zsh-evalcache"
-
-      # asdf-vm
-      if [ "$(command -v asdf)" ]; then
-        if [ "$(command -v direnv)" ]; then
-          # asdf-direnv
-          export DIRENV_LOG_FORMAT=""
-          _evalcache direnv hook zsh
-        fi
-      fi
-
-      # for compatible bash completion
-      autoload bashcompinit && bashcompinit
-
-      # aws-cli
-      ## v2
-      export AWS_CLI_AUTO_PROMPT=on
-
-      # aws-vault
-      [ "$(command -v aws-vault)" ] && _evalcache aws-vault --completion-script-bash
-
-      # colima/lima
-      if [[ $(uname) == 'Darwin' ]] && [ "$(command -v colima)" ]; then
-         alias colima_start='colima start --cpu 2 --memory 4 --with-kubernetes'
-         _evalcache colima completion zsh
-         _evalcache limactl completion zsh
-         export DOCKER_HOST="unix://''${HOME}/.colima/default/docker.sock"
-      fi
-
-      # emacs
-      ## lsp / https://emacs-lsp.github.io/lsp-mode/page/performance/#use-plists-for-deserialization
-      export LSP_USE_PLISTS=true
-
-      # ## vterm
-      # if [[ "$INSIDE_EMACS" = 'vterm' ]] \
-      #   && [[ -n "''${EMACS_VTERM_PATH}" ]] \
-      #   && [[ -f "''${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh" ]]; then
-      #   source "''${EMACS_VTERM_PATH}/etc/emacs-vterm-zsh.sh"
-      # fi
-
-      ## alias
-      case "$(uname -s)" in
-          Darwin*)      # alias to nix emacsMacport
-                        _BASH_ALIAS_EMACSCLIENT='emacsclient'
-                        _BASH_ALIAS_EMACS="$HOME/.nix-profile/Applications/Emacs.app/Contents/MacOS/Emacs"
-                        ;;
-          Linux* | *)   _BASH_ALIAS_EMACSCLIENT='/usr/bin/emacsclient' ;;
-      esac
-
-      alias ecf="''${_BASH_ALIAS_EMACSCLIENT} -q -c -a '''"
-      alias ect="''${_BASH_ALIAS_EMACSCLIENT} -q -t -a '''"
-      alias eck="''${_BASH_ALIAS_EMACSCLIENT} -q -e '(kill-emacs)'"
-
-      if [ ! -z "''${_BASH_ALIAS_EMACS}" ] ; then
-        alias et="''${_BASH_ALIAS_EMACS} -nw"
-        alias ef="''${_BASH_ALIAS_EMACS}"
-      fi
-      alias e=ect
-
-      # kubectl
-      if [ -x "$(command -v kubectl)" ]; then
-        _evalcache kubectl completion zsh
-        compdef __start_kubectl k
-      fi
-
-      # jq
-      ## [ -f ~/.config/local/bin/jq-completion.bash ] && source ~/.config/local/bin/jq-completion.bash
-    '';
+        # jq
+        ## [ -f ~/.config/local/bin/jq-completion.bash ] && source ~/.config/local/bin/jq-completion.bash
+      '';
+    in
+      lib.mkMerge [ earlyInit beforCompletionInit init ];
 
     loginExtra = ''
       # https://htr3n.github.io/2018/07/faster-zsh/#compiling-completion-dumped-files
