@@ -2,6 +2,7 @@
 
 {
   home.packages = with pkgs; [
+    fzf
     zoxide
     zsh
   ];
@@ -34,16 +35,6 @@
 
     plugins = [
       {
-        name = "pure-prompt";
-        file = "prompt_pure_setup";
-        src = pkgs.fetchFromGitHub {
-          owner = "sindresorhus";
-          repo = "pure";
-          rev = "v1.23.0";
-          sha256 = "BmQO4xqd/3QnpLUitD2obVxL0UulpboT8jGNEh4ri8k=";
-        };
-      }
-      {
         name = "evalcache";
         file = "evalcache.plugin.zsh";
         src = pkgs.fetchFromGitHub {
@@ -62,6 +53,16 @@
           repo = "fzf-tab";
           rev = "v1.2.0";
           sha256 = "q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
+        };
+      }
+      {
+        name = "pure-prompt";
+        file = "prompt_pure_setup";
+        src = pkgs.fetchFromGitHub {
+          owner = "sindresorhus";
+          repo = "pure";
+          rev = "v1.23.0";
+          sha256 = "BmQO4xqd/3QnpLUitD2obVxL0UulpboT8jGNEh4ri8k=";
         };
       }
       {
