@@ -2,6 +2,7 @@
 
 {
   home.packages = with pkgs; [
+    zoxide
     zsh
   ];
 
@@ -25,6 +26,7 @@
         "?(terraform|tf)?(+( )?(init|get|plan|apply|destroy|fmt))"
         "e?(c)?(f|t|k)"
         "go*( )?(?(build)|?(test))"
+        "pushd" "popd"
       ];
       save = 500000;
       size = 500000;
@@ -80,6 +82,16 @@
           repo = "zsh-syntax-highlighting";
           rev = "5eb677bb0fa9a3e60f0eff031dc13926e093df92";
           sha256 = "KRsQEDRsJdF7LGOMTZuqfbW6xdV5S38wlgdcCM98Y/Q=";
+        };
+      }
+      {
+        name = "zsh-you-should-use";
+        file = "zsh-you-should-use.plugin.zsh";
+        src = pkgs.fetchFromGitHub {
+          owner = "MichaelAquilina";
+          repo = "zsh-you-should-use";
+          rev = "56616de037082f7dc0a143eb244ea27e5a697ef9";
+          sha256 = "XbTZpyUIpALsVezqnIfz7sV26hMi8z+2dW0mL2QbVIE=";
         };
       }
     ];
@@ -168,6 +180,9 @@
       else
         compinit -C
       fi
+
+      # for compatible bash completion
+      autoload -Uz bashcompinit && bashcompinit
     '';
 
     initContent = let
@@ -370,9 +385,6 @@
           fi
         fi
 
-        # for compatible bash completion
-        autoload bashcompinit && bashcompinit
-
         # aws-cli
         ## v2
         export AWS_CLI_AUTO_PROMPT=on
@@ -427,8 +439,17 @@
         # jq
         ## [ -f ~/.config/local/bin/jq-completion.bash ] && source ~/.config/local/bin/jq-completion.bash
       '';
+      afterInit = lib.mkOrder 1500 ''
+        ## zsh options
+        setopt autocd
+        setopt autopushd pushdignoredups pushdminus
+        export DIRSTACKSIZE=5
+
+        # z
+        [ "$(command -v zoxide)" ] && _evalcache zoxide init zsh
+      '';
     in
-      lib.mkMerge [ earlyInit beforCompletionInit init ];
+      lib.mkMerge [ earlyInit beforCompletionInit init afterInit ];
 
     loginExtra = ''
       # https://htr3n.github.io/2018/07/faster-zsh/#compiling-completion-dumped-files
