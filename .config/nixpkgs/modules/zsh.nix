@@ -443,8 +443,8 @@
       afterInit = lib.mkOrder 1500 ''
         ## zsh options
         setopt autocd
-        setopt autopushd pushdignoredups pushdminus
-        export DIRSTACKSIZE=5
+        # setopt autopushd pushdignoredups pushdminus
+        # export DIRSTACKSIZE=5
 
         # z
         [ "$(command -v zoxide)" ] && _evalcache zoxide init zsh
