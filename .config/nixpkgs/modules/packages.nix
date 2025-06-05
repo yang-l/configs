@@ -25,7 +25,8 @@
     aspell # spelling check
     aspellDicts.en
     # editor
-    emacs
+    (emacs.pkgs.withPackages (epkgs: with epkgs; [ treesit-grammars.with-all-grammars ]))
+    libvterm-neovim
     multimarkdown # markdown
     ### LSP
     gopls
@@ -46,6 +47,13 @@
     black
     mypy
     python310Packages.flake8
+
+    ## AI
+    # github copilot
+    nodejs_24
+    copilot-language-server
+    # open soruce ai pair
+    aider-chat
 
     ## Misc
     gettext # for 'envsubst'
