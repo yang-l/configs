@@ -95,6 +95,15 @@
           sha256 = "XbTZpyUIpALsVezqnIfz7sV26hMi8z+2dW0mL2QbVIE=";
         };
       }
+      {
+        name = "zsh-copilot";
+        file = "zsh-copilot.plugin.zsh";
+        src = pkgs.fetchgit {
+          url = "https://git.myzel394.app/Myzel394/zsh-copilot";
+          rev = "be5b24d5bec678baf6c88fec1d8282a50fa7a8a1";
+          sha256 = "kvkS2BxwyP68tSjV9KZtaqaj7FB2ZjoZYEKqN5pzZzU=";
+        };
+      }
     ];
 
     shellAliases = {
@@ -223,6 +232,9 @@
           source "$(fzf-share)/key-bindings.zsh"
           source "$(fzf-share)/completion.zsh"
         fi
+
+        # zsh-copilot config
+        source ~/.config/local/private.sh
       '';
       init = lib.mkOrder 1000 ''
         #####
