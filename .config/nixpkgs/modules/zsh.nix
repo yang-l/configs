@@ -107,10 +107,6 @@
     ];
 
     shellAliases = {
-      # asdf
-      asdf_direnv_gen = ''__lambda() { asdf direnv local "$@" ; } ; __lambda'';
-      asdf_shell = ''__lambda() { asdf direnv shell "$@" ; } ; __lambda'';
-      #asdf_update = ''asdf update && asdf plugin-update --all'';
       # core
       ".."   = ''cd ..'';
       "..."  = ''cd ../..'';
@@ -215,14 +211,6 @@
       beforCompletionInit = lib.mkOrder 550 ''
         fpath=("''${HOME}/.config/zsh/completion" $fpath) # for autocompletion
 
-        # asdf-vm
-        if [ -f ~/.asdf/nixsrc/share/asdf-vm/asdf.sh ]
-        then
-          source $(realpath ~/.asdf/nixsrc/share/asdf-vm/asdf.sh)
-          fpath=(''${ASDF_DIR}/completions $fpath)
-        fi
-        export ASDF_GOLANG_MOD_VERSION_ENABLED=true # https://github.com/kennyp/asdf-golang/pull/101
-
         # fzf
         export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore-vcs --no-messages --smart-case'
         export FZF_DEFAULT_OPTS='--height 30% --layout=reverse --border --info=inline --multi'
@@ -266,9 +254,6 @@
           local _nix_shell_prompt='''
           local _nix_shell_prompt_size=0
 
-          local _direnv_prompt='''
-          local _direnv_prompt_size=0
-
           local _pipestatus_prompt='''
           local _pipestatus_prompt_size=0
 
@@ -306,13 +291,6 @@
             _nix_shell_prompt="┊ %B%F{107}''${_nix_shell_text}%f%b"
           fi
 
-          # direnv
-          if [[ -v DIRENV_DIR ]] ; then
-            local _direnv_text="direnv|''${DIRENV_DIR##*/} "
-            _direnv_prompt_size="$(( ''${#_direnv_text} + 2 ))" # 2 is for '┊ '
-            _direnv_prompt="┊ %B%F{130}''${_direnv_text}%f%b"
-          fi
-
           # pipestatus
           if [[ "$_PIPESTATUS" != "0" ]]; then
             _pipestatus_prompt_size="$(( ''${#_PIPESTATUS} + 3 ))" # 3 is for '[] '
@@ -322,9 +300,9 @@
           # final calculation
           local _home_directory_offset=0
           [[ "$PWD" == "$HOME" ]] && _home_directory_offset=1 # for some unknown reason at the $HOME directory only
-          local _final_leftover_spaces=$(( _available_prompt_width - _pipestatus_prompt_size - _direnv_prompt_size - _nix_shell_prompt_size - _aws_vault_prompt_size - _cf_vault_prompt_size - _timestamp_width - _home_directory_offset ))
+          local _final_leftover_spaces=$(( _available_prompt_width - _pipestatus_prompt_size - _nix_shell_prompt_size - _aws_vault_prompt_size - _cf_vault_prompt_size - _timestamp_width - _home_directory_offset ))
           local _final_spaces_padding="$([[ $_final_leftover_spaces -gt 0 ]] && printf '%*s' $_final_leftover_spaces)"
-          local _final_prompt="''${_pipestatus_prompt}''${_direnv_prompt}''${_nix_shell_prompt}''${_aws_vault_prompt}''${_cf_vault_prompt}"
+          local _final_prompt="''${_pipestatus_prompt}''${_nix_shell_prompt}''${_aws_vault_prompt}''${_cf_vault_prompt}"
 
           if [[ $_available_prompt_width -gt 0 ]]
           then
@@ -388,15 +366,6 @@
 
         # evalcache
         ZSH_EVALCACHE_DIR="''${ZDOTDIR:-~/.config/zsh}/.zsh-evalcache"
-
-        # asdf-vm
-        if [ "$(command -v asdf)" ]; then
-          if [ "$(command -v direnv)" ]; then
-            # asdf-direnv
-            export DIRENV_LOG_FORMAT=""
-            _evalcache direnv hook zsh
-          fi
-        fi
 
         # aws-cli
         ## v2
@@ -479,13 +448,5 @@
 
   home.activation.zsh-docker-completion = lib.hm.dag.entryAfter ["writeBoundary"] ''
     $DRY_RUN_CMD bash -c 'set -x ; mkdir -p ~/.config/zsh/completion ; /Users/$USER/.nix-profile/bin/curl -s https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker -o ~/.config/zsh/completion/_docker'
-  '';
-
-  home.activation.direnv-config = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD bash -c 'set -x ; mkdir -p ~/.config/direnv/lib/ ; cat <<-EOF | tee ~/.config/direnv/lib/use_asdf.sh
-use_asdf() {
-  source_env "\$(asdf direnv envrc "\$@")"
-}
-EOF'
   '';
 }

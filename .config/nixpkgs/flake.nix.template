@@ -107,7 +107,7 @@
             news.entries = pkgs.lib.mkForce [ ];
           }
 
-          ./modules/asdf.nix
+          # ./modules/asdf.nix
           ./modules/aws.nix
           ./modules/awsvault.nix
           ./modules/bat.nix

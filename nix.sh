@@ -13,6 +13,3 @@ envsubst '$__FULL_BASE_FOLDER_PATH' < $__FULL_BASE_FOLDER_PATH/.config/nixpkgs/f
 home-manager "${1:-build}" --extra-experimental-features "nix-command flakes" --flake $__FULL_BASE_FOLDER_PATH/.config/nixpkgs/#macbook-pro_m2 -v
 
 rm -f result
-
-# path update
-asdf reshim
