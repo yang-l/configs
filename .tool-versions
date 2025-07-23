@@ -1,7 +1,5 @@
-direnv 2.34.0
+# global toolings
+awscli 2.27.57
+kubectl 1.33.3
 
-awscli 2.15.32
-kubectl 1.29.3
-
-# the rest should be project specific
-# https://github.com/asdf-community/asdf-direnv/issues/117
+# local tooling versions can be defined as per project bases

@@ -307,7 +307,7 @@
           if [[ $_available_prompt_width -gt 0 ]]
           then
             echo -n "%$(( _available_prompt_width - 2 ))<...<''${_final_prompt}''${_final_spaces_padding}[%{%F{yellow}%}$(date '+%y-%m-%d %H:%M:%S')%{%f%}]"
-            #                                               | <--- prompt ---> | <--- space padding --->| <------------      Timestamp       ------------> |
+            #                                               | <--- prompt ---> | <--- space padding ---> | <------------      Timestamp      ------------> |
           fi
         }
 
@@ -420,6 +420,12 @@
 
         # jq
         ## [ -f ~/.config/local/bin/jq-completion.bash ] && source ~/.config/local/bin/jq-completion.bash
+
+        # mise
+        if [ "$(command -v mise)" ]; then
+          _evalcache mise activate zsh
+          _evalcache mise completion zsh
+        fi
       '';
       afterInit = lib.mkOrder 1500 ''
         ## zsh options

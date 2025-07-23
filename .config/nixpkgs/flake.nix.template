@@ -119,6 +119,7 @@
           ./modules/iterm2.nix
           ./modules/local-bin.nix
           ./modules/misc-dockerfiles.nix
+          ./modules/mise.nix
           ./modules/packages.nix
           ./modules/ripgrep.nix
           ./modules/ruby.nix
