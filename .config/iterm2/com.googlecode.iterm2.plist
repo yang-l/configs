@@ -225,7 +225,7 @@
 	<array>
 		<dict>
 			<key>ASCII Anti Aliased</key>
-			<false/>
+			<true/>
 			<key>ASCII Ligatures</key>
 			<false/>
 			<key>AWDS Pane Directory</key>
@@ -896,7 +896,7 @@
 			<key>Non-ASCII Anti Aliased</key>
 			<false/>
 			<key>Normal Font</key>
-			<string>TerminusTTF 16</string>
+			<string>MapleMonoNormalNL-CN-ExtraLight 15</string>
 			<key>Only The Default BG Color Uses Transparency</key>
 			<true/>
 			<key>Option Key Sends</key>

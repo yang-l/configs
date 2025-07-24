@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     iterm2
+    maple-mono.NormalNL-CN-unhinted
     terminus_font_ttf
   ];
 

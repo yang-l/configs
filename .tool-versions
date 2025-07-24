@@ -2,4 +2,6 @@
 awscli 2.27.57
 kubectl 1.33.3
 
+nodejs lts
+
 # local tooling versions can be defined as per project bases
