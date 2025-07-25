@@ -12,6 +12,8 @@ trap 'err $LINENO' ERR
 
 
 main() {
+  sudo -H nix upgrade-nix
+
   nix-channel --update
 
   nix flake update nixpkgs --extra-experimental-features "nix-command flakes" --flake "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"/.config/nixpkgs/
