@@ -11,10 +11,10 @@
     openssl_3_0
 
     ## Docker
-    # (co)lima
+    # colima
     colima # replace docker desktop on mac
-    lima
-    qemu
+    #lima
+    #qemu
     docker-client
     # misc
     ##dive # analysis image size
@@ -50,7 +50,7 @@
 
     ## AI
     # github copilot
-    nodejs_24
+    #nodejs_24
     copilot-language-server
     # open soruce ai pair
     aider-chat

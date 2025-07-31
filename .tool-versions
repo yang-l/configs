@@ -1,7 +1,8 @@
 # global toolings
-awscli 2.27.57
+aws-cli 2.27.60
 kubectl 1.33.3
+terraform-ls 0.36.5
 
 nodejs lts
 
-# local tooling versions can be defined as per project bases
+# local tooling versions can be defined as per project bases, and would override the global version

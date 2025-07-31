@@ -374,12 +374,13 @@
         # aws-vault
         [ "$(command -v aws-vault)" ] && _evalcache aws-vault --completion-script-bash
 
-        # colima/lima
+        # colima
         if [[ $(uname) == 'Darwin' ]] && [ "$(command -v colima)" ]; then
-           alias colima_start='colima start --cpu 2 --memory 4 --with-kubernetes'
+           # native vz, and no more lima/qemu
+           alias colima_start='colima start --vm-type vz --vz-rosetta --mount-type virtiofs --cpu 4 --memory 8 --with-kubernetes'
            _evalcache colima completion zsh
-           _evalcache limactl completion zsh
-           export DOCKER_HOST="unix://''${HOME}/.colima/default/docker.sock"
+           # _evalcache limactl completion zsh
+           export DOCKER_HOST="unix://''${XDG_CONFIG_HOME}/colima/default/docker.sock"
         fi
 
         # emacs
