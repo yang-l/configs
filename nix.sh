@@ -10,6 +10,6 @@ cd $__FULL_BASE_FOLDER_PATH
 
 envsubst '$__FULL_BASE_FOLDER_PATH' < $__FULL_BASE_FOLDER_PATH/.config/nixpkgs/flake.nix.template > $__FULL_BASE_FOLDER_PATH/.config/nixpkgs/flake.nix
 
-home-manager "${1:-build}" --extra-experimental-features "nix-command flakes" --flake $__FULL_BASE_FOLDER_PATH/.config/nixpkgs/#macbook-pro_m2 -v
+home-manager "${1:-build}" --extra-experimental-features "nix-command flakes" --flake $__FULL_BASE_FOLDER_PATH/.config/nixpkgs/#macbook-pro_m2 -v --show-trace
 
 rm -f result

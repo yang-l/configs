@@ -112,6 +112,7 @@
           ./modules/awsvault.nix
           ./modules/bat.nix
           # ./modules/bash.nix
+          ./modules/claude.nix
           ./modules/cleanup.nix
           ./modules/editorconfig.nix
           ./modules/git.nix
