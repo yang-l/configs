@@ -1,6 +1,8 @@
 # global toolings
 aws-cli 2.27.60
-kubectl 1.33.3
+#eksctl 0.212.0
+#kubectl 1.33.3
+
 terraform-ls 0.36.5
 
 nodejs lts

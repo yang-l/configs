@@ -122,7 +122,6 @@
       ls = "ls --color=auto";
       rm = "rm -i";
       # app
-      aws_comp_conf = "complete -C '$(which aws_completer)' aws";
       cat = "bat --color=auto --style=plain";
       catn = "cat -n";
       g = "git";
@@ -370,6 +369,7 @@
         # aws-cli
         ## v2
         export AWS_CLI_AUTO_PROMPT=on
+        [ "$(mise exec -- command -v aws_completer)" ] && complete -C "$(mise exec -- which aws_completer)" aws
 
         # aws-vault
         [ "$(command -v aws-vault)" ] && _evalcache aws-vault --completion-script-bash
