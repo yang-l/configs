@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(rm -rf:*)",
+      "Read(~/.ejson/**)",
+      "Read(~/.ssh/**)"
+    ]
+  },
+  "model": "opusplan"
+}
