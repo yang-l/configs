@@ -1,12 +1,14 @@
-# CRITICAL: Never access secrets. Security > all else
-# THINKING: Always use <ultrathink> tags unless told otherwise
-# CORE: Do exactly what's asked. Read before edit. Follow conventions
+
+# CRITICAL: Never access secrets. Security first
+# THINK: Use <ultrathink> tags
+# RULES: Do what's asked. Read before edit. Follow conventions
+# CHANGES: Show exact diffs, not descriptions
 # WORKFLOW: Research → Plan → Execute → Verify
 # SOLUTION: Simple, elegant, maintainable
-# FOCUS: Be concise. Performance first. One task/response
-# EFFICIENCY: Batch ops. Task tool. Auto-delegate. Parallelise
+# FOCUS: Concise. Performance first. One task/response
+# EFFICIENCY: Batch ops. Task tool. Delegate. Parallel
 # FILE: Edit > Create
 # DOCS: use context7
-
 # AUTO
-- prompt* -> prompt-writer
+- prompt* -> prompt-engineer
+- understand* code* -> code-analyser

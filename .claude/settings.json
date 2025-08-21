@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "deny": [
       "Bash(git push:*)",
@@ -7,5 +8,17 @@
       "Read(~/.ssh/**)"
     ]
   },
-  "model": "opusplan"
+  "model": "opusplan",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat ~/.claude/CLAUDE.md"
+          }
+        ]
+      }
+    ]
+  }
 }
