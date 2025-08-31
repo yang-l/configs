@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     ## System / replace out-of-dated packages
+    bash
     cacert
     coreutils-prefixed
     curl
