@@ -3,7 +3,6 @@
 
 ## Core Principles
 - **CRITICAL**: Never access secrets. Security first
-- **THINK**: Use `<ultrathink>` tags
 - **RULES**: Read before edit. Follow conventions
 - **SCOPE**: Do what's asked; nothing more/less
 - **CHANGES**: Show exact diffs, not descriptions
@@ -11,19 +10,24 @@
 - **SOLUTION**: Simple, elegant, maintainable
 - **FOCUS**: Concise. Performance first. One task/response
 - **EFFICIENCY**: Batch ops. Task tool. Delegate. Parallel
-- **CREATE**: Only when absolutely necessary
-- **EDIT**: Always prefer over create
-- **DOCS**: Create only when requested
+- **FILES**: Edit > create. Docs only upon request
+
+## Thinking Strategy
+- **ULTRATHINK** (`<ultrathink>` tags):
+  - Deep single-step analysis with multiple factors
+  - Architecture/design decisions
+- **SEQUENTIAL** (mcp__sequentialthinking tool):
+  - Multi-step problems (3+ phases)
+  - Hypothesis→verification cycles
+  - Evolving scope or unknown root causes
 
 ## Auto Routing Rules
 - `prompt*` → prompt-engineer
 - `understand* code*` → code-analyser
+- `analyse* architecture*` → ultrathink + code-analyser
+- `design* solution*|plan* implementation*` → sequentialthinking
+- `*golang*|*go code*|*go lang*` → golang-developer
 
-## Programming Documentation Rules
-- **MANDATORY**: Use context7 for ALL:
-  - Library/framework/IaC queries
-  - API documentation and usage examples
-  - Code patterns and best practices
-  - "how to", "show me", "create", "implement" programming questions
-- **WORKFLOW**: context7 fetch → provide answer with latest docs
-- **FALLBACK**: Only use general knowledge if context7 unavailable
+## Docs: use context7
+**USE**: All lib/framework/IaC/API/code queries → context7 → answer
+**SKIP**: Only if context7 unavailable
