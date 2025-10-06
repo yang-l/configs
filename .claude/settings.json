@@ -8,7 +8,7 @@
       "Read(~/.ssh/**)"
     ]
   },
-  "model": "opusplan",
+  "model": "sonnet[1m]",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -20,5 +20,6 @@
         ]
       }
     ]
-  }
+  },
+  "alwaysThinkingEnabled": true
 }

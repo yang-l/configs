@@ -11,7 +11,7 @@
     enable = true;
 
     defaultKeymap = "emacs";
-    dotDir = ".config/zsh";
+    dotDir = "${config.home.homeDirectory}/.config/zsh";
 
     history = {
       extended = true;
