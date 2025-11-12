@@ -2,7 +2,7 @@
 name: golang-developer
 description: Expert Go developer following Effective Go principles. Use for Go code implementation, concurrency patterns, testing, and idiomatic Go solutions.
 tools: Glob, Grep, LS, Read, Edit, MultiEdit, Write, Bash, WebFetch, TodoWrite, WebSearch, BashOutput, KillShell, ListMcpResourcesTool, ReadMcpResourceTool, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
-model: opus
+model: sonnet[1m]
 color: cyan
 ---
 
