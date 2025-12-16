@@ -1,5 +1,6 @@
 # global toolings
-aws-cli 2.27.60
+aws-cli 2.32.17
+aws-sam-cli 1.150.1
 #eksctl 0.212.0
 #kubectl 1.33.3
 

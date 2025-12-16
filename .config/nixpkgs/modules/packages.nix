@@ -9,7 +9,7 @@
     curl
     diffutils
     gnused
-    openssl_3_0
+    openssl_3
 
     ## Docker
     # colima
@@ -30,9 +30,9 @@
     libvterm-neovim
     multimarkdown # markdown
     ### LSP
+    dockerfile-language-server
     gopls
     nodePackages.bash-language-server
-    nodePackages.dockerfile-language-server-nodejs
     nodePackages.vscode-json-languageserver
     nodePackages.yaml-language-server
     solargraph

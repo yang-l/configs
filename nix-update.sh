@@ -20,5 +20,9 @@ main() {
   nix flake update home-manager --extra-experimental-features "nix-command flakes" --flake "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"/.config/nixpkgs/
 
   make
+
+  home-manager expire-generations "-90 days"
+  nix-collect-garbage --delete-older-than 90d
+  nix-store --gc
 }
 main "$@"
