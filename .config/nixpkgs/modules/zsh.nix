@@ -113,7 +113,7 @@
       "...." = ''cd ../../..'';
       ".4"   = ''cd ../../../..'';
       ".5"   = ''cd ../../../../..'';
-      clear_history = ''echo "" > ~/.zsh_history & exec $SHELL -l'';
+      clear_history = ''echo "" > $HISTFILE & exec $SHELL -l'';
       cp = "cp -a";
       diff = "diff --color";
       grep = "grep -s --color=auto";
@@ -213,7 +213,7 @@
         # fzf
         export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore-vcs --no-messages --smart-case'
         export FZF_DEFAULT_OPTS='--height 30% --layout=reverse --border --info=inline --multi'
-        export FZF_CTRL_R_OPTS='--preview "export HISTSIZE=500000 && builtin fc -R "''${HOME}/.zsh_history" && builtin fc -l $(expr {1} - $(expr $FZF_PREVIEW_LINES / 2)) $(expr {1} + $(expr $FZF_PREVIEW_LINES / 2)) | bat --style=changes --color=always --theme \"Solarized (dark)\""' # show the history around the matched one in the preview window
+        export FZF_CTRL_R_OPTS='--preview "export HISTSIZE=500000 && builtin fc -R ~/.config/zsh/.zsh_history && builtin fc -l $(expr {1} - $(expr $FZF_PREVIEW_LINES / 2)) $(expr {1} + $(expr $FZF_PREVIEW_LINES / 2)) | bat --style=changes --color=always --theme \"Solarized (dark)\""' # show the history around the matched one in the preview window
         export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
         if [ " $(command -v fzf-share)" ]; then
           source "$(fzf-share)/key-bindings.zsh"
