@@ -40,8 +40,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "mroth";
           repo = "evalcache";
-          rev = "3153dcd77a2c93aa8fdf5d17cece7edb1aa3e040";
-          sha256 = "GAjsTQJs9JdBEf9LGurme3zqXN//kVUM2YeBo0sCR2c=";
+          rev = "d6973f8c3ecde3eabd75c17b47e2222e24ab3e87";
+          sha256 = "CN9dnSt9kc5AEkWnbtjyv+DCQZ08Ifmac5wELqve17U=";
         };
       }
       {
@@ -51,8 +51,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "Aloxaf";
           repo = "fzf-tab";
-          rev = "v1.2.0";
-          sha256 = "q26XVS/LcyZPRqDNwKKA9exgBByE0muyuNb0Bbar2lY=";
+          rev = "fac145167f7ec1861233c54de0c8900b09c650fe";
+          sha256 = "1Ior+/9e+M+Fc1u0uq5HhknlGRS96q7tazhEE6rmx9Y=";
         };
       }
       {
@@ -61,8 +61,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "sindresorhus";
           repo = "pure";
-          rev = "v1.23.0";
-          sha256 = "BmQO4xqd/3QnpLUitD2obVxL0UulpboT8jGNEh4ri8k=";
+          rev = "v1.26.0";
+          sha256 = "AZSxP2g6BWoxyiSQH7yzbbbfGcwD8jgnXPPfcYwJUL0=";
         };
       }
       {
@@ -71,8 +71,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "zsh-users";
           repo = "zsh-autosuggestions";
-          rev = "0e810e5afa27acbd074398eefbe28d13005dbc15";
-          sha256 = "85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk=";
+          rev = "85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5";
+          sha256 = "KmkXgK1J6iAyb1FtF/gOa0adUnh1pgFsgQOUnNngBaE=";
         };
       }
       {
@@ -91,19 +91,19 @@
         src = pkgs.fetchFromGitHub {
           owner = "MichaelAquilina";
           repo = "zsh-you-should-use";
-          rev = "56616de037082f7dc0a143eb244ea27e5a697ef9";
-          sha256 = "XbTZpyUIpALsVezqnIfz7sV26hMi8z+2dW0mL2QbVIE=";
+          rev = "64dd9e3ff977e4ae7d024602b2d9a7a4f05fd8f6";
+          sha256 = "u3abhv9ewq3m4QsnsxT017xdlPm3dYq5dqHNmQhhcpI=";
         };
       }
-      {
-        name = "zsh-copilot";
-        file = "zsh-copilot.plugin.zsh";
-        src = pkgs.fetchgit {
-          url = "https://git.myzel394.app/Myzel394/zsh-copilot";
-          rev = "be5b24d5bec678baf6c88fec1d8282a50fa7a8a1";
-          sha256 = "kvkS2BxwyP68tSjV9KZtaqaj7FB2ZjoZYEKqN5pzZzU=";
-        };
-      }
+      # {
+      #   name = "zsh-copilot";
+      #   file = "zsh-copilot.plugin.zsh";
+      #   src = pkgs.fetchgit {
+      #     url = "https://git.myzel394.app/Myzel394/zsh-copilot";
+      #     rev = "be5b24d5bec678baf6c88fec1d8282a50fa7a8a1";
+      #     sha256 = "kvkS2BxwyP68tSjV9KZtaqaj7FB2ZjoZYEKqN5pzZzU=";
+      #   };
+      # }
     ];
 
     shellAliases = {
