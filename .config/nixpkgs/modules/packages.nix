@@ -43,11 +43,11 @@
     # python
     autoflake
     pyright
-    python310Packages.debugpy
+    python314Packages.debugpy
     poetry
     black
     mypy
-    python310Packages.flake8
+    python314Packages.flake8
 
     ## AI
     # github copilot
