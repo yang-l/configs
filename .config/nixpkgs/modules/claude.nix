@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 
 {
   home.file = {
@@ -9,4 +9,8 @@
       recursive = true;
     };
   };
+
+  home.activation.claude-research-command = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD bash -c 'set -x ; mkdir -p ~/.claude/commands && /Users/$USER/.nix-profile/bin/curl -s https://raw.githubusercontent.com/humanlayer/humanlayer/main/.claude/commands/research_codebase.md -o ~/.claude/commands/research_codebase.md'
+  '';
 }

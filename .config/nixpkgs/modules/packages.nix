@@ -54,7 +54,7 @@
     #nodejs_24
     copilot-language-server
     # open soruce ai pair
-    aider-chat
+    #aider-chat
 
     ## Misc
     gettext # for 'envsubst'
