@@ -63,6 +63,11 @@
     trim     = !git reflog expire --expire=now --all && git gc --prune=now
     uncommit = reset --soft HEAD^
     unstage  = reset HEAD --
+    wt       = worktree
+    wta      = worktree add
+    wtl      = worktree list
+    wtr      = worktree remove
+    wtp      = worktree prune
 
 [init]
     defaultBranch = main

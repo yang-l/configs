@@ -22,7 +22,7 @@
         "ls*( )?(-l?(a?(h)))" "cd*( )?(-)"
         "g?(it)*( )?(?(diff)|?(df?(?(c?(s))|?(s)))|?(po*( )?(-f))|?(l?(?(og)|?(l)|?(o)|?(c?(l))|?(u)|?(s?(-files))))|?(s?(?(tatus)|?(t)))|?(br?(anch))|?(sh?(ow))?(*()HEAD*)|?(fixup)|?(squash)|?(pull)|?(push)|?(ri*( )HEAD*)|?(a*( )*)|?(reflog)|?(m))*( )"
         "docker*( )?(?(ps -a)|?(images)|?(info)|?(rmi*)|?(rm*))"
-        "(p)kill" "k9?(+( )*)"
+        "(p)kill" "k9?(+( )*)" "kill -9?(+( )*)"
         "tmux?(+( )ls*( )*)"
         "?(terraform|tf)?(+( )?(init|get|plan|apply|destroy|fmt))"
         "e?(c)?(f|t|k)"
