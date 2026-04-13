@@ -46,13 +46,13 @@ TeamCreate > subagents when 3+ independent workstreams
 
 ## Wiki Integration (Auto-Query + Auto-Grow)
 
-**Auto-Query:** At session start, if `~/.claude/.wiki/_hub.json` exists, read it (~1000 tokens). Per-prompt, scan hub page titles/tags/summaries against user's question. If relevant pages found, read 2-4 pages before answering. Generic wiki always consulted; project wiki only when cwd matches. Log access to `_log.md`.
+**Auto-Query (lazy load):** On the first prompt that asks a knowledge question (how/why/what about concepts, architecture, conventions — not mechanical code tasks like "fix this lint error"), read `~/.claude/.wiki/_hub.json` if it exists (~1000 tokens). If it does not exist, also check for a project-local `.wiki/_index.json` (relative to git root or cwd). If neither exists, skip wiki consultation silently — do not prompt the user to initialize. Keep loaded hub/index in context for the rest of the session. Per-prompt after that, scan hub titles/tags against user's question. If relevant pages found, read 2-4 pages before answering. Project wiki (at `<git-root>/.wiki/` or `<cwd>/.wiki/`) always consulted when present; global wiki only for cross-project/convention questions; random wiki only for non-work topics. Log access to the consulted wiki's `_log.md`: `## [YYYY-MM-DD HH:MM] access | query: "<question>" | tier: N | read: [paths] | gap: none|miss|partial`.
 
 **Auto-Grow:** After completing a task that involved research, debugging, or architecture discussion, evaluate whether findings pass 4 thresholds:
 1. **Factual** — states how something works, not opinion/task coordination
-2. **Novel** — not already covered by existing wiki pages (check hub summaries)
+2. **Novel** — not already covered by existing wiki pages (check hub summaries; if hub is unavailable, check the target wiki's `_index.json` titles and summaries instead)
 3. **Durable** — useful beyond this session
-4. **Classifiable** — clearly generic (`~/.claude/.wiki/generic/`) or project-specific (`<project>/.wiki/`)
+4. **Classifiable** — clearly one of: project-specific (`<project>/.wiki/`), global/cross-project (`~/.claude/.wiki/`), or random topic (`~/.claude/.wiki/random/`)
 
-All 4 pass → spawn wiki agent (`Agent` tool, model: sonnet[1m]) with: knowledge text, classification (generic/project), suggested page type, target `.wiki/` path. Borderline → ask user.
+All 4 pass → spawn wiki agent. Cold-start exception: if target wiki has <20 pages, skip the Novel check. Spawn (`Agent` tool, model: sonnet[1m]) with a prompt that includes: the literal prefix "wiki auto-grow", then knowledge_text, classification (project/global/random), suggested_type, target_wiki_path, consulted_pages (slugs read during auto-query). Borderline → ask user.
 Visibility: silent for updates, brief announce for new pages, ask for borderline.
