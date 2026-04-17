@@ -1,5 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "ENABLE_PROMPT_CACHING_1H": "1"
+  },
   "permissions": {
     "deny": [
       "Bash(git push:*)",
@@ -8,7 +12,7 @@
       "Read(~/.ssh/**)"
     ]
   },
-  "model": "opus[1m]",
+  "model": "claude-opus-4-6[1m]",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -22,5 +26,7 @@
     ]
   },
   "alwaysThinkingEnabled": true,
+  "advisorModel": "opus",
+  "autoUpdatesChannel": "stable",
   "autoMemoryEnabled": true
 }
