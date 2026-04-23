@@ -7,8 +7,7 @@
     "ENABLE_PROMPT_CACHING_1H": "1",
     "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1",
     "DISABLE_ERROR_REPORTING": "1",
-    "DISABLE_FEEDBACK_COMMAND": "1",
-    "DISABLE_TELEMETRY": "1"
+    "DISABLE_FEEDBACK_COMMAND": "1"
   },
   "includeCoAuthoredBy": false,
   "permissions": {
@@ -46,22 +45,22 @@
       }
     ]
   },
+  "enabledPlugins": {
+    "codex@openai-codex": true
+  },
   "extraKnownMarketplaces": {
     "openai-codex": {
       "source": {
         "source": "github",
-        "repo": "openai/codex-plugin-cc",
-        "sha": "807e03ac9d5aa23bc395fdec8c3767500a86b3cf"
+        "repo": "openai/codex-plugin-cc"
       }
     }
   },
+  "spinnerTipsEnabled": false,
   "alwaysThinkingEnabled": true,
   "advisorModel": "opus",
   "autoUpdatesChannel": "stable",
   "autoMemoryEnabled": true,
-  "gitAttribution": false,
-  "spinnerTipsEnabled": false,
-  "enabledPlugins": {
-    "codex@openai-codex": true
-  }
+  "autoInstallIdeExtension": false,
+  "gitAttribution": false
 }

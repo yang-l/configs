@@ -36,7 +36,7 @@ Interpret user input in this order:
 - Topic, entity, concept, and synthesis pages summarize sources; raw source text belongs in the original document or provenance, not the compiled page.
 - Concept pages explain one abstract idea. Synthesis pages connect 3+ existing pages or sources and must add a cross-page insight. Do not use them interchangeably.
 - Answer pages must cite at least one topic, entity, concept, or synthesis page. They may reference other answer pages only in `## Related`, never in `(from: ...)` citations.
-- `_agent.json` may be written only by `wiki init` or `wiki eval`.
+- `_agent.json` may be written only by `wiki init`, `wiki eval`, or scope correction recording during page moves.
 - Archive before destructive removal. `wiki merge` archives the secondary page and registers a redirect.
 - Never write absolute file paths in page bodies or wikilinks.
 - Ask the user only when ambiguity materially changes the result, the action is destructive or irreversible, or the command explicitly requires confirmation.
@@ -47,7 +47,13 @@ Interpret user input in this order:
 - **Global wiki**: `~/.claude/.wiki/` for first-person, cross-project knowledge: decisions, conventions, lessons learned.
 - **Random wiki**: `~/.claude/.wiki/random/` for third-person reference material or non-work topics.
 
-Classify by perspective, not subject. If the value is "what this repo does", use project. Repo-specific first-person decisions also stay in project; create a global companion only when the same pattern is intentionally reused across repos. If the value is "what we learned or why we chose" across projects, use global. If the value is "how X works" outside your own work, use random.
+Classify by perspective, not subject. When deciding where to write:
+
+- **project**: what this repo does, how it is built, and repo-specific decisions (even first-person ones). A decision stays in project unless it is intentionally reused across repos.
+- **global**: first-person knowledge that spans projects — cross-repo decisions, conventions, and lessons learned.
+- **random**: third-person reference material unrelated to your own work.
+
+The same subject can live at different levels depending on voice. "How Redis clustering works" is random. "We use Redis clustering with 6 nodes because our traffic pattern requires low-latency failover" is global — it captures a cross-project decision with rationale. "Our payment service uses Redis clustering on port 7000" is project.
 
 ## Layout
 
@@ -130,14 +136,15 @@ All factual claims in compiled pages use `(from: [[source-slug]])` or, when answ
 - `_index.json.aliases` stores redirects and any unique, safe-to-resolve entity aliases
 - `_backlinks.json`: reverse link index; rebuild from all forward `links_to` arrays
 - `_gaps.json`: `{version, gaps[], resolved[]}` for misses and partial answers
-- `_hub.json`: `{version, prefixes{}, collections{}, backlinks{}}`
-- `_agent.json`: `{version, updated, concept_clusters, query_routing, ingestion_hints, linking_patterns, tag_governance}`
+- `_hub.json`: `{version, projects{}, prefixes{}, collections{}, hot_pages[], backlinks{}}`
+- `_agent.json`: `{version, updated, concept_clusters, query_routing, ingestion_hints, scope_corrections, linking_patterns, tag_governance}`
 
 `_agent.json` bounds:
 
 - max 8 clusters
 - max 10 query routes
 - max 5 entries per ingestion hint bucket
+- max 5 scope corrections
 - max 10 linking patterns
 - max 30 controlled tags
 - hard cap: 4KB total
@@ -147,12 +154,12 @@ All factual claims in compiled pages use `(from: [[source-slug]])` or, when answ
 ### Preflight
 
 - Resolve project root with `git rev-parse --show-toplevel`; fall back to `cwd`.
-- Commands other than `init` and `help` require an existing `.wiki/`. If missing, reply: `No wiki found. Run \`wiki init\` first.`
+- Commands other than `init`, `help`, and `remove --project` require an existing `.wiki/`. If missing, reply: `No wiki found. Run \`wiki init\` first.`
 - Before writes, read `_index.json`. Read `_backlinks.json`, `_gaps.json`, `_hub.json`, and merged `_agent.json` only when the command needs them.
 - Missing or corrupt metadata:
   - `_index.json`: back up as `_index.json.bak`, rebuild by scanning page frontmatter
   - `_backlinks.json`: rebuild from current page links
-  - `_hub.json`: create `{"version":1,"collections":{},"backlinks":{},"prefixes":{}}`; if corrupt, back up as `_hub.json.bak` and rebuild from registered project indexes
+  - `_hub.json`: create `{"version":1,"projects":{},"prefixes":{},"collections":{},"hot_pages":[],"backlinks":{}}`; if corrupt, back up as `_hub.json.bak` and rebuild from registered project indexes (repopulate `projects`, `prefixes`, `collections`, `hot_pages`, and `backlinks` from each project's `_index.json`)
   - `_gaps.json`: create `{"version":1,"gaps":[],"resolved":[]}`; if corrupt, back up as `_gaps.json.bak` and recreate empty
   - `_agent.json`: treat as empty in memory; back up corrupt copies; only write on `init` or `eval`
   - `_schema.md`: recreate a minimal schema from current page types and tags if missing; if corrupt or unusable, ask before replacing hand-written conventions
@@ -194,22 +201,10 @@ Default to autonomous execution. Ask only when:
 
 ### Write Safety
 
-- Commands that rewrite shared metadata or many pages (`compile --full`, `merge`, `split`, `sync`, `eval`, `auto-grow`) acquire a wiki-root lock before the write phase.
-- Shared global files (`~/.claude/.wiki/_hub.json`, `~/.claude/.wiki/_agent.json`) also use a global lock.
-- When both locks are required, always acquire the wiki-root lock first, then the global lock. Release in reverse order.
-- Write shared JSON files by: read latest -> merge changes -> write temp file -> atomic rename.
-- Right before committing `_gaps.json` or `_index.json.aliases`, re-read the latest version and merge again so concurrent writes do not drop deduped gaps or redirects.
-- Any operation that rewrites citations or links across many pages must use one locked writer pass. If the pass fails, keep the old references and report the partial failure.
+This wiki system is designed for serial execution — only one wiki agent runs at a time. There is no concurrent-write locking. Sub-agents handle read-only analysis; the main agent performs all writes sequentially.
 
-**Lock protocol.** Locks are lockfiles with atomic create-or-fail semantics:
-
-- Wiki-root lock path: `<wiki-root>/.wiki/.lock`
-- Global lock path: `~/.claude/.wiki/.lock`
-
-1. Acquire by running `Bash(set -C; echo "$$ $(date +%s)" > <lock-path>)`. `set -C` causes the redirect to fail if the file already exists. If acquisition fails, wait 1 second and retry, up to 30 seconds total.
-2. If still locked after 30 seconds, read the lock file; if its timestamp is older than 10 minutes, treat it as stale, `rm` the file, and retry acquisition once.
-3. Release by removing the lock file (`rm <lock-path>`) as the last step of the write phase, before reporting.
-4. If the write phase fails mid-way, still remove the lock file so the next command is not blocked.
+- Write shared JSON files (`_index.json`, `_hub.json`, `_gaps.json`, `_agent.json`, `_backlinks.json`) using: read latest -> merge changes -> write temp file -> rename. This guards against crash-induced corruption, not concurrency.
+- Any operation that rewrites citations or links across many pages must do so in a single pass. If the pass fails, keep the old references and report the partial failure.
 
 ### Post-Write Pipeline
 
@@ -219,7 +214,7 @@ Unless a command says otherwise:
 2. Run outbound wikilink resolution on touched pages.
 3. Run inbound wikilink resolution on existing pages affected by those changes.
 4. Rebuild `_index.json` entries for touched pages, then rebuild `_backlinks.json`.
-5. Sync hot pages to `_hub.json`.
+5. **Hub sync**: if `<wiki-root>/.wiki/.unregistered` exists, skip hub sync silently. Otherwise sync hot pages to `_hub.json`.
 6. Resolve matching `_gaps.json` entries when new content closes them.
 7. Recalculate temperature for affected pages. `wiki eval` performs a full recalc.
 8. Append a `_log.md` entry and report counts.
@@ -306,7 +301,7 @@ Append to `.wiki/_log.md` in this format:
 ## [YYYY-MM-DD HH:MM] <operation> | key: value | key: value
 ```
 
-Valid operations: `init`, `ingest`, `compile`, `access`, `lint`, `eval`, `archive`, `restore`, `export`, `sync`, `session-update`, `merge`, `split`, `gap-resolve`, `auto-grow`
+Valid operations: `init`, `ingest`, `compile`, `access`, `lint`, `eval`, `archive`, `restore`, `export`, `sync`, `session-update`, `merge`, `split`, `gap-resolve`, `auto-grow`, `scope-correct`, `remove`, `register`
 
 Log rotation:
 
@@ -315,14 +310,54 @@ Log rotation:
 - Archived log files must remain readable for temperature and eval calculations.
 - If historical access logs are unavailable, fall back to page `modified` dates instead of collapsing the page to cold.
 
+### Scope Correction Learning
+
+When a page moves between wiki scopes (project/global/random), capture the classification lesson:
+
+1. Detect a scope correction when any of these occur:
+   - user explicitly says to move a page to a different scope
+   - a page is removed from one wiki and re-ingested into another
+   - `wiki eval` finds a page whose content clearly belongs in a different scope
+2. Extract the pattern: generalize from the specific page to the content type. Use the page's tags, type, and subject to produce a short description like "third-party build troubleshooting" or "personal workflow preferences", not the page title.
+3. Write a correction entry to `_agent.json.scope_corrections`:
+   ```json
+   {
+     "pattern": "<content-type>",
+     "from": "<wrong-scope>",
+     "to": "<correct-scope>",
+     "example": "<slug>",
+     "date": "YYYY-MM-DD",
+     "weight": "<see below>"
+   }
+   ```
+   Weight by trigger:
+   - User-confirmed page move (explicit "move this to X"): `weight: 1.0` (immediately enforceable)
+   - Re-ingest into another wiki: `weight: 1.0` (user action, immediately enforceable)
+   - `wiki eval` finding (heuristic detection): `weight: 0.3` (tentative, below enforcement threshold of 0.5; becomes enforceable only after user confirmation or multiple eval corroborations at +0.2 each)
+4. If an existing correction has the same `from`/`to` and an overlapping pattern, refresh its `date` and replace `example` with the new slug. Set weight to `max(existing_weight, new_weight)` — a user-confirmed move always raises to 1.0, but an eval corroboration only adds 0.2 to the existing weight. Do not create a duplicate.
+5. If at max capacity (5 entries), evict the entry with the lowest `weight`.
+
+During classification in `wiki ingest` and `wiki auto-grow`, after the initial scope decision:
+
+- Unless `--force-scope` is set, read `_agent.json.scope_corrections` (already loaded during preflight).
+- A correction is enforceable only when `weight >= 0.5`. If a correction matches the content, the initial decision equals the correction's `from` scope, and `weight >= 0.5`, reclassify to the `to` scope. Log: `scope_correction_applied: <pattern>`.
+- If a correction matches but `weight < 0.5`, log `scope_correction_skipped: <pattern> (low weight)` and keep the original classification. Do not reclassify.
+- With `--force-scope`, skip all scope correction logic entirely.
+
+Corrections decay with other `_agent.json` entries during `wiki eval` (`weight *= 0.8`, evict below `0.1`).
+
+Log scope corrections as: `scope-correct | page: <slug> | from: <old-scope> | to: <new-scope> | pattern: <extracted-pattern>`
+
 ## Commands
 
-## wiki init [--codebase] [--random]
+## wiki init [--codebase] [--random] [--register]
 
 Initialize a new wiki.
 
 1. Resolve root via git; if not a git repo, use `cwd`.
-2. If `.wiki/` already exists, report page count, source count, and last update, then stop.
+2. If `.wiki/` already exists:
+   - Without `--register`: report page count, source count, and last update, then stop.
+   - With `--register`: run the registration flow below instead of stopping.
 3. Collect initialization inputs:
    - ask for domain description, initial topics, and entity types
    - default entity types: `service`, `tool`, `library`, `person`, `organization`
@@ -347,7 +382,46 @@ Initialize a new wiki.
 - page conventions
 - coverage level definitions
 
-## wiki ingest <path|url> [--batch] [--no-confirm] [--force]
+### --register flow
+
+Re-register an existing `.wiki/` into the hub without recreating any files. Ignore `--codebase` and `--random` when `--register` is set.
+
+1. Resolve project root via git; fall back to `cwd`.
+2. Verify `.wiki/` exists with a valid `_index.json`. If either is missing or corrupt, report the error and stop.
+3. Read `_index.json` for the project slug and page data. Validate that `_index.json.root` matches the resolved project root. If they differ (e.g., wiki was copied or moved), update `_index.json.root` to the current root and report: "Updated wiki root from <old> to <new>." Also validate `_index.json.project` is a valid slug; if missing or corrupt, derive from the directory name and update.
+4. Read `~/.claude/.wiki/_hub.json`. If the project is already registered, report current registration and stop. Refuse reserved prefixes (`global`, `random`).
+5. Register in `_hub.json`: add to `projects` (root, page_count, last_sync), `prefixes` (slug → wiki root path), and `collections` (slug → root, last_sync, page entries with slug/title/type/tags/summary/temperature). Sync hot pages (temperature >= 1.2) into `hot_pages`. Rebuild `backlinks` entries for any cross-wiki links involving this project.
+6. Remove `<wiki-root>/.wiki/.unregistered` if it exists (clear the soft-remove marker).
+7. Log to both the project `_log.md` and the global `_log.md`: `register | project: <slug> | pages: N`
+8. Report: slug, root path, page count, and hub registration status.
+
+## wiki remove [--soft|--hard] [--project <slug>] [--no-confirm]
+
+Unregister a project wiki from the hub and optionally delete it from disk.
+
+`--soft` (default): unregister from `_hub.json` but keep `.wiki/` on disk.
+`--hard`: unregister from `_hub.json` AND delete the `.wiki/` directory.
+
+1. Resolve target. With `--project <slug>`, look up the project in `_hub.json`; without it, resolve from git root. Refuse `global` and `random` (reserved scopes).
+2. Read `_hub.json`, the target `_index.json` (if accessible), and `~/.claude/.wiki/_gaps.json`. For `--hard`: verify that the target `_index.json.project` and `_index.json.root` match the hub entry's slug and root path. If they do not match, abort with: "Hub entry and target wiki identity mismatch. Hub says <slug>/<root> but disk says <actual>. Refusing to delete. Fix the hub entry or use manual `rm -rf`." If `_index.json` is not accessible, downgrade `--hard` to `--soft` automatically and report: "Cannot verify wiki identity on disk. Downgrading to soft remove (hub cleanup only). Delete the directory manually if needed."
+3. Scan other registered projects for `[[<slug>:` cross-wiki references. Count broken links that removal would create.
+4. Unless `--no-confirm`, confirm with the user. Show slug, root path, page count, removal mode, and broken cross-ref count. For `--hard`, also show the disk path to be deleted.
+5. For `--soft`: write `<target>/.wiki/.unregistered` (contains the removal timestamp). The post-write pipeline checks for this file and skips hub sync if present. `wiki init --register` removes this file.
+6. Clean `_hub.json`: remove the project from projects, prefixes, hot_pages, collections, and backlinks.
+7. Clean `~/.claude/.wiki/_gaps.json`: move gaps that reference only the removed project to resolved with reason `project-removed`.
+8. For `--hard`: run `rm -rf <target>/.wiki/`. If the disk path is already gone, skip.
+9. Log: `remove | project: <slug> | mode: soft|hard | pages: N | hub_entries_removed: M | cross_refs_broken: P`. For `--hard`, append `| disk_deleted: <path>`. For `--soft`, also log to the project's own `_log.md`.
+10. Report: slug, mode, pages removed from hub, hub entries cleaned, broken cross-refs created, and disk path deleted (if `--hard`).
+
+Does not modify `~/.claude/.wiki/_agent.json`; decay handles staleness during `wiki eval`. Does not rewrite cross-wiki links in other projects; broken references are caught by `wiki lint`.
+
+Edge cases:
+
+- Project in hub but disk gone: `--soft` cleans the hub normally. `--hard` degrades to `--soft` behavior (clean hub, skip disk deletion, report degradation).
+- `.wiki/` exists on disk but is not registered in hub: report that the project is not registered and stop. Suggest `wiki init --register` if the user wants to register it, or manual `rm -rf` if they want to delete an untracked wiki.
+- Repeated remove of the same project: the second attempt finds no matching hub entry and reports already removed.
+
+## wiki ingest <path|url> [--batch] [--no-confirm] [--force] [--force-scope]
 
 Ingest raw material into compiled pages.
 
@@ -359,13 +433,14 @@ Ingest raw material into compiled pages.
    - URLs: `WebFetch`
    - `--batch`: expand glob and process each source; with `--batch --no-confirm`, confirm once for the batch only if needed
    - skip binary or image files with a warning
-4. Compute SHA-256 for each source. If an existing provenance record has the same hash and `--force` is not set, report `Source unchanged, skipping.` For `--batch` with 3+ files, compute hashes in parallel via sub-agents (1 file per agent, up to 5 concurrent); hashing is read-only and safe to parallelize fully.
+4. Compute SHA-256 for each source. If an existing provenance record has the same hash and `--force` is not set: before short-circuiting, check whether a scope correction (weight >= 0.5) would redirect this source to a different wiki. If so, check whether the destination wiki already has provenance with the same hash. If the destination does not have it, continue through the redirect flow as a true migration: after the destination commit succeeds (provenance renamed from pending, compiled pages written), archive or remove the origin wiki's provenance record for this source and archive any compiled pages in the origin wiki that were generated from it. Log: `scope-correct | page: <slug> | from: <origin> | to: <destination> | migrated: true`. If the destination already has it, then report `Source unchanged, skipping.` For `--batch` with 3+ files, compute hashes in parallel via sub-agents (1 file per agent, up to 5 concurrent); hashing is read-only and safe to parallelize fully.
 5. Prefer autonomous ingest. Ask only if emphasis or classification is materially ambiguous. If asking, present 5-8 takeaways and let the user emphasize or de-emphasize them; record de-emphasized takeaways in provenance notes.
-6. Write or update `sources/<slug>.md` provenance.
-7. Classify content:
+6. Classify content (provenance is written AFTER classification and any redirect, not before — this prevents a failed or declined redirect from leaving a provenance record that blocks future retries via the unchanged-hash check):
    - if `_index.json` is empty, treat as bootstrap ingest and create new pages directly
    - otherwise match by title, tags, aliases, similarity, and `_agent.json` concept clusters
+   - unless `--force-scope` is set, apply `_agent.json.scope_corrections`: if a correction pattern matches the content, the initial classification equals the correction's `from` scope, AND the correction's `weight >= 0.5` (same threshold as auto-grow), reclassify to `to` and include `scope_correction_applied: <pattern>` in the ingest log entry. If a correction matches but `weight < 0.5`, log `scope_correction_skipped: <pattern> (low weight)` and keep the original classification. If reclassification targets a different wiki than the current one, inform the user: "Based on a previous correction, this content belongs in <scope> wiki. Redirect?" and proceed only on confirmation. On confirmed redirect, reload `_index.json`, `_schema.md`, `_backlinks.json`, `_gaps.json`, and merged `_agent.json` from the destination wiki before continuing. If the destination wiki does not exist, report: "Destination <scope> wiki not found. Run `wiki init` first or skip this source." and stop processing this source without writing provenance. On successful redirect, re-check the source hash against the destination wiki's `sources/` directory. If the destination already has a provenance record with the same hash and `--force` is not set, report `Source already ingested in <scope> wiki, skipping.` and stop. Otherwise, continue to step 7 which writes provenance as a pending record in the destination wiki (not the original). All provenance — redirected or not — goes through the pending-file flow so that failures never leave committed provenance blocking retries.
    - ask only for ambiguous classification in the 0.3-0.7 confidence band
+7. Write provenance as a pending record: `sources/<slug>.pending.md` in the target wiki. The unchanged-hash check (step 4) ignores `.pending.md` files, so a failure after this point does not block retries.
 8. Create or update compiled pages:
    - small source `<500w`: topics only
    - medium `500-2000w`: topics plus entities
@@ -374,8 +449,9 @@ Ingest raw material into compiled pages.
    - mirror an entity alias into `_index.json.aliases` mapping to the entity's slug only when all of these hold: (a) the alias is not already a slug in `_index.json.pages`, (b) it is not already a key in `_index.json.aliases`, (c) it does not collide with a reserved prefix (`global`, `random`), and (d) it contains only lowercase letters, digits, and hyphens.
 9. Run cascade updates on directly affected existing pages.
 10. Run the full post-write pipeline.
-11. Log: `ingest | source: <path> | hash: <short> | created: N | updated: M | cascade: P | gaps_resolved: Q`
-12. Report created, updated, cascade-updated, and gap-resolved counts.
+11. Commit provenance: rename `sources/<slug>.pending.md` to `sources/<slug>.md`. This finalizes the provenance record only after compiled pages and the post-write pipeline succeeded. If steps 8-10 failed, the pending file remains and will be overwritten on retry.
+12. Log: `ingest | source: <path> | hash: <short> | created: N | updated: M | cascade: P | gaps_resolved: Q`
+13. Report created, updated, cascade-updated, and gap-resolved counts.
 
 ## wiki compile [--full] [--topic <slug>]
 
@@ -392,7 +468,7 @@ Default mode is incremental: process only dirty sources whose current hash no lo
 5. Rebuild `_index.json` and `_backlinks.json`.
 6. Resolve newly closed query gaps.
 7. Recalculate temperature on all pages for `--full`, or affected pages otherwise.
-8. Sync hot pages to `_hub.json`.
+8. Sync hot pages to `_hub.json` (skip if `.unregistered` exists).
 9. Log: `compile | mode: incremental|full|topic:<slug> | sources: N | created: M | updated: P | synthesis: Q | gaps_resolved: R`
 10. Report counts and any new synthesis pages.
 
@@ -420,7 +496,7 @@ Search the catalog first, then page content.
 
 1. Search `_index.json` titles, tags, and summaries; expand synonyms via `_agent.json.concept_clusters`.
 2. Search content with `Grep` across `.wiki/**/*.md` and show context.
-3. With `--all`, search every registered project wiki via `_hub.json`. Reads of `_hub.json` during concurrent writes are safe because writers use atomic rename (see `### Write Safety`); no lock needed for read-only search.
+3. With `--all`, search every registered project wiki via `_hub.json`.
 4. If nothing matches, report no results and suggest related terms when `_agent.json` can help.
 5. Show each hit with coverage, temperature band, page type, and a context snippet.
 
@@ -506,8 +582,20 @@ Update `_agent.json` with:
 - `concept_clusters` from graph structure
 - `ingestion_hints.weak_areas` from coverage gaps and query gaps
 - `ingestion_hints.saturated_areas` from novelty analysis
+- `scope_corrections`: decay existing entries (`weight *= 0.8`, evict below `0.1`); if eval detects a misclassified page, add a new correction entry with `weight: 0.3` (below the enforcement threshold of 0.5). Eval-discovered corrections are tentative — they only become enforceable after a user-confirmed page move bumps the weight to 1.0, or after multiple eval cycles corroborate the same pattern (each corroboration adds 0.2 to weight)
 - `linking_patterns.missed_connections_history` from synthesis opportunities
 - `tag_governance.merge` suggestions from high tag co-occurrence
+
+When running eval on the global wiki (`~/.claude/.wiki/`), scan all project `_agent.json` files found via `_hub.json` collection paths.
+Promote any pattern that appears in 3+ project files to the global `_agent.json`:
+
+- concept clusters
+- query routes
+- linking pairs
+- ingestion hints
+- tag merges
+
+Use the average `weight`/`hit_count` across source projects. Promoted patterns remain in their project files.
 
 Apply decay every 20 log operations:
 
@@ -543,7 +631,7 @@ Split a large page into smaller child pages while keeping the parent as an overv
    - create child pages with standalone intros and relevant tags and sources; every child must receive at least 1 source from the parent
    - rewrite the parent into a short overview with `See: [[child-slug]]`
    - add `## Related` links between parent and children
-   - update citations that referenced parent sections when they now belong to a child page, using one locked writer pass
+   - update citations that referenced parent sections when they now belong to a child page in a single pass
 5. Rebuild `_index.json`, `_backlinks.json`, and hub entries. Keep the parent slug active for continuity.
 6. Log: `split | parent: <slug> | children: [<child1>, <child2>] | reason: size|coherence`
 7. Report the resulting child pages and updated parent status.
@@ -574,7 +662,7 @@ Catch a codebase wiki up to the current git state.
    - deleted source file -> flag for review or archiving
    - new file matching docs or codebase patterns -> suggest ingest
 6. Before updating any page, scan `_log.md` for a `session-update` entry newer than the page's `modified` date and within the current session window. If found, report the conflict and ask the user before proceeding with that page; skip it if the user declines.
-7. Parallelize page analysis or updates where file ownership is disjoint; serialize metadata writes at the end.
+7. Parallelize page analysis via sub-agents where file ownership is disjoint. The main agent applies updates and writes metadata sequentially after analysis completes.
 8. Update `_index.json.git_head` and `git_synced_at`.
 9. Log: `sync | from: <short_last> | to: <short_current> | commits: N | pages: M | new: P`
 10. Report commits behind, updated pages, and new ingest candidates.
@@ -599,9 +687,11 @@ Show:
 
 Generate help dynamically from this prompt. The prompt is the source of truth. For `wiki help <command>`, explain the specific command, flags, and a few usage examples.
 
-## wiki auto-grow
+## wiki auto-grow [--force-scope]
 
 Internal command used by other agents. It must be parseable when invoked as literal `wiki auto-grow`.
+
+`--force-scope`: skip `_agent.json.scope_corrections` and use the caller's classification as-is. Use this to override a scope correction that is wrong for the specific content.
 
 Expected parameters after the prefix:
 
@@ -618,7 +708,7 @@ Preflight:
 
 Workflow:
 
-1. Validate classification. Repo-specific first-person decisions stay in the project wiki; only create or update a global companion page if the same pattern is intentionally cross-project.
+1. Validate classification. Repo-specific first-person decisions stay in the project wiki; only create or update a global companion page if the same pattern is intentionally cross-project. Unless `--force-scope` is set, apply `_agent.json.scope_corrections`: if a correction pattern matches the content and the initial classification equals the correction's `from` scope, consider reclassification. A correction is authoritative only when its `weight >= 0.5` (corroborated by multiple corrections or recent user action). If `weight < 0.5`, log `scope_correction_skipped: <pattern> (low weight)` and keep the original classification. When reclassifying, update `target_wiki_path` to the corrected scope's wiki root, and reload `_index.json`, `_schema.md`, `_backlinks.json`, `_gaps.json`, and merged `_agent.json` from the new target. Also recompute `repeated_query_match` against the new target's `_gaps.json` (the preflight value was from the original wiki and is now stale). If the new target wiki does not exist, reject the auto-grow with log entry `auto-grow | rejected: target <scope> wiki not found after scope correction`. Include `scope_correction_applied: <pattern>` in the log entry. When a scope correction changes the target, do NOT proceed to the write steps. Instead, return to the caller without writing, reporting: "Scope correction would redirect from <original> to <new> wiki based on pattern '<pattern>'. Re-spawn with the corrected classification to accept, or with --force-scope to keep the original scope." The caller then decides whether to re-spawn with the corrected classification (accepting the redirect) or with `--force-scope` (overriding it). This ensures no write happens before the caller can react. With `--force-scope`, skip all scope correction logic and use the caller's classification directly.
 2. Check overlap with existing pages in the target wiki.
 3. If the target wiki has fewer than 20 pages, auto-pass novelty and seed any new gap with initial `count: 2`.
 4. Create or update the best matching page, then run the full Post-Write Pipeline (see `### Post-Write Pipeline`). The pipeline handles wikilink resolution, index and hub sync, gap resolution, temperature recalc, and logging. For auto-grow, the log entry uses operation `auto-grow` with fields `classification: <scope> | page: <slug> | action: created|updated | gaps_resolved: N`.
@@ -662,20 +752,12 @@ Do not run a whole-wiki cascade mid-session unless the user asks for `wiki compi
 
 ## Parallelization
 
-Use background sub-agents for independent work:
+Use background sub-agents for read-only analysis:
 
 - batch ingest: one source per agent, up to 5 concurrent
-- full compile: parallel extraction, serialized writes
+- full compile: parallel extraction
 - eval: independent checks can run in parallel
 - large cascade updates: one disjoint page batch per agent
 - cross-project search: one project per agent
-- multiple auto-grow analyses may run in parallel, but writes into the same target wiki serialize
 
-Always serialize writes to:
-
-- `_index.json`
-- `_backlinks.json`
-- `_hub.json`
-- `_gaps.json`
-
-Never assign the same writable page file to two agents.
+The main agent performs all file writes after sub-agent analysis completes.
