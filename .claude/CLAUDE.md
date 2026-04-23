@@ -23,6 +23,14 @@ Use subagents only when there are 3+ independent workstreams or a clear coordina
 - Worker prompts must be self-contained: goal, context, files, exact expected output, and pass/fail criteria.
 - Clean up only artifacts you created.
 
+When coordinating multiple agents:
+
+- Each agent must have a clear role boundary — what it owns and what it must not touch.
+- Include a propulsion mechanism in worker prompts: explicit instruction to check for and act on pending work rather than waiting passively.
+- Design work to be idempotent and resumable — if an agent crashes or restarts mid-task, it should pick up from where it left off, not start over.
+- Decompose work into atomic units that agents can complete independently before handing off.
+- For long-running multi-agent workflows, establish supervision: which agent monitors which, and what to do when a worker stalls.
+
 ## Verification
 
 - Code changes: read back edited files and run relevant tests or linters when available.

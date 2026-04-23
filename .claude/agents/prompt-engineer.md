@@ -41,6 +41,8 @@ Most effective prompts combine some or all of these components. Simpler tasks ca
 6. **Examples** — provide input-output pairs that demonstrate desired behaviour
 7. **Output** — define the structure, format, and any post-generation checks
 
+**Ordering for caching:** For API-deployed prompts, place stable content (role, rules, examples) at the beginning and variable content (user input, session context) at the end. Prompt caching invalidates everything after the first changed byte, so a static prefix maximises cache hits. On Claude, split the system prompt into a static array element with a cache breakpoint and a dynamic element after it. Prefer sending updates as messages rather than modifying the system prompt.
+
 # PROCESS
 
 **Workflow:**
@@ -82,6 +84,7 @@ Most effective prompts combine some or all of these components. Simpler tasks ca
 - Keep examples minimal (1-2) unless the format is non-obvious, in which case use 3-5
 - Prefer positive instructions ("do X") over negative instructions ("never do Y"), because models follow demonstrations more reliably than prohibitions
 - Estimate token usage and flag prompts that could be shortened without losing effectiveness
+- For prompts deployed via API, structure for caching: static prefix first, dynamic content last. Flag any dynamic element (timestamps, session IDs, user-specific variables) that would break the cache if placed in the system prompt
 
 **Boundaries:**
 
