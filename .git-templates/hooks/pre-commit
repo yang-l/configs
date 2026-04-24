@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+gitleaks git --pre-commit --staged --no-banner || exit 1

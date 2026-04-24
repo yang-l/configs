@@ -4,12 +4,14 @@
   home.packages = with pkgs; [
     (git.override { svnSupport = false; sendEmailSupport = false; guiSupport = false; } )
     delta
+    gitleaks
   ];
 
   home.file = {
     ".gitconfig".source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.gitconfig";
+    ".config/git/ignore".source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.config/git/ignore";
     ".git-templates/hooks" = {
-      source = ../../../.git-templates/hooks;
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.git-templates/hooks";
       recursive = true;
     };
   };

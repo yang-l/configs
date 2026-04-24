@@ -1,18 +1,30 @@
 #!/usr/bin/env bash
 
-# https://ghost.org/changelog/prevent-master-push/
-protected_branches=('main' 'master')
-current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+# --- Common ---
+_remote_default=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's|origin/||')
+[ -n "$_remote_default" ] && [ "$_remote_default" != "HEAD" ] && DEFAULT_BRANCH="$_remote_default" || DEFAULT_BRANCH="main"
 
-if [[ "${protected_branches[*]}" =~ "${current_branch}" ]]
-then
-    read -p "You're about to push '${current_branch}' directly, is that what you intended? [y|n] " -n 1 -r < /dev/tty
-    echo
-    if echo $REPLY | grep -E '^[Yy]$' > /dev/null
-    then
-        exit 0 # push will execute
+z40="0000000000000000000000000000000000000000"
+while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
+    [ -n "$local_ref" ] || continue
+    [ "$local_sha" = "$z40" ] && continue
+
+    pushed_branch="${local_ref#refs/heads/}"
+
+    # --- Secret scanning ---
+    if [ "$remote_sha" != "$z40" ]; then
+        LOG_RANGE="$remote_sha..$local_sha"
+    else
+        LOG_RANGE="$local_sha --not --remotes"
     fi
-    exit 1 # push will not execute
-else
-    exit 0 # push will execute
-fi
+
+    gitleaks git --log-opts="$LOG_RANGE" --no-banner || exit 1
+
+    # --- Protected branch guard ---
+    target_branch="${remote_ref#refs/heads/}"
+    if [[ "$target_branch" =~ ^($DEFAULT_BRANCH|main|master)$ ]]; then
+        read -p "Pushing to '$target_branch' directly — intended? [y|n] " -n 1 -r < /dev/tty
+        echo
+        [[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
+    fi
+done
