@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-gitleaks git --pre-commit --staged --no-banner || exit 1
+gitleaks git --platform github --pre-commit --staged --no-banner --log-level warn || exit 1
