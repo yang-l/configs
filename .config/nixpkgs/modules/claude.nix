@@ -8,6 +8,10 @@
       source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.claude/agents";
       recursive = true;
     };
+    ".claude/skills" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.claude/skills";
+      recursive = true;
+    };
   };
 
   home.activation.claude-research-code-command = lib.hm.dag.entryAfter ["writeBoundary"] ''
