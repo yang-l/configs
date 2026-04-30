@@ -57,6 +57,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
@@ -70,6 +74,8 @@
     homeConfigurations = {
       macbook-pro_m2 = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
+
+        extraSpecialArgs = { inherit inputs system; };
 
         modules = [
           {
@@ -112,7 +118,7 @@
           ./modules/awsvault.nix
           ./modules/bat.nix
           # ./modules/bash.nix
-          ./modules/claude.nix
+          ./modules/ai.nix
           ./modules/cleanup.nix
           ./modules/editorconfig.nix
           ./modules/git.nix

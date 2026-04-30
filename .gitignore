@@ -5,3 +5,4 @@
 .ssh/
 !.ssh/config
 .wiki/
+.claude/skills/skill-creator/
