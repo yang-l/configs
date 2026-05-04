@@ -1,8 +1,9 @@
-{ config, lib, inputs, system, ... }:
+{ config, lib, inputs, pkgs, system, ... }:
 
 {
   home.packages = [
     inputs.llm-agents.packages.${system}.agent-deck
+    pkgs.fswatch
   ];
 
   home.file = {

@@ -15,21 +15,24 @@ Clarify only when ambiguity blocks good execution. Otherwise: read first -> plan
 
 ## Delegation
 
-Use subagents only when there are 3+ independent workstreams or a clear coordinator/worker split.
+Main thread is the orchestrator: read, reason, plan, review, verify.
+All file modifications MUST be delegated to subagents or team agents.
 
-- One writable file set = one owner.
-- Parallelize research freely; serialize writes per file set.
-- Reuse an agent only when context overlap is high; spawn fresh for verification or when the previous approach was wrong.
-- Worker prompts must be self-contained: goal, context, files, exact expected output, and pass/fail criteria.
-- Clean up only artifacts you created.
+**Exception:** Trivial edits — single file, < 10 lines, obvious change — may stay in main thread.
+
+When delegating edits:
+
+- Provide exact specs: file paths, line numbers or surrounding context, what to change, and pass/fail criteria.
+- One writable file set = one owner. Parallelize research freely; serialize writes per file set.
+- Spawn fresh for verification or when the previous approach was wrong. Reuse when context overlap is high.
 
 When coordinating multiple agents:
 
 - Each agent must have a clear role boundary — what it owns and what it must not touch.
-- Include a propulsion mechanism in worker prompts: explicit instruction to check for and act on pending work rather than waiting passively.
-- Design work to be idempotent and resumable — if an agent crashes or restarts mid-task, it should pick up from where it left off, not start over.
-- Decompose work into atomic units that agents can complete independently before handing off.
-- For long-running multi-agent workflows, establish supervision: which agent monitors which, and what to do when a worker stalls.
+- Include a propulsion mechanism: explicit instruction to check for and act on pending work.
+- Design work to be idempotent and resumable.
+- Decompose into atomic units agents can complete independently.
+- For long-running workflows, establish supervision: which agent monitors which, and what to do on stall.
 
 ## Verification
 
@@ -40,9 +43,13 @@ When coordinating multiple agents:
 ## Tool Hints
 
 - Use Sequential Thinking when the path is uncertain, requires hypothesis testing, or has 3+ dependent decisions.
-- Model preference: haiku = fast/simple, sonnet = default, opus = critical/complex.
-- When routing requires a non-default agent model, set the model explicitly on spawn.
-- Handle work directly when routing adds no leverage.
+- Advisor escalates to the configured reviewer (`advisorModel` in settings).
+- For subagents and team members, set `model` on spawn:
+  - `opus` — architecture, security review, complex reasoning, plan review, large ingests (10k+ words).
+  - `haiku` — lookups, formatting, mechanical transforms, classification.
+  - Omit (Sonnet) — implementation, exploration, research, and most tasks.
+- In agent teams, use `opus` for the lead when the task spans cross-cutting concerns.
+- Handle work directly only for trivial edits or read-only operations. Default to delegation for modifications.
 
 ## Routing
 

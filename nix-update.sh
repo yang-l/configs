@@ -18,6 +18,7 @@ main() {
 
   nix flake update nixpkgs --extra-experimental-features "nix-command flakes" --flake "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"/.config/nixpkgs/
   nix flake update home-manager --extra-experimental-features "nix-command flakes" --flake "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"/.config/nixpkgs/
+  nix flake update llm-agents --extra-experimental-features "nix-command flakes" --flake "$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"/.config/nixpkgs/
 
   make
 

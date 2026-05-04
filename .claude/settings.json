@@ -7,7 +7,8 @@
     "ENABLE_PROMPT_CACHING_1H": "1",
     "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1",
     "DISABLE_ERROR_REPORTING": "1",
-    "DISABLE_FEEDBACK_COMMAND": "1"
+    "DISABLE_FEEDBACK_COMMAND": "1",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
   "includeCoAuthoredBy": false,
   "permissions": {
@@ -62,5 +63,6 @@
   "autoUpdatesChannel": "stable",
   "autoMemoryEnabled": true,
   "autoInstallIdeExtension": false,
-  "gitAttribution": false
+  "gitAttribution": false,
+  "teammateDefaultModel": "claude-sonnet-4-6[1m]"
 }
