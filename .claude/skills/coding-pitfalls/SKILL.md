@@ -1,18 +1,26 @@
 ---
 name: coding-pitfalls
 description: >
-  LLM coding failure modes and countermeasures. Load when writing new code,
-  reviewing PRs or diffs, debugging failing tests, refactoring, accepting
-  AI-generated suggestions, or evaluating AI-written pull requests.
-  Covers: overcomplexity and abstraction bloat, silent assumptions and
-  missing clarifications, side-effect edits and style drift, self-referential
-  test blindspots, N+1 and batching ignorance, security vulnerability
-  amplification, debugging decay on repeated fix attempts, and deprecated
-  API hallucination. Based on Karpathy's observations and community research
-  (CodeRabbit, METR, IEEE-ISTAS 2025).
-  Trigger on: code review, code generation, debug, refactor, test writing,
-  AI code quality, LLM coding mistakes, vibe coding pitfalls, agentic
-  coding, code smell, PR review.
+  Provides countermeasures for 9 documented LLM coding failure modes:
+  silent assumptions and anchoring bias (model runs with wrong framing
+  without surfacing it), overcomplexity and abstraction bloat, unscoped
+  side-effect edits, self-referential test blindspots, N+1 and batching
+  ignorance, security vulnerability amplification (2.7x higher density
+  in AI code), debugging decay after repeated fix attempts, deprecated
+  API hallucination, and multi-agent coordination failure (conflicting
+  outputs, silent duplication, absent end-to-end verification). Also
+  covers leverage patterns: tests-first, naive-then-optimize, declarative
+  goals, plan-before-execute, and context quality over volume. Load when
+  writing, reviewing, debugging, or refactoring code — especially when
+  multiple fix attempts have failed, AI-generated code is being accepted,
+  or agents are handing off work between themselves.
+when_to_use: >
+  Use when the user is writing new code, reviewing a PR or diff, debugging
+  a failing test, refactoring, accepting AI-generated suggestions, working
+  on multi-agent pipelines, or asking about code quality, vibe coding,
+  agentic coding mistakes, or LLM coding anti-patterns. Also load when
+  a fix attempt has been tried twice without success, or when reviewing
+  security-sensitive AI output.
 ---
 
 # LLM Coding Pitfalls
@@ -32,6 +40,7 @@ on LLM coding failure modes, extended with community-identified anti-patterns.
 - Picks file format, output location, field selection without asking
 - Chooses one interpretation when multiple exist
 - Executes contradictory instructions without questioning
+- Anchoring bias — once the model receives an initial framing or hypothesis (even an offhand one), subsequent evidence rarely dislodges it. Chain-of-Thought and "ignore previous" prompts are documented to fail here (2025 anchoring bias studies)
 
 **Fix:** State assumptions explicitly before implementing. If multiple
 interpretations exist, present them. Push back when the request is ambiguous
@@ -89,7 +98,11 @@ Batch operations; avoid N+1 patterns in performance-sensitive contexts.
 
 AI-generated code has 2.7x higher vulnerability density than human code.
 Improper password handling, insecure object references, injection vectors.
-Vulnerability count increases 37.6% after 5 iterations of refinement.
+Vulnerability density measurably increases with each iteration of AI refinement.
+AI-assisted developers generate code 3-4x faster but introduce security findings
+at 10x the rate of their peers (Fortune 50 empirical study, 2025). 86% of
+AI-generated samples failed XSS defenses; 88% were vulnerable to log injection
+(Veracode, 2025).
 
 **Fix:** Treat AI output as untrusted input. Run security linting on all
 generated code. Re-audit after each iteration, not just the first pass.
@@ -114,6 +127,18 @@ generating ~1000 lines of deprecated Clerk authentication code.
 documentation before using unfamiliar APIs. Treat all API calls as suspect
 until validated.
 
+### 9. Multi-Agent Coordination Failure
+
+In multi-agent pipelines, agents lose task context across handoffs, duplicate
+work silently, and produce conflicting outputs that no single agent flags.
+Analysis of 1,600+ agentic traces across 7 frameworks (MAST-Data, ICLR 2025)
+identified three root causes: spec ambiguity between orchestrator and subagent,
+inter-agent conflict with no arbitration, and absent end-to-end verification.
+
+**Fix:** Define explicit input/output contracts at every agent boundary. Give
+each subagent a single, stated done-condition. Have the orchestrator verify
+the final output against the original spec, not just the last subagent's output.
+
 ## Leverage Patterns
 
 > "LLMs are exceptionally good at looping until they meet specific goals and
@@ -133,6 +158,10 @@ Agentic engineering strategies that exploit LLM strengths:
   exploratory or repetitive work humans abandon early
 - **Browser MCP:** Put the agent in the loop with a browser — enables
   self-verification against live docs, APIs, and UI
+- **Context quality over volume:** Most models don't benefit from maximizing
+  context — the real bottleneck is which information drives the decision.
+  Curate what goes into context rather than filling it. (Datadog State of AI
+  Engineering, 2026)
 
 ## Quick Reference
 
@@ -146,3 +175,4 @@ Agentic engineering strategies that exploit LLM strengths:
 | Security gaps      | No input validation; hardcoded secrets; no re-audit after iteration | Treat output as untrusted; lint; re-audit each pass        |
 | Debugging decay    | 3rd+ fix attempt; diff keeps growing; same error recurs             | Stop, revert, re-read error, reason before editing         |
 | API hallucination  | Unfamiliar method names; API call with no doc reference             | Pin to current docs; verify signatures                     |
+| Multi-agent coordination | Conflicting outputs; duplicated work across agents; no end-to-end check | Explicit input/output contracts; single done-condition per agent; orchestrator verifies against original spec |

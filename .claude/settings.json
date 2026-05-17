@@ -32,7 +32,7 @@
       "Read(~/.aws/**)"
     ]
   },
-  "model": "claude-opus-4-6[1m]",
+  "model": "sonnet[1m]",
   "hooks": {
     "PostToolUse": [
       {
@@ -60,8 +60,10 @@
   "spinnerTipsEnabled": false,
   "alwaysThinkingEnabled": true,
   "advisorModel": "opus",
+  "promptSuggestionEnabled": false,
   "autoUpdatesChannel": "stable",
   "autoMemoryEnabled": true,
+  "skipAutoPermissionPrompt": true,
   "autoInstallIdeExtension": false,
   "gitAttribution": false,
   "teammateDefaultModel": "claude-sonnet-4-6[1m]"

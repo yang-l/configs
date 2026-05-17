@@ -20,11 +20,14 @@ All file modifications MUST be delegated to subagents or team agents.
 
 **Exception:** Trivial edits — single file, < 10 lines, obvious change — may stay in main thread.
 
+Default for everything else: delegate.
+
 When delegating edits:
 
 - Provide exact specs: file paths, line numbers or surrounding context, what to change, and pass/fail criteria.
 - One writable file set = one owner. Parallelize research freely; serialize writes per file set.
-- Spawn fresh for verification or when the previous approach was wrong. Reuse when context overlap is high.
+- Spawn fresh for verification or when the previous approach was wrong.
+- For engineer tasks: state the problem being solved, not just the change to make.
 
 When coordinating multiple agents:
 
@@ -49,7 +52,6 @@ When coordinating multiple agents:
   - `haiku` — lookups, formatting, mechanical transforms, classification.
   - Omit (Sonnet) — implementation, exploration, research, and most tasks.
 - In agent teams, use `opus` for the lead when the task spans cross-cutting concerns.
-- Handle work directly only for trivial edits or read-only operations. Default to delegation for modifications.
 
 ## Routing
 
@@ -57,6 +59,8 @@ When coordinating multiple agents:
 - `understand* code*|analyse* architecture*` -> Explore
 - `design* solution*|plan* implementation*` -> Plan
 - `*golang*|*go code*|*go lang*` -> golang-developer
+- `research*|investigate*|feasibility*|compare*` -> researcher
+- `*implement*|*refactor*|*fix*|*edit*|*modify*` -> engineer
 - Inputs starting with `wiki `, or explicit wiki-ingest requests, route to `wiki`. Use `opus[1m]` when ingest volume exceeds 10k words or 5 source files; otherwise use `sonnet[1m]`.
 - If multiple routes match, prefer the most specific route.
 - If specificity is tied, the leftmost route wins.
@@ -66,11 +70,13 @@ When coordinating multiple agents:
 
 ### Auto-Query
 
-- On the first knowledge question (how/why/what; not mechanical execution such as build, test, run, edit, or deploy), load `~/.claude/.wiki/_hub.json` if it exists. If not, fall back to project `.wiki/_index.json`. If neither exists, skip silently on the first knowledge question; if the user asks 3+ knowledge questions in one session with no wiki present, mention once: "No wiki in this project. Run `wiki init` if you want to start capturing knowledge." Do not repeat within a session.
-- Do not preload page bodies. Use titles, tags, and summaries to choose 2-4 relevant pages, then read only those pages.
+- On each knowledge question (how/why/what; not mechanical execution such as build, test, run, edit, or deploy), check whether the question's topic is already covered by wiki pages read earlier in this session. If it is, use those pages. If not, consult `_index.json` titles, tags, and summaries and select 1-2 new relevant pages to read.
+- On the first knowledge question of a session, load `~/.claude/.wiki/_hub.json` if it exists; fall back to project `.wiki/_index.json`. If neither exists, skip silently; if the user asks 3+ knowledge questions in one session with no wiki present, mention once: "No wiki in this project. Run `wiki init` if you want to start capturing knowledge." Do not repeat within a session.
+- Track which page slugs have been read this session (in working memory, not persisted). Do not re-read pages already in context. Cap freshly loaded pages per question at 2.
+- Do not preload page bodies. Use titles, tags, and summaries to choose relevant pages, then read only those pages.
 - Scope by perspective: consult the project wiki first, the global wiki for cross-project decisions or conventions, and the random wiki for non-work reference topics.
 - If the main agent consults wiki files directly, append the `access` log entry; if the wiki agent handled the operation, do not double-log.
-- A "session" is one continuous Claude Code conversation. After context compaction or a new top-level invocation, treat the hub as not-yet-loaded and reload on the next knowledge question.
+- A "session" is one continuous Claude Code conversation. After context compaction or a new top-level invocation, treat the hub as not-yet-loaded, clear the read-slugs set, and reload on the next knowledge question.
 
 ### Auto-Grow
 
