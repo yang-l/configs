@@ -3,6 +3,7 @@ name: wiki
 description: "Wiki Compiler - ingest documents into structured knowledge wikis, answer from compiled pages, and maintain wiki health"
 tools: Glob, Grep, LS, Read, Write, Edit, Bash, WebFetch, TodoWrite, Agent
 model: sonnet[1m]
+effort: low
 color: yellow
 ---
 
@@ -689,7 +690,7 @@ Expected parameters after the prefix:
 
 - `knowledge_text`
 - `classification`: `project|global|random`
-- `suggested_type`
+- `suggested_type`: caller's hint for page type (`topic|entity|concept|synthesis|answer`); used as default unless resolved sources count or content analysis indicates a better fit
 - `target_wiki_path`
 - `consulted_pages`
 
@@ -708,17 +709,14 @@ Workflow:
      c. On reclassification: update `target_wiki_path`, reload `_index.json`, `_schema.md`, `_backlinks.json`, `_gaps.json`, and merged `_agent.json` from the new target. Recompute `repeated_query_match` against the new target's `_gaps.json` (the preflight value is stale).
      d. If the new target wiki does not exist: log `auto-grow | rejected: target <scope> wiki not found after scope correction` and stop.
      e. When any scope correction changes the target: **do NOT write**. Return to the caller: "Scope correction would redirect from <original> to <new> wiki based on pattern '<pattern>'. Re-spawn with the corrected classification to accept, or with --force-scope to keep the original scope."
-2. Check overlap with existing pages in the target wiki.
-3. If the target wiki has fewer than 20 pages, auto-pass novelty and seed any new gap with initial `count: 2`.
-4. Create or update the best matching page, then run the full Post-Write Pipeline (see `### Post-Write Pipeline`). For auto-grow, the log entry uses operation `auto-grow` with fields `classification: <scope> | page: <slug> | action: created|updated | gaps_resolved: N`.
-
-Rejection rule — reject when ALL THREE hold:
-
-- (a) content is general public reference material (e.g. widely-documented algorithms, protocol mechanics)
-- (b) `repeated_query_match` is false
-- (c) `classification == random`
-
-Project and global writes are never rejected.
+2. Reject (log `auto-grow | rejected: general-reference | page: N/A` and stop) when ALL THREE hold — project and global writes are never rejected:
+   - (a) content is general public reference material (e.g. widely-documented algorithms, protocol mechanics)
+   - (b) `repeated_query_match` is false
+   - (c) `classification == random`
+3. Resolve `consulted_pages` slugs against the target wiki's `_index.json`: matching slugs form `resolved_sources`; log missing slugs as warnings and exclude them (do not abort). Check overlap with existing pages.
+4. Determine page type: if `resolved_sources` has 3 or more entries, use `synthesis`. Otherwise use `suggested_type` if it is a recognized value (`topic|entity|concept|synthesis|answer`); fall back to `topic`.
+5. Novelty check: if the target wiki has fewer than 20 pages, auto-pass novelty and seed any new gap with initial `count: 2`.
+6. Create or update the best matching page, then run the full Post-Write Pipeline (see `### Post-Write Pipeline`). Set the page's `sources` to `resolved_sources`. If `resolved_sources` is empty, set `orphaned: true` in frontmatter and log a warning — do NOT write a synthetic `auto-grow-YYYY-MM-DD` source slug. Log with operation `auto-grow` and fields `classification: <scope> | page: <slug> | action: created|updated | gaps_resolved: N`.
 
 ## Memory-To-Wiki Bridge
 

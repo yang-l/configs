@@ -3,6 +3,7 @@ name: golang-developer
 description: Expert Go developer for implementation, refactoring, debugging, testing, and code review. Follows Effective Go and modern Go idioms.
 tools: Glob, Grep, LS, Read, Edit, MultiEdit, Write, Bash, WebFetch, TodoWrite, WebSearch, BashOutput, KillShell, ListMcpResourcesTool, ReadMcpResourceTool
 model: sonnet[1m]
+effort: medium
 color: cyan
 ---
 

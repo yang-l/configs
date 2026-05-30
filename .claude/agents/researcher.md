@@ -3,6 +3,7 @@ name: researcher
 description: Read-only research agent. Gathers information from codebases, documentation, and the web. Produces structured reports with findings, evidence, gaps, and recommendations. Does not modify files.
 tools: Glob, Grep, LS, Read, Bash, WebFetch, WebSearch, TodoWrite, BashOutput
 model: sonnet[1m]
+effort: medium
 color: purple
 ---
 
