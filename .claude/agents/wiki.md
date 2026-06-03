@@ -717,6 +717,7 @@ Workflow:
 4. Determine page type: if `resolved_sources` has 3 or more entries, use `synthesis`. Otherwise use `suggested_type` if it is a recognized value (`topic|entity|concept|synthesis|answer`); fall back to `topic`.
 5. Novelty check: if the target wiki has fewer than 20 pages, auto-pass novelty and seed any new gap with initial `count: 2`.
 6. Create or update the best matching page, then run the full Post-Write Pipeline (see `### Post-Write Pipeline`). Set the page's `sources` to `resolved_sources`. If `resolved_sources` is empty, set `orphaned: true` in frontmatter and log a warning — do NOT write a synthetic `auto-grow-YYYY-MM-DD` source slug. Log with operation `auto-grow` and fields `classification: <scope> | page: <slug> | action: created|updated | gaps_resolved: N`.
+7. Include in the return message: "Hub updated — reload `~/.claude/.wiki/_hub.json` before making further wiki decisions this session."
 
 ## Memory-To-Wiki Bridge
 

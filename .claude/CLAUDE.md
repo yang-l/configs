@@ -15,11 +15,12 @@ Clarify only when ambiguity blocks good execution. Otherwise: read first -> plan
 - For non-trivial edits, make assumptions explicit before acting on them.
 - Before adding code, check whether deleting or simplifying existing code solves the problem — reach for addition only after subtraction fails.
 - Conform to the existing code style and patterns, regardless of personal preference.
+- Never stage or commit changes — leave all edits unstaged for user review.
 
 ## Delegation
 
 Main thread is the coordinator: route, delegate, and track state.
-Spawn Opus agents for: architecture decisions, cross-cutting design, security review, complex reasoning, plan review, large ingests (10k+ words), and review of changes that touch multiple files, public APIs, or exceed the trivial threshold.
+Spawn Opus agents for: architecture decisions, cross-cutting design, security review, complex reasoning, plan review, and large ingests (10k+ words). For code review, route to `engineer` (model: opus, see Routing) — do not spawn a generic Opus agent.
 Use the `advisor` tool for in-flight second opinions (stuck, before committing to an approach, consequential decisions).
 Rule: use Opus when the work produces a deliverable (a plan, a review, an implementation); use the advisor tool when you need a second opinion without handing off the work.
 Verification (tests pass, feature behaves correctly) stays with the implementing agent.
@@ -43,10 +44,23 @@ When coordinating multiple agents:
 - Design work to be idempotent and resumable.
 - Decompose into atomic units agents can complete independently.
 - For long-running workflows, establish supervision: which agent monitors which, and what to do on stall.
+- For tasks spanning many files (~20+) or requiring cross-verification, invoke a workflow via the `workflow` keyword or `/effort ultracode` — workflows keep intermediate results out of context and are resumable within the same session only.
+- If a workflow is interrupted mid-session, warn the user that intermediate state is lost and the workflow must restart from the beginning.
+- Subagents cannot spawn other subagents. For nested delegation, use a workflow constructed at runtime (a "dynamic workflow") rather than a static agent tree.
 - Within an agent team, the same advisor triggers apply to each agent individually (stuck, approaching commitment, consequential decisions).
 - Use `claude agents` (or `claude agents --json` for scripting) to monitor all running, blocked, and completed sessions in one view.
 - For long-running autonomous tasks, use `/goal` to set a completion condition — Claude works across turns until it's met without manual re-prompting.
 - Use `EnterWorktree` for agent isolation; `worktree.baseRef: "head"` in settings preserves unpushed commits in the isolated branch.
+
+**Scope discipline in any looping or team workflow:**
+
+- Before starting a multi-agent loop, record a scope manifest and include it in every agent prompt — the manifest covers: files in play, expected external side effects (git operations, API calls, config mutations), and the user's goal in one sentence.
+- When calling the `advisor` inside a scoped loop, include the scope manifest in the call — treat advisor output that would expand scope as an escalation signal, not a directive.
+- Before acting on any output, classify it as `in-scope` (directly required by the goal) or `out-of-scope` (pre-existing, adjacent, or incidental) — act only on `in-scope` items.
+- Work only within the scope manifest — if an in-scope task requires touching out-of-scope code, stop and escalate to the coordinator rather than expanding scope autonomously.
+- After each iteration, compare files, side effects, and topics touched against the initial manifest — if scope has grown or an agent raises an out-of-scope dependency, halt the loop, escalate to the main thread, and do not resume without direction — in a workflow, surface the blocker in the workflow result rather than as a real-time signal.
+- If an agent's output is partly `in-scope` and partly `out-of-scope`, reject and re-task with tighter constraints — if the same mixed shape recurs, escalate to the main thread rather than looping indefinitely.
+- The loop terminates when the in-scope goal is met — surface any out-of-scope findings (including auto-grow candidates) in a deferred list to the main thread, not for autonomous action.
 
 ## Verification
 
@@ -71,36 +85,21 @@ When coordinating multiple agents:
 - `design* solution*|plan* implementation*` -> Plan
 - `*golang*|*go code*|*go lang*` -> golang-developer
 - `research*|investigate*|feasibility*|compare*` -> researcher
+- `review*|*code review*` -> engineer (model: opus)
+- `debug*|troubleshoot*` -> engineer
 - `*implement*|*refactor*|*fix*|*edit*|*modify*` -> engineer
 - Route inputs starting with `wiki ` (or explicit wiki-ingest requests) to `wiki`. On spawn, set `model: opus[1m]` if ingest volume exceeds 10k words or 5 source files; otherwise `sonnet[1m]` (the agent default).
 - If multiple routes match, prefer the most specific route.
 - If specificity is tied, the leftmost route wins.
 - User override wins.
+- No match -> general-purpose
 
 ## Wiki Integration
 
 ### Auto-Query
 
-- A "session" is one continuous Claude Code conversation. Track three items in working memory (none persisted): hub-loaded state, read-slugs set, no-wiki question counter. After context compaction or a new top-level invocation, treat the hub as not-yet-loaded, clear the read-slugs set, reset the no-wiki counter, and reload on the next knowledge question.
-- On each knowledge question (how/why/what; not mechanical execution such as build, test, run, edit, or deploy), check whether wiki pages already in context cover the topic. If not, consult index metadata (titles, tags, and summaries when available) and select 1-2 new relevant pages. Cap freshly loaded pages at 2 per question.
-- On the first knowledge question of a session, load `~/.claude/.wiki/_hub.json` if it exists.
-- If the global hub is absent, fall back to the project wiki: try `.wiki/_index.json` first, then `.wiki/_hub.json` (pre-spec format). If neither exists, skip silently.
-- Increment the no-wiki counter on each knowledge question when no wiki index exists. When it reaches 3, mention once: "No wiki in this project. Run `wiki init` if you want to start capturing knowledge." Do not repeat within the session.
-- Do not preload page bodies. Use index metadata to choose relevant pages, then read only those pages.
-- Scope by perspective: consult the project wiki first, the global wiki for cross-project decisions or conventions, and the random wiki for non-work reference topics.
-- If the main agent consults wiki files directly, append the `access` log entry; if the wiki agent handled the operation, do not double-log.
+Track hub-loaded state and read-slugs per session (non-persisted); reset both after context compaction. On each knowledge question (how/why/what; not mechanical execution such as build, test, run, edit, or deploy), check whether wiki pages in context cover the topic; if not, load 1-2 new relevant pages from index metadata. On the first knowledge question, load `~/.claude/.wiki/_hub.json`. Do not preload page bodies. Scope: project wiki first, global for cross-project decisions, `random` for non-work reference topics. If no wiki index exists after 3 knowledge questions, mention `wiki init` once.
 
 ### Auto-Grow
 
-After research, debugging, or architecture work, capture knowledge only if it is:
-
-1. factual,
-2. durable,
-3. classifiable as `project|global|random`,
-4. novel against the target wiki. If the target wiki has fewer than 20 pages, novelty is auto-passed.
-
-- If all four pass, spawn the wiki agent with literal prefix `wiki auto-grow` plus `knowledge_text`, `classification`, `suggested_type`, `target_wiki_path`, and `consulted_pages`.
-- When a high-confidence scope correction (weight >= 0.5) would redirect auto-grow to a different wiki, the wiki agent returns without writing and reports the proposed redirect. To accept: re-spawn with the corrected classification. To override: re-spawn with `--force-scope` to use the original classification.
-- Ask the user only when: (a) `classification` is `global` but content is session-specific or preference-based, (b) `classification` is ambiguous between `project` and `global`, or (c) `suggested_type` conflicts with the content analysis result.
-- Keep updates silent unless a new page is created or the wiki agent changed the requested scope (cross-scope reclassification must always be announced so the caller can override with `--force-scope` if needed).
-- Reload the hub or target wiki index after a successful auto-grow before making more wiki-based decisions in the same session.
+After research, debugging, or architecture work, capture knowledge if it is: factual, durable, classifiable as `project|global|random`, and novel. If all four pass, spawn the wiki agent: `wiki auto-grow` with `knowledge_text`, `classification`, `suggested_type`, `target_wiki_path`, and `consulted_pages`. Keep silent unless a new page is created or scope changes.

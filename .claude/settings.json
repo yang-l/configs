@@ -47,6 +47,9 @@
       }
     ]
   },
+  "worktree": {
+    "baseRef": "head"
+  },
   "enabledPlugins": {
     "codex@openai-codex": true
   },
@@ -67,8 +70,5 @@
   "skipAutoPermissionPrompt": true,
   "autoInstallIdeExtension": false,
   "gitAttribution": false,
-  "teammateDefaultModel": "claude-sonnet-4-6[1m]",
-  "worktree": {
-    "baseRef": "head"
-  }
+  "teammateDefaultModel": "claude-sonnet-4-6[1m]"
 }
