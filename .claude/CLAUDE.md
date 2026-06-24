@@ -11,7 +11,8 @@
 
 Clarify only when ambiguity blocks good execution. Otherwise: read first -> plan briefly -> execute -> verify.
 
-- On failure: show the concrete failure, state the root cause or best hypothesis, and try a different approach after 2 failed attempts on the same path.
+- For uncertain or multi-phase tasks, proactively invoke plan mode (call `EnterPlanMode`). Before calling `ExitPlanMode`: call `advisor`, revise the plan on any blocker, and repeat until the advisor raises no blockers; if blockers persist after ~3 rounds, surface the disagreement to the user instead of continuing to loop. Prepend `> **Advisor sign-off:** reviewed and agreed, no blockers.` to the plan file so the user can see the gate was passed.
+- On failure: show the concrete failure, state the root cause or best hypothesis, and try a different approach after 2 failed attempts on the same path; invoke the `codex:rescue` skill for a fresh Codex-based perspective.
 - For non-trivial edits, make assumptions explicit before acting on them.
 - Before adding code, check whether deleting or simplifying existing code solves the problem — reach for addition only after subtraction fails.
 - Conform to the existing code style and patterns, regardless of personal preference.
@@ -20,7 +21,7 @@ Clarify only when ambiguity blocks good execution. Otherwise: read first -> plan
 ## Delegation
 
 Main thread is the coordinator: route, delegate, and track state.
-Spawn Opus agents for: architecture decisions, cross-cutting design, security review, complex reasoning, plan review, and large ingests (10k+ words). For code review, route to `engineer` (model: opus, see Routing) — do not spawn a generic Opus agent.
+Spawn Opus agents for: architecture decisions, cross-cutting design, security review, complex reasoning, plan review, and large ingests (10k+ words). For the hardest reasoning and long-horizon agentic tasks, use fable instead of opus. For code review, use the `/code-review` or `/review` built-in skill (see Routing); fall back to `engineer (model: opus)` for custom analysis. Do not spawn a generic Opus agent.
 Use the `advisor` tool for in-flight second opinions (stuck, before committing to an approach, consequential decisions).
 Rule: use Opus when the work produces a deliverable (a plan, a review, an implementation); use the advisor tool when you need a second opinion without handing off the work.
 Verification (tests pass, feature behaves correctly) stays with the implementing agent.
@@ -39,14 +40,21 @@ When delegating edits:
 
 When coordinating multiple agents:
 
+Choose delegation tier based on task shape:
+
+- 1 phase, 1 owner → single subagent
+- ≥3 phases where 2+ can run in parallel, <~20 files → team (parallel Agent spawns + main-thread synthesis)
+- ~20+ files or persistent cross-verification → workflow
+
+Team = parallel Agent calls in one message from main thread, each with role isolation; main thread synthesizes between phases. Spawn only the roles the task needs: researcher + designer + reviewer for analysis tasks; designer + implementer + reviewer for refactors; add QA when behavioral verification is required.
+
 - Each agent must have a clear role boundary — what it owns and what it must not touch.
 - Include a propulsion mechanism: explicit instruction to check for and act on pending work.
 - Design work to be idempotent and resumable.
 - Decompose into atomic units agents can complete independently.
 - For long-running workflows, establish supervision: which agent monitors which, and what to do on stall.
-- For tasks spanning many files (~20+) or requiring cross-verification, invoke a workflow via the `workflow` keyword or `/effort ultracode` — workflows keep intermediate results out of context and are resumable within the same session only.
-- If a workflow is interrupted mid-session, warn the user that intermediate state is lost and the workflow must restart from the beginning.
-- Subagents cannot spawn other subagents. For nested delegation, use a workflow constructed at runtime (a "dynamic workflow") rather than a static agent tree.
+- For tasks spanning many files (~20+) or requiring cross-verification, invoke a workflow via the `ultracode` keyword (typed in prompt) or `/effort ultracode` — workflows keep intermediate results out of context and are resumable within the same session only.
+- Subagents can now spawn their own subagents up to 5 levels deep (v2.1.172+). For tasks requiring persistent cross-verification or intermediate results out of context, a runtime-constructed workflow ("dynamic workflow") remains preferable over deep nesting.
 - Within an agent team, the same advisor triggers apply to each agent individually (stuck, approaching commitment, consequential decisions).
 - Use `claude agents` (or `claude agents --json` for scripting) to monitor all running, blocked, and completed sessions in one view.
 - For long-running autonomous tasks, use `/goal` to set a completion condition — Claude works across turns until it's met without manual re-prompting.
@@ -76,7 +84,10 @@ When coordinating multiple agents:
   - `opus` — see Delegation for the canonical trigger list.
   - `haiku` — lookups, formatting, mechanical transforms, classification.
   - Omit (Sonnet) — implementation, exploration, research, and most tasks.
-- In agent teams, use `opus` for the lead when the task spans cross-cutting concerns.
+  - `fable` — (claude-fable-5) hardest reasoning, long-horizon planning, and multi-stage agentic tasks; positioned above opus in capability.
+- Append `[1m]` to any model alias for the 1M-context window (e.g. `opus[1m]`); subagents default to `sonnet[1m]` via `CLAUDE_CODE_SUBAGENT_MODEL`. For `fable`, `[1m]` is redundant — Fable 5 includes 1M context by default and the suffix is auto-stripped.
+- Set `effort` on agent spawn: `low` (mechanical), `medium`, `high`, `xhigh` (Opus 4.7+ only), `max`. Omit to inherit session effort. (`/effort ultracode` is a session mode = `xhigh` + workflow orchestration — not an agent-level tier.)
+- In agent teams, use `opus` for the lead when the task spans cross-cutting concerns; escalate to `fable` for the highest-stakes decisions.
 
 ## Routing
 
@@ -85,7 +96,7 @@ When coordinating multiple agents:
 - `design* solution*|plan* implementation*` -> Plan
 - `*golang*|*go code*|*go lang*` -> golang-developer
 - `research*|investigate*|feasibility*|compare*` -> researcher
-- `review*|*code review*` -> engineer (model: opus)
+- `review*|*code review*` -> `/code-review` or `/review` skill (built-in); `engineer (model: opus)` for custom analysis
 - `debug*|troubleshoot*` -> engineer
 - `*implement*|*refactor*|*fix*|*edit*|*modify*` -> engineer
 - Route inputs starting with `wiki ` (or explicit wiki-ingest requests) to `wiki`. On spawn, set `model: opus[1m]` if ingest volume exceeds 10k words or 5 source files; otherwise `sonnet[1m]` (the agent default).

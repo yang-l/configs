@@ -4,6 +4,7 @@
   home.packages = [
     inputs.llm-agents.packages.${system}.agent-deck
     pkgs.fswatch
+    pkgs.gh
   ];
 
   home.file = {

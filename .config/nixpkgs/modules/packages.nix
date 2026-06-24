@@ -32,14 +32,14 @@
     ### LSP
     dockerfile-language-server
     gopls
-    nodePackages.bash-language-server
-    nodePackages.vscode-json-languageserver
-    nodePackages.yaml-language-server
+    bash-language-server
+    vscode-langservers-extracted
+    yaml-language-server
     solargraph
     # typescript
-    nodePackages.typescript-language-server
-    nodePackages.typescript
-    nodePackages.prettier
+    typescript-language-server
+    typescript
+    prettier
     # python
     autoflake
     pyright

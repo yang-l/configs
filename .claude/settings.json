@@ -25,6 +25,8 @@
       "mcp__sequentialthinking__*"
     ],
     "deny": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(rm -rf:*)",
       "Read(~/.ejson/**)",
@@ -67,6 +69,8 @@
   "promptSuggestionEnabled": false,
   "autoUpdatesChannel": "stable",
   "autoMemoryEnabled": true,
+  "teammateMode": "in-process",
+  "remoteControlAtStartup": false,
   "skipAutoPermissionPrompt": true,
   "autoInstallIdeExtension": false,
   "gitAttribution": false,

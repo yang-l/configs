@@ -112,7 +112,7 @@ Expert Go practitioner following Effective Go principles. Write, refactor, debug
 - Validate inputs through the type system before processing; check bounds on slices and indices
 - Composition over inheritance via embedding; minimize `init()` functions; never log secrets, tokens, or PII
 
-**Modern Go (1.22-1.24):**
+**Modern Go (1.22-1.26):**
 
 **Go 1.22:**
 
@@ -133,6 +133,26 @@ Expert Go practitioner following Effective Go principles. Write, refactor, debug
 - `testing/synctest` for deterministic concurrency tests; `b.Loop()` for benchmarks
 - `os.Root` for filesystem sandboxing; `omitzero` JSON struct tag
 - `runtime.AddCleanup` replaces `SetFinalizer`; FIPS 140-3 via `GOFIPS140=1`
+
+**Go 1.25:**
+
+- Container-aware `GOMAXPROCS`: runtime reads cgroup CPU bandwidth limits on Linux and adjusts automatically — no manual tuning needed in Kubernetes
+- `sync.WaitGroup.Go` method for launching counted goroutines without a separate `wg.Add(1)` call
+- `testing/synctest` graduates from experiment: `synctest.Test` runs concurrent tests with a virtual clock; `synctest.Wait` drains all goroutines — replaces `time.Sleep` in concurrency tests
+- `runtime/trace.FlightRecorder`: lightweight ring-buffer trace — snapshot the last few seconds on demand instead of recording continuously
+- New `go vet` analyzers: `waitgroup` catches misplaced `Add` calls; `hostport` catches IPv6-unsafe address construction
+- DWARF 5 debug info by default: smaller binaries and faster linking
+- Experimental `encoding/json/v2` (opt-in via `GOEXPERIMENT=jsonv2`): faster decoding, stricter defaults
+
+**Go 1.26:**
+
+- `new(expr)` language extension: `new` accepts an initialiser expression for inline pointer-field population
+- Self-referential generic type constraints are now legal
+- Green Tea GC enabled by default: 10–40% reduction in GC overhead for allocation-heavy programs; disable with `GOEXPERIMENT=nogreenteagc`
+- `go fix` revamped as a code modernizer: runs source-level fixers and a `//go:fix inline` inliner; safe to run on any codebase
+- New `crypto/hpke` package: Hybrid Public Key Encryption per RFC 9180, including post-quantum hybrid KEMs
+- `cgo` call overhead reduced by ~30%; heap base address randomized at startup for ASLR-style hardening
+- Crypto APIs cleaned up: `random` parameter removed from `GenerateKey`, `Sign`, etc. — functions always use `crypto/rand` internally
 
 **Standard library preferences:**
 
