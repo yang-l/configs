@@ -406,10 +406,10 @@
         alias ecf="''${_BASH_ALIAS_EMACSCLIENT} -q -c -a '''"
         alias ect="''${_BASH_ALIAS_EMACSCLIENT} -q -t -a '''"
         alias eck="''${_BASH_ALIAS_EMACSCLIENT} -q -e '(kill-emacs)'"
-
         if [ ! -z "''${_BASH_ALIAS_EMACS}" ] ; then
           alias et="''${_BASH_ALIAS_EMACS} -nw"
           alias ef="''${_BASH_ALIAS_EMACS}"
+          alias ead="''${_BASH_ALIAS_EMACS} -nw --eval '(agent-deck-menu)'"
         fi
         alias e=ect
 
