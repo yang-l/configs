@@ -98,7 +98,6 @@ Team = parallel Agent calls in one message from main thread, each with role isol
   - `fable` — (claude-fable-5) hardest reasoning, long-horizon planning, and multi-stage agentic tasks; positioned above opus in capability.
 - Append `[1m]` to any model alias for the 1M-context window (e.g. `opus[1m]`); subagents default to `sonnet`. For `sonnet` and `fable`, `[1m]` is redundant — Sonnet 5 and Fable 5 include 1M context by default and the suffix is auto-stripped.
 - Set `effort` on agent spawn: `low` (mechanical), `medium`, `high`, `xhigh` (Opus 4.7+ only), `max`. Omit to inherit session effort. (`/effort ultracode` is a session mode = `xhigh` + workflow orchestration — not an agent-level tier.)
-- Do not set `CLAUDE_CODE_EFFORT_LEVEL` or `CLAUDE_CODE_SUBAGENT_MODEL` globally in settings.json — both override every per-agent `model`/`effort` choice above, silently flattening all tiering to one expensive floor.
 - In agent teams, use `opus` for the lead when the task spans cross-cutting concerns; escalate to `fable` for the highest-stakes decisions.
 
 ## Routing
