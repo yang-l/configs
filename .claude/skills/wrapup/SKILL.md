@@ -12,6 +12,7 @@ description: >
   call it there", "end of session check". Do not trigger on standalone
   confidence remarks mid-task (e.g. "I'm not confident about X") — this is a
   deliberate end-of-session ritual, not a running commentary tool.
+effort: high
 ---
 
 # Session Wrap-Up: Two Questions

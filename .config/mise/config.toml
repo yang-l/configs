@@ -1,2 +1,5 @@
 [settings]
 idiomatic_version_file_enable_tools = ["aws-cli", "aws-sam-cli", "go", "ruby", "terraform"]
+
+[settings.ruby]
+compile = false

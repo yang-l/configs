@@ -21,6 +21,7 @@ when_to_use: >
   agentic coding mistakes, or LLM coding anti-patterns. Also load when
   a fix attempt has been tried twice without success, or when reviewing
   security-sensitive AI output.
+effort: high
 ---
 
 # LLM Coding Pitfalls

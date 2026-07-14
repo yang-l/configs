@@ -3,7 +3,7 @@ name: prompt-engineer
 description: Specialised in optimising prompts for LLMs and AI systems. Use when building AI features, improving agent performance, or crafting system prompts. Expert in prompt patterns and techniques.
 tools: Glob, Grep, LS, Read, WebFetch, TodoWrite, WebSearch, BashOutput, ListMcpResourcesTool, ReadMcpResourceTool
 model: opus
-effort: high
+effort: xhigh
 color: green
 ---
 

@@ -19,6 +19,33 @@ Clarify only when ambiguity blocks good execution. Otherwise: read first -> plan
 - Conform to the existing code style and patterns, regardless of personal preference.
 - Never stage or commit changes — leave all edits unstaged for user review.
 
+## Compact Instructions
+
+When compacting, preserve working state for continuation, not chat history. When unsure whether an item is continuation-critical, keep it — losing state breaks the session, redundancy only costs tokens.
+
+Keep verbatim:
+
+- Current goal and acceptance criteria
+- The pending task list and the exact next step
+- Files changed, created, or deleted, and why
+- Identifiers (hooks, functions, classes, routes, settings, commands, config keys) that the next step depends on or that were changed
+- Business rules and architectural decisions
+- Approaches tried and rejected, each with its rejection reason
+- Errors and failed tests still unresolved, with fixes already attempted
+- Any inspected file whose findings bear on the goal or next step
+
+Summarize (keep the conclusion, compress the detail):
+
+- Exploration and inspected files that did not change the plan — record what was learned, not the step-by-step
+- Commands that ran — keep the command and its outcome, drop the raw output
+- Older discussion that reached a decision already captured above
+
+Drop:
+
+- Logs and command output, unless they contain an unresolved error
+- Duplicated explanations of state kept elsewhere
+- Ideas floated but never acted on, and resolved errors with no bearing on remaining work
+
 ## Delegation
 
 Main thread is the coordinator: route, delegate, and track state.
@@ -58,7 +85,7 @@ Team = parallel Agent calls in one message from main thread, each with role isol
 - For tasks spanning many files (~20+) or requiring cross-verification, invoke a workflow via the `ultracode` keyword (typed in prompt) or `/effort ultracode` — workflows keep intermediate results out of context and are resumable within the same session only.
 - Subagents can now spawn their own subagents up to 5 levels deep (v2.1.172+). For tasks requiring persistent cross-verification or intermediate results out of context, a runtime-constructed workflow ("dynamic workflow") remains preferable over deep nesting.
 - Within an agent team or workflow, the same advisor triggers apply to each agent individually (stuck, approaching commitment, consequential decisions). Additionally, when the formation includes any sonnet- or haiku-class agents (i.e., unless the entire formation is opus/fable or higher), include a dedicated synthesis reviewer as the final step (distinct from any in-formation `reviewer` role, which is itself sonnet-class): after all agents complete, spawn an opus/fable reviewer agent whose sole role is to review the combined outputs for correctness, conflicts, and missed edge cases, and return a verdict (proceed / revise + rationale). The reviewer does not modify files. The orchestrator acts on the verdict — revise and re-task agents on any blockers — before finalizing.
-- Use `claude agents` (or `claude agents --json` for scripting) to monitor all running, blocked, and completed sessions in one view.
+- Use `claude agents` to monitor running, blocked, and completed sessions in one view; add `--json --all` for scripting (includes completed sessions).
 - For long-running autonomous tasks, use `/goal` to set a completion condition — Claude works across turns until it's met without manual re-prompting.
 - Use `EnterWorktree` for agent isolation; `worktree.baseRef: "head"` in settings preserves unpushed commits in the isolated branch.
 
@@ -94,16 +121,18 @@ Team = parallel Agent calls in one message from main thread, each with role isol
 - For subagents and team members, set `model` on spawn:
   - `opus` — see Delegation for the canonical trigger list.
   - `haiku` — lookups, formatting, mechanical transforms, classification.
-  - Omit (Sonnet) — implementation, exploration, research, and most tasks.
+  - Omit (Sonnet) — implementation, exploration, and most tasks.
   - `fable` — (claude-fable-5) hardest reasoning, long-horizon planning, and multi-stage agentic tasks; positioned above opus in capability.
 - Append `[1m]` to any model alias for the 1M-context window (e.g. `opus[1m]`); subagents default to `sonnet`. For `sonnet` and `fable`, `[1m]` is redundant — Sonnet 5 and Fable 5 include 1M context by default and the suffix is auto-stripped.
-- Set `effort` on agent spawn: `low` (mechanical), `medium`, `high`, `xhigh` (Opus 4.7+ only), `max`. Omit to inherit session effort. (`/effort ultracode` is a session mode = `xhigh` + workflow orchestration — not an agent-level tier.)
+- Pin `effort` in a **subagent's** frontmatter to set that agent's own effort: `low` (mechanical), `medium`, `high`, `xhigh`, `max` — availability depends on the model, not Opus-exclusive (Sonnet 5 and Fable 5 support `xhigh` too). The Agent tool has no per-invocation effort parameter, only `model`; effort must live in frontmatter, or be set per-call via `agent(prompt, {effort: ...})` inside a Workflow script. Omit frontmatter to inherit the session/orchestrator's effort. (`/effort ultracode` is a session mode = `xhigh` + workflow orchestration — not an agent-level tier.)
+- A **skill's** frontmatter `effort:` is different — it overrides the _invoking_ thread's own effort while that skill is active, including the main orchestrator when the skill runs inline there. Don't set low/medium effort on a skill you want the orchestrator running at full strength for.
 - In agent teams, use `opus` for the lead when the task spans cross-cutting concerns; escalate to `fable` for the highest-stakes decisions.
 
 ## Routing
 
 - `prompt*` -> prompt-engineer
-- `understand* code*|analyse* architecture*` -> Explore
+- `understand* code*` -> Explore
+- `analyse* architecture*` -> researcher
 - `design* solution*|plan* implementation*` -> Plan
 - `*golang*|*go code*|*go lang*` -> golang-developer
 - `research*|investigate*|feasibility*|compare*` -> researcher
@@ -117,6 +146,8 @@ Team = parallel Agent calls in one message from main thread, each with role isol
 - No match -> general-purpose
 
 ## Wiki Integration
+
+Auto-memory (native, MEMORY.md) holds per-project, session-learned facts: corrections, preferences, continuity notes, and quick pointers (URLs/tickets). The wiki holds deliberately compiled, indexed knowledge pages — structured for reuse and able to span projects (global/random), not just this one. Don't duplicate a fact into both.
 
 ### Auto-Query
 

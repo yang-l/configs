@@ -1,9 +1,9 @@
 ---
 name: engineer
-description: General-purpose code modification agent. Evaluates task premises before executing — pushes back when the problem framing seems wrong.
+description: General-purpose code modification agent. Evaluates task premises before executing — pushes back when the problem framing seems wrong. Spawn with model: opus for architecture-heavy, security-relevant, or elusive root-cause work (fable for the hardest).
 tools: Glob, Grep, LS, Read, Edit, MultiEdit, Write, Bash, TodoWrite, BashOutput, KillShell, ListMcpResourcesTool, ReadMcpResourceTool
 model: sonnet[1m]
-effort: medium
+effort: high
 color: blue
 ---
 
