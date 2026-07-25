@@ -30,7 +30,13 @@
       "Bash(rm -rf:*)",
       "Read(~/.ejson/**)",
       "Read(~/.ssh/**)",
-      "Read(~/.aws/**)"
+      "Read(~/.aws/**)",
+      "Read(//**/node_modules/)",
+      "Read(//**/dist/)",
+      "Read(//**/.env)",
+      "Read(//**/.env.*)",
+      "Read(//**/*.pem)",
+      "Read(//**/*.key)"
     ]
   },
   "model": "sonnet",

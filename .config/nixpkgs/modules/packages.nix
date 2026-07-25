@@ -44,7 +44,7 @@
     autoflake
     pyright
     python314Packages.debugpy
-    poetry
+    #poetry
     black
     mypy
     python314Packages.flake8
