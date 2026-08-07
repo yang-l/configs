@@ -1,6 +1,8 @@
 ---
 name: config-optimise
-description: Audits and optimises your Claude Code config files (CLAUDE.md, agent definitions, skills) — removing redundant instructions, adding missing best practices, restructuring misplaced rules, and improving vague instructions. Use whenever you want to keep your config lean, current, and effective — trigger phrases: "prune my config", "optimise my config", "audit my CLAUDE.md", "improve my CLAUDE.md", "is my CLAUDE.md still current", "what's missing from my config", "clean up my agents", "refresh my config", "update my claude setup", "health check my claude config", "my claude config is getting bloated". Orchestrates a 7-agent team backed by deep web research; no file is touched without your explicit approval.
+description: >-
+  Audits and optimises your Claude Code config files (CLAUDE.md, agent definitions, skills) — removing redundant instructions, adding missing best practices, restructuring misplaced rules, and improving vague instructions. Use whenever you want to keep your config lean, current, and effective — trigger phrases: "prune my config", "optimise my config", "audit my CLAUDE.md", "improve my CLAUDE.md", "is my CLAUDE.md still current", "what's missing from my config", "clean up my agents", "refresh my config", "update my claude setup", "health check my claude config", "my claude config is getting bloated". Orchestrates a 7-agent team backed by deep web research; no file is touched without your explicit approval.
+model: opus[1m]
 effort: high
 ---
 

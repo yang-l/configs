@@ -16,6 +16,7 @@ description: >-
   redundant section, review-comment anchors, verbatim edit, doc trim. SKIP
   for runbooks and how-to/step-by-step guides (procedure, not design
   rationale) and for general prose or marketing copy with no design content.
+model: opus[1m]
 effort: high
 ---
 

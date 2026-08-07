@@ -47,4 +47,8 @@
   home.activation.claude-skill-council-review = lib.hm.dag.entryAfter ["writeBoundary"] ''
     $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/council-review && mkdir -p ~/.claude/skills/council-review && /Users/$USER/.nix-profile/bin/curl -sL https://github.com/ngmeyer/skills/archive/main.tar.gz | /usr/bin/tar xz --strip-components=4 -C ~/.claude/skills/council-review skills-main/skills/productivity/council-review'
   '';
+
+  home.activation.claude-skill-i-have-adhd = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/i-have-adhd && mkdir -p ~/.claude/skills/i-have-adhd && /Users/$USER/.nix-profile/bin/curl -sL https://github.com/ayghri/i-have-adhd/archive/main.tar.gz | /usr/bin/tar xz --strip-components=3 -C ~/.claude/skills/i-have-adhd i-have-adhd-main/skills/i-have-adhd'
+  '';
 }

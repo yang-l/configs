@@ -39,7 +39,7 @@
       "Read(//**/*.key)"
     ]
   },
-  "model": "sonnet",
+  "model": "opus[1m]",
   "hooks": {
     "PostToolUse": [
       {
@@ -70,10 +70,12 @@
   },
   "spinnerTipsEnabled": false,
   "alwaysThinkingEnabled": true,
-  "advisorModel": "opus",
+  "effortLevel": "medium",
+  "advisorModel": "fable",
   "promptSuggestionEnabled": false,
   "autoUpdatesChannel": "stable",
   "autoMemoryEnabled": true,
+  "skipWorkflowUsageWarning": true,
   "teammateMode": "in-process",
   "remoteControlAtStartup": false,
   "skipAutoPermissionPrompt": true,

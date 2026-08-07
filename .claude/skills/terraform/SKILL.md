@@ -90,6 +90,11 @@ Layered approach, cheapest first:
 3. **Continuous**: `check` blocks for post-apply assertions. Preconditions/postconditions for hard guards.
 4. **Integration**: Terratest for real-deploy tests of critical modules. Reserve for high-blast-radius infrastructure.
 
+## Comments
+
+- Implementation (`.tf`, module code): minimal. Only the non-obvious "why" — a workaround, a deliberate omission, an AWS behavior that isn't visible from the code itself. Never restate what a resource or argument does.
+- Tests (`.tftest.hcl`, Terratest, or specs asserting rendered output): more latitude. A short note on why an assertion targets one statement over a near-identical other, or why a fixture is shaped a certain way, earns its line there even if it would be too verbose in implementation code.
+
 ## AWS-Specific Conventions
 
 ### Tagging Strategy
@@ -101,6 +106,11 @@ Use `default_tags` in the provider block. Supplement with a `common_tags` local 
 - Use `aws_iam_policy_document` data source for readable policies.
 - Scope to specific resource ARNs (avoid `"Resource": "*"`).
 - Separate roles per service/function. Prefer managed policies for reuse.
+- **Verify against AWS's docs, don't assume from a similar action.** Before adding or reviewing a statement, check the service's actions/resources/condition-keys tables in the [Service Authorization Reference](https://docs.aws.amazon.com/service-authorization/latest/reference/reference_policies_actions-resources-contextkeys.html) — confirm which resource types the action supports and which condition keys are actually valid on it. A condition key valid for one action on a resource (e.g. create) is not necessarily valid for a related action on the same resource (e.g. tag/untag).
+- **Tag-on-create / joint authorization needs a different table than you'd guess.** Whether `Create<Resource>` also silently requires `TagResource` (inline tags) is NOT settled by that action's own `DependentActions` field (often empty even when a real dependency exists) or by confirming the SDK/provider makes one HTTP call (a single call can still require multiple IAM actions to be authorized). The real answer is the separate "API operations" table — `Operations[].AuthorizedActions` in the JSON below; if `TagResource` shows up there for the `Create` operation, it's required.
+- **Fetch the machine-readable reference with raw `curl` + `python3 -m json.tool`, never a summarizing web-fetch tool.** `https://servicereference.<region>.amazonaws.com/v1/<service>/<service>.json` (index at `https://servicereference.us-east-1.amazonaws.com/` if the exact URL isn't known) is reachable even when the rendered HTML page isn't, and is authoritative — but a summarizing fetch has been observed to silently drop the whole `Operations` array (where `AuthorizedActions` lives) and report a confident false negative. Resource-level condition keys live under `Resources[].ConditionKeys`, not the action's own entry — don't conclude a key is unsupported from the action listing alone. `ConditionKeys[].Types` (`String` vs `ArrayOfString`) settles whether a condition needs a `ForAnyValue:` prefix.
+- **Sanity-check a lossy export before trusting a negative result**: verify it against a well-known example from an unrelated service first (Lambda's `CreateFunction` → `iam:PassRole` is a good one) — if the known dependency doesn't show up, the export is unreliable and the raw data is needed instead.
+- **Unsupported condition keys fail closed, silently.** An invalid condition key doesn't error — it just makes the statement never match, denying everything. `terraform validate`/`plan` won't catch this; only the docs (or a test asserting the exact condition-key-to-action mapping) will.
 
 ### Common Resource Patterns
 

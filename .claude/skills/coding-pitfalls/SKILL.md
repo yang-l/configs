@@ -21,6 +21,7 @@ when_to_use: >
   agentic coding mistakes, or LLM coding anti-patterns. Also load when
   a fix attempt has been tried twice without success, or when reviewing
   security-sensitive AI output.
+model: inherit
 effort: high
 ---
 
@@ -166,14 +167,14 @@ Agentic engineering strategies that exploit LLM strengths:
 
 ## Quick Reference
 
-| Failure Mode       | Signal                                                              | Fix                                                        |
-| ------------------ | ------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Silent assumptions | No clarifying questions on ambiguous request                        | State assumptions, present alternatives, push back         |
-| Overcomplexity     | Abstract base class for one use case; dead code after refactor      | One function until proven insufficient; clean up dead code |
-| Side-effect edits  | Quote style / whitespace changes in a bug fix diff                  | Only change lines that trace to the request                |
-| Test blindspot     | Test asserts what code does, not what spec requires                 | Write criteria from spec, not from code                    |
-| N+1 patterns       | `await`/`fetch`/`query` inside `for`/`map`                          | Batch operations, review loop bodies                       |
-| Security gaps      | No input validation; hardcoded secrets; no re-audit after iteration | Treat output as untrusted; lint; re-audit each pass        |
-| Debugging decay    | 3rd+ fix attempt; diff keeps growing; same error recurs             | Stop, revert, re-read error, reason before editing         |
-| API hallucination  | Unfamiliar method names; API call with no doc reference             | Pin to current docs; verify signatures                     |
+| Failure Mode             | Signal                                                                  | Fix                                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Silent assumptions       | No clarifying questions on ambiguous request                            | State assumptions, present alternatives, push back                                                            |
+| Overcomplexity           | Abstract base class for one use case; dead code after refactor          | One function until proven insufficient; clean up dead code                                                    |
+| Side-effect edits        | Quote style / whitespace changes in a bug fix diff                      | Only change lines that trace to the request                                                                   |
+| Test blindspot           | Test asserts what code does, not what spec requires                     | Write criteria from spec, not from code                                                                       |
+| N+1 patterns             | `await`/`fetch`/`query` inside `for`/`map`                              | Batch operations, review loop bodies                                                                          |
+| Security gaps            | No input validation; hardcoded secrets; no re-audit after iteration     | Treat output as untrusted; lint; re-audit each pass                                                           |
+| Debugging decay          | 3rd+ fix attempt; diff keeps growing; same error recurs                 | Stop, revert, re-read error, reason before editing                                                            |
+| API hallucination        | Unfamiliar method names; API call with no doc reference                 | Pin to current docs; verify signatures                                                                        |
 | Multi-agent coordination | Conflicting outputs; duplicated work across agents; no end-to-end check | Explicit input/output contracts; single done-condition per agent; orchestrator verifies against original spec |
