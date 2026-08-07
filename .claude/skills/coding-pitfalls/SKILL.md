@@ -22,7 +22,6 @@ when_to_use: >
   a fix attempt has been tried twice without success, or when reviewing
   security-sensitive AI output.
 model: inherit
-effort: high
 ---
 
 # LLM Coding Pitfalls

@@ -50,7 +50,7 @@ Drop:
 
 Main thread is the coordinator: route, delegate, and track state.
 Prefer starting a fresh subagent or fork for each new phase of work over letting the main conversation grow indefinitely.
-Spawn Opus agents for: architecture decisions, cross-cutting design, security review, complex reasoning, plan review, and large ingests (10k+ words). For the hardest reasoning and long-horizon agentic tasks, use fable instead of opus. For code review, use the `/code-review` or `/review` built-in skill (see Routing); fall back to `engineer (model: opus)` for custom analysis. Do not spawn a generic Opus agent.
+Spawn Opus agents for: architecture decisions, cross-cutting design, complex reasoning, review of any kind (code, security, plan), and large ingests (10k+ words); use fable for the hardest reasoning and long-horizon agentic tasks. All review goes to the `reviewer` agent — the `/code-review`, `/review`, and `/security-review` skills are the quick path for a small diff. Do not spawn a generic Opus agent — use a defined agent.
 Use the `advisor` tool for in-flight second opinions (stuck, before committing to an approach, consequential decisions).
 Rule: use Opus when the work produces a deliverable (a plan, a review, an implementation); use the advisor tool when you need a second opinion without handing off the work.
 Verification (tests pass, feature behaves correctly) stays with the implementing agent.
@@ -84,19 +84,19 @@ Team = parallel Agent calls in one message from main thread, each with role isol
 - For long-running workflows, establish supervision: which agent monitors which, and what to do on stall.
 - For tasks spanning many files (~20+) or requiring cross-verification, invoke a workflow via the `ultracode` keyword (typed in prompt) or `/effort ultracode` — workflows keep intermediate results out of context and are resumable within the same session only.
 - Subagents can now spawn their own subagents up to 5 levels deep (v2.1.172+). For tasks requiring persistent cross-verification or intermediate results out of context, a runtime-constructed workflow ("dynamic workflow") remains preferable over deep nesting.
-- Within an agent team or workflow, the same advisor triggers apply to each agent individually (stuck, approaching commitment, consequential decisions). Additionally, when the formation includes any sonnet- or haiku-class agents (i.e., unless the entire formation is opus/fable or higher), include a dedicated synthesis reviewer as the final step (distinct from any in-formation `reviewer` role, which is itself sonnet-class): after all agents complete, spawn an opus/fable reviewer agent whose sole role is to review the combined outputs for correctness, conflicts, and missed edge cases, and return a verdict (proceed / revise + rationale). The reviewer does not modify files. The orchestrator acts on the verdict — revise and re-task agents on any blockers — before finalizing.
+- Within an agent team or workflow, the same advisor triggers apply to each agent individually (stuck, approaching commitment, consequential decisions). Additionally, unless the whole formation is opus/fable or higher, add the `reviewer` agent as a final synthesis step at its default opus tier — not the sonnet tier used for an in-formation `reviewer` — escalating to `model: fable` for the highest-stakes work. The orchestrator acts on the verdict — revise and re-task agents on any blockers — before finalizing.
 - Use `claude agents` to monitor running, blocked, and completed sessions in one view; add `--json --all` for scripting (includes completed sessions).
 - For long-running autonomous tasks, use `/goal` to set a completion condition — Claude works across turns until it's met without manual re-prompting.
 - Use `EnterWorktree` for agent isolation; `worktree.baseRef: "head"` in settings preserves unpushed commits in the isolated branch.
 
 **Runbook-first execution:**
 
-- Mandatory for workflow-tier tasks (see tiers above): before dispatching executors, spawn a `Plan (model: fable)` author — workflow tier is definitionally the long-horizon/persistent-cross-verification case Tool Hints already associate with fable — to write a runbook before execution starts.
+- Mandatory for workflow-tier tasks (see tiers above): before dispatching executors, spawn a `Plan (model: fable)` author to write the runbook; `Plan` returns it as agent text and the orchestrator persists it to a file.
 - Team-tier tasks may also use a runbook, but it's optional — the coordinator decides, and may consult `advisor` on whether it's worth it. When writing one, use `Plan (model: opus)` (escalate to fable if the task is itself long-horizon or highest-stakes).
 - The runbook decomposes the task into ordered steps detailed enough for any executor to follow without guessing — a lower-tier Claude model, or a different LLM entirely; this is a bar for how explicit the writing must be, not a change to who executes (execution stays governed by the tiers above). Each step states the _why_ as well as the _what_, assuming zero shared context or conventions and no chance to ask a clarifying question, plus the exact-spec fields from "When delegating edits" (files touched, what changes, pass/fail criteria), the commit message format, and a verification command with its expected output. Ambiguity in a step is a defect in the runbook, not something the executor should resolve by improvising.
 - Pass the runbook into each executor's prompt alongside the scope manifest. Executors run each step's stated verification command and confirm the output matches before advancing to the next step.
 - If a step's verification fails twice, or the runbook doesn't cover the situation, route back to the runbook author for a deliverable revision (not an `advisor` call) before falling back to `codex:rescue`.
-- The runbook author closes out as the synthesis reviewer required above, checking results against its own acceptance criteria — no separate reviewer needed.
+- The runbook author closes out as the synthesis reviewer required above: check results against its own acceptance criteria and return `Verdict: proceed` or `Verdict: revise` with rationale — no separate reviewer needed.
 
 **Scope discipline in any looping or team workflow:**
 
@@ -136,7 +136,7 @@ Team = parallel Agent calls in one message from main thread, each with role isol
 - `design* solution*|plan* implementation*` -> Plan
 - `*golang*|*go code*|*go lang*` -> golang-developer
 - `research*|investigate*|feasibility*|compare*` -> researcher
-- `review*|*code review*` -> `/code-review` or `/review` skill (built-in); `engineer (model: opus)` for custom analysis
+- `review*|*code review*|*security review*` -> `reviewer` agent; `/code-review`, `/review`, or `/security-review` skill (built-in) for a quick pass on a small diff
 - `debug*|troubleshoot*` -> engineer
 - `*implement*|*refactor*|*fix*|*edit*|*modify*` -> engineer
 - Route inputs starting with `wiki ` (or explicit wiki-ingest requests) to `wiki`. On spawn, set `model: opus[1m]` if ingest volume exceeds 10k words or 5 source files; otherwise `sonnet` (the agent default).
