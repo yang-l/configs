@@ -36,10 +36,6 @@
     $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/skill-creator && mkdir -p ~/.claude/skills/skill-creator && /Users/$USER/.nix-profile/bin/curl -sL https://github.com/anthropics/skills/archive/main.tar.gz | /usr/bin/tar xz --strip-components=3 -C ~/.claude/skills/skill-creator skills-main/skills/skill-creator'
   '';
 
-  home.activation.claude-skill-reddit-fetch = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/reddit-fetch && mkdir -p ~/.claude/skills/reddit-fetch && /Users/$USER/.nix-profile/bin/curl -sL https://github.com/ykdojo/claude-code-tips/archive/main.tar.gz | /usr/bin/tar xz --strip-components=3 -C ~/.claude/skills/reddit-fetch claude-code-tips-main/skills/reddit-fetch'
-  '';
-
   home.activation.claude-skill-handoff = lib.hm.dag.entryAfter ["writeBoundary"] ''
     $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/handoff && mkdir -p ~/.claude/skills/handoff && /Users/$USER/.nix-profile/bin/curl -sL https://github.com/ykdojo/claude-code-tips/archive/main.tar.gz | /usr/bin/tar xz --strip-components=3 -C ~/.claude/skills/handoff claude-code-tips-main/skills/handoff'
   '';
@@ -58,6 +54,10 @@
 
   home.activation.claude-skill-diagram-design = lib.hm.dag.entryAfter ["writeBoundary"] ''
     $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/diagram-design && mkdir -p ~/.claude/skills/diagram-design && /Users/$USER/.nix-profile/bin/curl -sL https://github.com/cathrynlavery/diagram-design/archive/main.tar.gz | /usr/bin/tar xz --strip-components=3 -C ~/.claude/skills/diagram-design diagram-design-main/skills/diagram-design'
+  '';
+
+  home.activation.claude-skill-asd-ste100 = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/asd-ste100 && mkdir -p ~/.claude/skills/asd-ste100 && /Users/$USER/.nix-profile/bin/curl -sL https://github.com/danyuchn/asd-ste100-skill/archive/master.tar.gz | /usr/bin/tar xz --strip-components=1 -C ~/.claude/skills/asd-ste100 asd-ste100-skill-master'
   '';
 
   home.activation.claude-diagram-export-command = lib.hm.dag.entryAfter ["writeBoundary"] ''

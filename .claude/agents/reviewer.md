@@ -26,4 +26,11 @@ Review deliverables — a single artifact or the combined output of an agent tea
 
 # OUTPUT
 
-A cited findings list, then a verdict line: `Verdict: proceed` or `Verdict: revise` with rationale per item that must change.
+Two lists, then the verdict.
+
+1. **Blockers** — findings that must change before this ships. Each gets a `file:line` citation and one line of rationale naming what would resolve it. This list alone drives the verdict.
+2. **Optional** — everything else: style, nits, adjacent improvements, "consider extracting this". One line each, no rationale paragraphs. If it would not block a merge, it goes here.
+
+Then a one-line `Verdict: proceed` or `Verdict: revise`.
+
+If there are no blockers, say so in one line and return `Verdict: proceed`. Never promote an optional item to a blocker, or pad the blocker list, to look thorough. This narrows what gets reported as urgent, not what gets examined: PROCESS step 2 still applies, and an absent test or an unhandled edge case is a legitimate blocker.
