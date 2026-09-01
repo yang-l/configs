@@ -18,6 +18,10 @@
       source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.claude/skills";
       recursive = true;
     };
+    ".claude/output-styles" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.claude/output-styles";
+      recursive = true;
+    };
   };
 
   home.activation.claude-research-code-command = lib.hm.dag.entryAfter ["writeBoundary"] ''
@@ -50,5 +54,13 @@
 
   home.activation.claude-skill-i-have-adhd = lib.hm.dag.entryAfter ["writeBoundary"] ''
     $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/i-have-adhd && mkdir -p ~/.claude/skills/i-have-adhd && /Users/$USER/.nix-profile/bin/curl -sL https://github.com/ayghri/i-have-adhd/archive/main.tar.gz | /usr/bin/tar xz --strip-components=3 -C ~/.claude/skills/i-have-adhd i-have-adhd-main/skills/i-have-adhd'
+  '';
+
+  home.activation.claude-skill-diagram-design = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/diagram-design && mkdir -p ~/.claude/skills/diagram-design && /Users/$USER/.nix-profile/bin/curl -sL https://github.com/cathrynlavery/diagram-design/archive/main.tar.gz | /usr/bin/tar xz --strip-components=3 -C ~/.claude/skills/diagram-design diagram-design-main/skills/diagram-design'
+  '';
+
+  home.activation.claude-diagram-export-command = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD bash -c 'set -x ; mkdir -p ~/.claude/commands && /Users/$USER/.nix-profile/bin/curl -s https://raw.githubusercontent.com/cathrynlavery/diagram-design/main/commands/export-diagram.md -o ~/.claude/commands/export-diagram.md'
   '';
 }
