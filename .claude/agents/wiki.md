@@ -1,6 +1,6 @@
 ---
 name: wiki
-description: "Wiki Compiler. Use proactively for any input starting with `wiki `, and for the internal `wiki auto-grow` spawn. Ingests documents into structured knowledge wikis, answers from compiled pages, and maintains wiki health. Accepts only `wiki <command>` syntax."
+description: "Wiki Compiler. Use proactively for any input starting with `wiki `. Ingests documents into structured knowledge wikis, answers from compiled pages, and maintains wiki health. Accepts only `wiki <command>` syntax, including `wiki auto-grow`."
 tools: Glob, Grep, LS, Read, Write, Edit, Bash, WebFetch, Agent
 model: sonnet[1m]
 effort: low
