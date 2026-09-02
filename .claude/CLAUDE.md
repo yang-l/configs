@@ -49,7 +49,7 @@ Drop:
 ## Delegation
 
 Main thread coordinates: route, delegate, track state. Prefer a fresh subagent or fork per phase over growing the main conversation.
-Spawn Opus for architecture decisions, cross-cutting design, complex reasoning, standalone or synthesis review (code, security, plan), and large ingests (10k+ words); fable for the hardest reasoning and long-horizon agentic tasks. Use a defined agent, never a generic Opus one. All review goes to the `reviewer` agent; the `/code-review`, `/review`, and `/security-review` skills are the quick path for a small diff. Reviews return merge-blocking findings first; style notes and adjacent improvements go in a separate optional list, never mixed into the blockers.
+Spawn Opus for architecture decisions, cross-cutting design, complex reasoning, elusive root-cause debugging, standalone or synthesis review (code, security, plan), and large ingests (10k+ words); fable for the hardest reasoning and long-horizon agentic tasks. Use a defined agent, never a generic Opus one. All review goes to the `reviewer` agent; the `/code-review` skill (`/review` is its alias) and `/security-review` are the quick path for a small diff. Reviews return merge-blocking findings first; style notes and adjacent improvements go in a separate optional list, never mixed into the blockers.
 Use Opus when the work produces a deliverable (a plan, a review, an implementation); use the `advisor` tool for a second opinion without handing off the work — stuck, before committing to an approach, consequential decisions.
 Verification (tests pass, feature behaves correctly) stays with the implementing agent.
 All file modifications MUST be delegated to subagents or team agents.
@@ -77,11 +77,11 @@ Team = parallel Agent calls in one message from main thread, each role-isolated;
 - Include a propulsion mechanism: explicit instruction to check for and act on pending work.
 - Make work idempotent and resumable, in atomic units agents complete independently.
 - For long-running workflows, name which agent monitors which and what to do on stall.
-- Invoke a workflow for ~20+ files or cross-verification, via the `ultracode` keyword (typed in prompt) or `/effort ultracode`; it keeps intermediate results out of context and resumes within the same session only. Subagents can spawn their own subagents up to 5 levels deep (v2.1.172+), but a runtime-constructed workflow ("dynamic workflow") still beats deep nesting for persistent cross-verification or keeping intermediate results out of context.
+- Invoke a workflow for ~20+ files or cross-verification, via the `ultracode` keyword (typed in prompt) or `/effort ultracode`; it keeps intermediate results out of context and resumes within the same session only. Subagents can spawn their own subagents up to three layers below the main conversation; raise or disable that with `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`. A runtime-constructed workflow ("dynamic workflow") still beats deep nesting for persistent cross-verification or keeping intermediate results out of context.
 - Advisor triggers apply to each agent in a team or workflow individually (stuck, approaching commitment, consequential decisions). Unless the whole formation is opus/fable or higher, add the `reviewer` agent as final synthesis at its default opus tier — not the sonnet tier used for an in-formation `reviewer` — or `model: fable` for the highest-stakes work; the orchestrator revises and re-tasks agents on any blocker before finalizing.
 - `claude agents` monitors running, blocked, and completed sessions in one view; add `--json --all` for scripting (includes completed sessions).
 - `/goal` sets a completion condition for long-running autonomous tasks — Claude works across turns until it's met, without manual re-prompting.
-- Use `EnterWorktree` for agent isolation; `worktree.baseRef: "head"` in settings preserves unpushed commits in the isolated branch.
+- Use `EnterWorktree` for session-level isolation, or `isolation: "worktree"` on an Agent spawn to isolate one agent; `worktree.baseRef: "head"` in settings preserves unpushed commits in the isolated branch.
 
 **Runbook-first execution:**
 
@@ -161,11 +161,11 @@ Subagents do not inherit the user's output style, so this section is the whole c
   - `opus` — see Delegation for the canonical trigger list.
   - `haiku` — lookups, formatting, mechanical transforms, classification.
   - Omit (Sonnet) — implementation, exploration, and most tasks.
-  - `fable` — (claude-fable-5) hardest reasoning, long-horizon planning, and multi-stage agentic tasks; positioned above opus in capability.
+  - `fable` — hardest reasoning, long-horizon planning, and multi-stage agentic tasks; positioned above opus in capability.
 - Append `[1m]` to any model alias for the 1M-context window (e.g. `opus[1m]`); subagents default to `sonnet`. Redundant for `sonnet` and `fable` — Sonnet 5 and Fable 5 include 1M context by default and the suffix is auto-stripped.
 - Pin `effort` in a **subagent's** frontmatter to set that agent's own effort: `low` (mechanical), `medium`, `high`, `xhigh`, `max`; availability depends on the model, not Opus-exclusive (Sonnet 5 and Fable 5 support `xhigh` too). The Agent tool takes only `model`, no per-invocation effort — use frontmatter, or `agent(prompt, {effort: ...})` inside a Workflow script. Omit frontmatter to inherit the session/orchestrator's effort. `/effort ultracode` is a session mode (`xhigh` + workflow orchestration), not an agent-level tier.
 - A **skill's** frontmatter `effort:` instead overrides the _invoking_ thread's own effort while the skill is active, including the main orchestrator when the skill runs inline there. Don't set low/medium effort on a skill you want the orchestrator running at full strength for.
-- In agent teams, use `opus` for the lead when the task spans cross-cutting concerns; escalate to `fable` for the highest-stakes decisions.
+- In agent teams, use `opus` for the lead when the task spans cross-cutting concerns; escalate to `fable` for the highest-stakes decisions. A teammate inherits the leader's model unless its spawn names one, so name a cheaper model on each teammate that does not need the leader's tier.
 
 ## Routing
 
@@ -175,7 +175,7 @@ Subagents do not inherit the user's output style, so this section is the whole c
 - `design* solution*|plan* implementation*` -> Plan
 - `*golang*|*go code*|*go lang*` -> golang-developer
 - `research*|investigate*|feasibility*|compare*` -> researcher
-- `review*|*code review*|*security review*` -> `reviewer` agent; `/code-review`, `/review`, or `/security-review` skill (built-in) for a quick pass on a small diff
+- `review*|*code review*|*security review*` -> `reviewer` agent; `/code-review` (alias `/review`) or `/security-review` for a quick pass on a small diff
 - `debug*|troubleshoot*` -> engineer
 - `*implement*|*refactor*|*fix*|*edit*|*modify*` -> engineer
 - Route inputs starting with `wiki ` (or explicit wiki-ingest requests) to `wiki`. On spawn, set `model: opus[1m]` if ingest volume exceeds 10k words or 5 source files; otherwise `sonnet` (the agent default).

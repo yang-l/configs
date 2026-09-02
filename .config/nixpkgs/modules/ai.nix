@@ -22,6 +22,10 @@
       source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.claude/output-styles";
       recursive = true;
     };
+    ".claude/rules" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.sessionVariables._BASE_CONFIG_FOLDER_PATH}/.claude/rules";
+      recursive = true;
+    };
   };
 
   home.activation.claude-research-code-command = lib.hm.dag.entryAfter ["writeBoundary"] ''

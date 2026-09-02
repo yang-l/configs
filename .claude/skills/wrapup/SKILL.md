@@ -18,12 +18,10 @@ effort: high
 
 # Session Wrap-Up: Two Questions
 
-Source: a Reddit post ("I end every AI session with two questions") describing
-a two-question ritual — one the poster attributes to Sam Altman, one Claude
-itself suggested — that surfaces the single biggest miss roughly one time in
-four. The value is entirely in how specifically the questions get answered;
-asked generically, they produce generic, useless answers. This skill exists
-to prevent that.
+A two-question wrap-up ritual surfaces the single biggest miss roughly
+one time in four. The value is entirely in how specifically the questions
+get answered; asked generically, they produce generic, useless answers.
+This skill exists to prevent that.
 
 **The two questions, verbatim:**
 
@@ -92,8 +90,7 @@ could go wrong if the uncertainty resolves the bad way. That last part is
 what makes an item auditable rather than a vague hedge.
 
 **Risk-rate every item.** Mark an item **[HIGH RISK]** if it matches any of
-these criteria — these are the categories the Reddit post's "one in four is
-a huge deal" insight is about:
+these criteria — these are the categories where a missed item is a big deal:
 
 - Could cause **silent wrong behavior** — the code runs, looks fine, and
   produces incorrect results with no error.
@@ -148,9 +145,8 @@ each one rather than skip to a conclusion.
 
 > Everything looks good, I think we covered all the bases here!
 
-This is exactly the generic non-answer the Reddit post's approach is
-designed to defeat — it required no actual outside-view thinking and could
-apply to any session.
+This is exactly the generic non-answer this skill is designed to defeat — it
+required no actual outside-view thinking and could apply to any session.
 
 **Good answer (this is the bar):**
 

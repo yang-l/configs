@@ -20,6 +20,8 @@ This skill owns the **orchestration**. The per-section editorial judgment — wh
 
 Partition → fan out → assemble → guard/verify.
 
+Cap the fan-out at 20 concurrent section agents, which is the Claude Code default. On a doc with more sections, batch the ranges and dispatch them in waves.
+
 Sections are disjoint in the text each agent **edits**, so agents never collide on the same string. They are _not_ disjoint in what an edit can **break**: a heading one agent rewords may be a link target elsewhere; a detail one agent cuts may be mirrored in a summary or threat table in another section; a sentence one agent trims may carry a prose cross-ref ("as in §4") or a pinned review comment. A section-blind agent sees none of that. **The coordinator is the only party with the whole-doc view, so the coordinator owns cross-reference integrity** — not the section agents.
 
 ---

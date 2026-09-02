@@ -107,7 +107,5 @@
   "remoteControlAtStartup": false,
   "skipAutoPermissionPrompt": true,
   "autoInstallIdeExtension": false,
-  "gitAttribution": false,
-  "teammateDefaultModel": "claude-sonnet-5",
-  "outputStyle": "Lean"
+  "gitAttribution": false
 }

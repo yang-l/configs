@@ -1,7 +1,7 @@
 ---
 name: reviewer
-description: Read-only reviewer for code, security, plans, and combined agent-team output — checks correctness, conflicts, and missed edge cases, and returns `Verdict: proceed` or `Verdict: revise` with rationale. Never modifies files. Default opus = synthesis review; `model: sonnet` = in-formation reviewer; `model: fable` = highest-stakes.
-tools: Glob, Grep, LS, Read, Bash, WebFetch, WebSearch, TodoWrite, BashOutput
+description: "Read-only reviewer for code, security, plans, and combined agent-team output. Use proactively before a change ships. Checks correctness, conflicts, and missed edge cases. Returns `Verdict: proceed` or `Verdict: revise` with rationale. Never modifies files."
+tools: Glob, Grep, LS, Read, Bash, WebFetch, WebSearch, BashOutput
 model: opus[1m]
 effort: high
 color: red

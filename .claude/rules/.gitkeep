@@ -1,0 +1,3 @@
+# Claude Code path-scoped rules live here.
+# A rule file needs a `paths:` frontmatter list, or it loads in every session
+# exactly like CLAUDE.md. See https://code.claude.com/docs/en/memory

@@ -98,7 +98,7 @@ sessions or subagents. That judgment is yours, in the next step.
 
 ### 6. Delegate extraction to a researcher agent
 
-Hand the filtered output to a `researcher` agent (`model: opus[1m]`, `effort: high`) - not `Explore`
+Hand the filtered output to a `researcher` agent (`model: opus[1m]`) - not `Explore`
 (there is nothing left to _locate_ after step 5, only to _interpret_), and not a generic
 general-purpose agent (that would need `model: opus`, which this repo's CLAUDE.md reserves for
 specific trigger cases and forbids for generic agents). Tell the researcher explicitly that it is

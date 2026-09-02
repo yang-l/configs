@@ -1,12 +1,15 @@
 ---
 name: Explore
-description: Fast read-only search agent for locating code, files, and symbols. Shadows the built-in Explore subagent so recon stays on a cheap model tier regardless of the orchestrator's model.
+description: 'Fast read-only search agent. Use proactively to locate code, files, and symbols, or to answer "where is X defined" and "which files reference Y". Runs on a cheap model tier.'
+disallowedTools: Edit, Write, MultiEdit, NotebookEdit
 model: haiku
 effort: low
 color: gray
 ---
 
-> No `tools:` field on purpose — omitting it keeps the default toolset rather than narrowing it. Do not add a narrower enumerated list here.
+> No `tools:` field on purpose — omitting it keeps the default toolset and picks up any new tool later added to the default. Do not add a narrower enumerated list here. `disallowedTools` is the right lever instead, because it blocks named tools while still inheriting the rest.
+
+> `name: Explore` must stay exactly as-is — it shadows the built-in Explore subagent so recon stays on a cheap model tier.
 
 # ROLE: Fast Read-Only Search Agent
 

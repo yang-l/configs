@@ -14,9 +14,9 @@ Operate only on files in the **project-level** `.claude/` directory (git-tracked
 - `.claude/agents/*.md`
 - `.claude/skills/*/SKILL.md`
 
-Never touch `~/.claude/` — that directory is nix-managed and may contain web-downloaded packages. Never touch `.claude/settings*.json` — those are CC's own API format, not user prose instructions.
+Never touch `~/.claude/` — that directory is nix-managed and may contain web-downloaded packages. You may write `.claude/settings.json` only to land an approved `RESTRUCTURE` target, such as a hook entry or a settings key.
 
-> **Nix propagation:** `~/.claude/CLAUDE.md` is a nix symlink pointing to the project copy. Accepted prunes take effect globally after the next nix rebuild. Remind the user of this before applying any changes.
+> **Nix propagation:** `~/.claude/` resolves through out-of-store symlinks to this repo's `.claude/` directory, so an edit to an existing file is live at once, with no rebuild. A new skill, or a newly downloaded package, still needs a nix rebuild to land in the repo. Verify a path with `diff ~/.claude/CLAUDE.md /Users/yangliu/personal/configs/.claude/CLAUDE.md`.
 
 ---
 
@@ -29,10 +29,10 @@ Main thread is coordinator only — it routes, delegates, and tracks state. No d
 | **Researcher**      | `researcher`      | opus   | Deep web research: Anthropic official docs + community sources (GitHub discussions, developer blogs, Reddit, Hacker News, X/Twitter threads) to find current CC best practices, deprecated patterns, and capability upgrades. Produces two outputs: (1) evidence corpus `{url, quoted_text, relevance, source_credibility}` per finding; (2) a **best-practices checklist** — a structured list of patterns a well-configured CC user should have, sourced from official docs + community. |
 | **Analyst**         | `general-purpose` | opus   | Two passes: (1) classifies every existing instruction as `REMOVE`, `UPDATE`, `ADD`, `RESTRUCTURE`, `IMPROVE`, or `KEEP` with citation for every non-KEEP flag; (2) gap analysis — compares current config against the best-practices checklist and flags anything missing as `ADD`.                                                                                                                                                                                                        |
 | **Planner**         | `Plan`            | sonnet | Turns analyst classifications into a structured annotated diff, one file at a time.                                                                                                                                                                                                                                                                                                                                                                                                        |
-| **Reviewer**        | `engineer`        | fable  | Challenges every non-KEEP flag (`REMOVE`, `UPDATE`, `ADD`, `RESTRUCTURE`, `IMPROVE`) — verifies cited evidence supports the claim and version constraints are respected. Returns anything hallucinated or weakly supported to Analyst. Loop until sign-off.                                                                                                                                                                                                                                |
+| **Reviewer**        | `reviewer`        | fable  | Challenges every non-KEEP flag (`REMOVE`, `UPDATE`, `ADD`, `RESTRUCTURE`, `IMPROVE`) — verifies cited evidence supports the claim and version constraints are respected. Returns anything hallucinated or weakly supported to Analyst. Loop until sign-off.                                                                                                                                                                                                                                |
 | **Writer**          | `engineer`        | sonnet | After user approval: applies accepted edits to project `.claude/` files. One Writer instance per file — no cross-file writes in a single agent.                                                                                                                                                                                                                                                                                                                                            |
 | **Prompt engineer** | `prompt-engineer` | opus   | After edits are applied: rewrites the updated file to be more formal and concise — tightens wording, removes redundancy — without adding new instructions or changing meaning.                                                                                                                                                                                                                                                                                                             |
-| **Change reviewer** | `engineer`        | opus   | Reads the final git diff. Confirms edits match exactly what was approved, and that the prompt-engineer pass introduced no unintended changes.                                                                                                                                                                                                                                                                                                                                              |
+| **Change reviewer** | `reviewer`        | opus   | Reads the final git diff. Confirms edits match exactly what was approved, and that the prompt-engineer pass introduced no unintended changes.                                                                                                                                                                                                                                                                                                                                              |
 
 The Analyst may pre-load target file contents while the Researcher fetches evidence, but classification must not begin until the full evidence corpus is returned. All other stages are sequential.
 
@@ -95,6 +95,8 @@ Spawn the Analyst. Provide: all target file contents + the evidence corpus + the
 | `IMPROVE`     | Exists but vague or weak — rewrite for precision and consistent behaviour                                                         |
 | `KEEP`        | Fine as-is                                                                                                                        |
 
+> A `RESTRUCTURE` into `.claude/rules/` must give the new file a `paths:` frontmatter list. Without `paths:` the rule loads every session exactly like `CLAUDE.md`, so the move saves nothing.
+
 **Hard rule:** Every label except `KEEP` requires a cited URL + exact quoted text from the evidence corpus. No fetched evidence → classify as `KEEP`. No speculating from model knowledge alone. For `REMOVE`/`RESTRUCTURE` flags citing a CC feature as "now built-in": the evidence must confirm that feature shipped in `current_cc_version` or earlier — not in a newer release. If the version is unclear from the source, classify as `KEEP`.
 
 **Pass 2 — gap analysis.** Compare the full config against the best-practices checklist. For each checklist item not covered by any existing instruction, flag it as `ADD` with the checklist source as evidence.
@@ -136,13 +138,13 @@ Spawn the Planner to draft the annotated diff in this format:
       (safety invariant — unconditional, no evidence could change this)
 ```
 
-Spawn the Reviewer (engineer, fable) to challenge every non-KEEP flag — if evidence doesn't clearly support a claim, send the item back to Analyst. Repeat until Reviewer signs off on the full diff.
+Spawn the Reviewer (reviewer, fable) to challenge every non-KEEP flag — if evidence doesn't clearly support a claim, send the item back to Analyst. Repeat until Reviewer signs off on the full diff.
 
 ### Step 5 — User approval gate
 
 Present the reviewed annotated diff to the user. No files are written until explicit approval.
 
-For each flagged item, the user approves or rejects it individually. Remind the user: accepted changes to `.claude/CLAUDE.md` take effect globally after the next nix rebuild.
+For each flagged item, the user approves or rejects it individually. Remind the user: accepted edits to existing files go live at once, because `~/.claude/` symlinks to this repo. No nix rebuild is needed for an edit. A brand-new skill directory, or a package newly pulled from outside, does need a rebuild before it reaches the repo.
 
 Only proceed to Step 6 after receiving explicit approval.
 
@@ -153,9 +155,9 @@ Only proceed to Step 6 after receiving explicit approval.
    - `ADD`: insert new content at the suggested location within the most semantically appropriate section — do not just append at end
    - `RESTRUCTURE`: two coordinated Writers — first removes from the source file, then (after confirmation) the second adds to the destination (e.g. a new PostToolUse hook entry in `.claude/settings.json`, or a new `.claude/rules/<topic>.md` file). Follow the existing format already in the destination file.
 
-2. **Prompt engineer** (prompt-engineer, opus): Spawn after all Writers complete. Provide each updated file. Tighten prose, eliminate redundancy, improve consistency of tone — without adding new instructions or altering meaning. Polish pass only, not content edit. Skip any sections marked as newly added (`ADD` items) to avoid immediately re-wording content that was just deliberately worded.
+2. **Prompt engineer** (prompt-engineer, opus): Spawn after all Writers complete. Provide each updated file. Ask it to tighten prose, eliminate redundancy, and improve consistency of tone, without adding new instructions or altering meaning. Polish pass only, not a content edit. Skip any section marked as newly added (`ADD`), to avoid re-wording content that was just deliberately worded. This agent holds no Edit or Write tool, so it returns the polished text as its reply. Spawn one `engineer` Writer per file to apply that text verbatim. Skip this whole step when every changed string was approved by the user word for word, because rewording would then alter approved text.
 
-3. **Change reviewer** (engineer, opus): Spawn last. Provide the original file, the approved diff, and the final file. Confirm: (a) every approved edit was applied, (b) no unapproved changes were made, (c) `RESTRUCTURE` source removals and destination additions are both present, (d) the prompt-engineer pass didn't introduce new instructions or alter intent.
+3. **Change reviewer** (reviewer, opus): Spawn last. Provide the original file, the approved diff, and the final file. Confirm: (a) every approved edit was applied, (b) no unapproved changes were made, (c) `RESTRUCTURE` source removals and destination additions are both present, (d) the prompt-engineer pass didn't introduce new instructions or alter intent.
 
 Report the full outcome to the user.
 

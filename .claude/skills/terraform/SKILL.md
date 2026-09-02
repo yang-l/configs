@@ -1,10 +1,10 @@
 ---
 name: terraform
 description: |
-  Terraform and Infrastructure-as-Code expertise covering Terraform 1.12+
-  (current stable 1.15.2), OpenTofu 1.12, Pulumi, CloudFormation/CDK v2, and
-  HCP Terraform Stacks. Use this skill whenever the user mentions Terraform,
-  HCL, OpenTofu, or IaC work — even if they don't explicitly name the tool.
+  Use this skill whenever the user mentions Terraform, HCL, OpenTofu, or IaC
+  work — even if they don't explicitly name the tool. Terraform and
+  Infrastructure-as-Code expertise covering Terraform, OpenTofu, Pulumi,
+  CloudFormation/CDK v2, and HCP Terraform Stacks.
   Covers: module structure and HCP Stacks for monorepos, provider and version
   pinning, modern language features (ephemeral resources, write-only args,
   resource identity, import/moved blocks, check blocks, terraform query,
@@ -12,8 +12,7 @@ description: |
   (terraform validate, tflint, Checkov, terraform test with mock providers,
   Terratest), AWS patterns (IAM least-privilege, default_tags, S3/VPC/SG/RDS),
   OIDC workload identity for CI/CD, state management, drift detection, and
-  security. Includes Trivy CVE advisory GHSA-69fq-xp46-6x23 (safe versions:
-  trivy <= v0.69.3 / trivy-action v0.35.0). CDKTF is deprecated Dec 2025.
+  security.
   Trigger on: terraform, opentofu, tofu, hcl, tfvars, tfstate, .tf files,
   iac, infrastructure-as-code, pulumi, cloudformation, hcp stacks, state
   backend, drift detection, terraform test, tftest, mock provider, checkov,

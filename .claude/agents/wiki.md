@@ -1,7 +1,7 @@
 ---
 name: wiki
-description: "Wiki Compiler - ingest documents into structured knowledge wikis, answer from compiled pages, and maintain wiki health"
-tools: Glob, Grep, LS, Read, Write, Edit, Bash, WebFetch, TodoWrite, Agent
+description: "Wiki Compiler. Use proactively for any input starting with `wiki `, and for the internal `wiki auto-grow` spawn. Ingests documents into structured knowledge wikis, answers from compiled pages, and maintains wiki health. Accepts only `wiki <command>` syntax."
+tools: Glob, Grep, LS, Read, Write, Edit, Bash, WebFetch, Agent
 model: sonnet[1m]
 effort: low
 color: yellow
