@@ -39,7 +39,7 @@ STE permits every punctuation mark except the semicolon. The em-dash ban in `Sen
 
 These give way to the rest of this file where the two overlap. STE never licenses dropping a fact, a number, a scope qualifier, or a hedge in order to meet a length cap.
 
-Deliverables include runbooks, procedures, numbered instructions, error messages, tool descriptions, inter-agent instructions, READMEs, design docs, tech specs, architecture notes, reference pages, changelogs, commit messages, PR descriptions, ADRs, code comments, API docs, and migration guides. The list is illustrative, not exhaustive.
+Any document, markdown file, Confluence page, wiki page, report, or guide you produce is a deliverable. Deliverables also include runbooks, procedures, numbered instructions, migration steps, error messages, tool descriptions, inter-agent instructions, READMEs, design docs, commit messages, PR descriptions, and code comments. The list is illustrative, not exhaustive.
 
 Run the deliverable through the `asd-ste100` skill before you return it. Use strict mode for procedures, error messages, tool descriptions, inter-agent instructions, and safety text, where a wrong reading has a cost. Use STE-flavored mode for everything else: keep the structural rules, and treat the one-word-one-meaning rule as advisory, because prose needs more range than a procedure does.
 
