@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# Server-side hook. Git runs it in the repo that RECEIVES a push, not the one
+# that sends. A normal clone never receives a push, so it stays silent day to
+# day. It fires when something pushes INTO a repo on this machine, such as
+# `git push /path/to/repo main`, a local bare repo, or agent-deck moving work
+# between local checkouts.
+#
+# It rejects a push only when the target branch is protected. Every other
+# branch passes, so agent-deck can move feature work between local checkouts.
+# pre-push guards the outgoing direction and asks for confirmation there. This
+# hook cannot ask, because a receiving hook has no terminal, so it refuses.
+
+# --- Common, mirrors pre-push ---
+_remote_default=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's|origin/||')
+[ -n "$_remote_default" ] && [ "$_remote_default" != "HEAD" ] && DEFAULT_BRANCH="$_remote_default" || DEFAULT_BRANCH="main"
+
+status=0
+
+# stdin gives one line per ref: <old-sha> <new-sha> <ref-name>
+while read -r old_sha new_sha ref_name; do
+    [ -n "$ref_name" ] || continue
+
+    target_branch="${ref_name#refs/heads/}"
+    # Unchanged prefix means this is not a branch ref, such as a tag.
+    [ "$target_branch" = "$ref_name" ] && continue
+
+    if [[ "$target_branch" =~ ^($DEFAULT_BRANCH|main|master)$ ]]; then
+        echo "rejected by branch protection: '$target_branch' is protected in this repo for local pushes" >&2
+        status=1
+    fi
+done
+
+if [ "$status" -ne 0 ]; then
+    echo "hook: .git/hooks/pre-receive" >&2
+    echo "to allow protected-branch pushes into this repo, delete that file here" >&2
+fi
+
+exit $status
