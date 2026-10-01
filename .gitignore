@@ -15,4 +15,6 @@
 .claude/skills/asd-ste100/
 .claude/skills/config-optimise/.last-audited.json
 .claude/agent-memory/
+.claude/skills/agent-cost/calibration.md
+.claude/skills/synced/
 audits/

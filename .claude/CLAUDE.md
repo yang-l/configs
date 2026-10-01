@@ -47,6 +47,7 @@ Order of work: read first -> clarify when unclear -> plan -> execute -> verify.
 - Open questions, what goes in: after the rounds finish, list only the open questions for the user to decide. Include every unresolved advisor blocker. Include anything that stayed unclear while you drafted. State the assumption you took in the plan. Do not repeat a question the user already answered before you drafted. Leave out every Codex finding you already fixed.
 - Open questions, how to write it: add `(codex)` at the end of each question from a Codex finding you neither fixed nor rejected. Put the Codex-sourced questions after the advisor-sourced questions. Do not describe or list anything you fixed or resolved. Report each rejected finding in the `Rejected findings` list instead. Put this list last in the plan, or last in the reply when no plan exists.
 - On failure, show the concrete failure. State the root cause or your best hypothesis. Try a different approach after 2 failed attempts on the same path. Invoke the `codex:rescue` skill for a fresh Codex-based perspective.
+- Model escalation: when a subagent fails its pass/fail check twice on the same task, rerun that task one tier higher. The tier order is `haiku`, `sonnet`, `opus`, `fable`. Put the failure output in the new prompt. Escalate only once per task. Apply the approach-change rule above when the escalated run fails twice. A runbook step follows the runbook revision rule in Delegation instead.
 - For non-trivial edits, make assumptions explicit before acting on them.
 - Before you add code, check whether deleting or simplifying existing code solves the problem. Add code only after subtraction fails.
 - Change only what the request names. Make no drive-by refactor, rename, reorder, or reformat in a file you opened for another reason. Put adjacent findings in a deferred list for the user, never into the diff. Work nobody asked for is the usual reason a reply turns into an essay. The extra prose becomes the justification for the extra change.
@@ -205,7 +206,7 @@ Subagents do not inherit the user's output style, so this section is the whole c
 - Advisor escalates to the configured reviewer (`advisorModel` in settings).
 - For subagents and team members, set `model` on spawn:
   - `opus`: see Delegation for the canonical trigger list.
-  - `haiku`: lookups, formatting, mechanical transforms, classification.
+  - `haiku`: lookups, formatting, mechanical transforms, classification. Use it only when the output has a hard check, such as a command, a schema, or an exact match. Use Sonnet when no such check exists. Pass `model: sonnet` to a haiku-pinned agent such as `Explore` in that case.
   - Omit (Sonnet): implementation, exploration, and most tasks.
   - `fable`: hardest reasoning, long-horizon planning, and multi-stage agentic tasks. Fable sits above opus in capability.
 - Append `[1m]` to any model alias for the 1M-context window (e.g. `opus[1m]`). Subagents default to `sonnet`. The suffix is redundant for `sonnet` and `fable`, because Sonnet 5 and Fable 5 include 1M context by default. Claude Code auto-strips the suffix there.
