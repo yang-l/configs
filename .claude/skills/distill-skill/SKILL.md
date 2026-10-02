@@ -29,7 +29,7 @@ Three existing subsystems are used as-is and never modified by this flow:
 - **Wiki agent** (`.claude/agents/wiki.md`) - factual knowledge only, not procedures. Out of scope.
 - **Auto-memory** (`~/.claude/projects/.../memory/`) - curated `feedback` memories. Used only as a
   corroboration/conflict check against what a transcript shows, never as the primary source of steps.
-- **skill-creator** (`.claude/skills/skill-creator/`) - the write-out and validation pipeline. Reused
+- **skill-creator** (`anthropic-skills:skill-creator`, at `.claude/skills/synced/*/skill-creator/`) - the write-out and validation pipeline. Reused
   as-is for the final authoring step; this skill never writes into `.claude/skills/` itself.
 
 ## Before you start: this repo may be public
@@ -76,7 +76,7 @@ thing from last week").
 ### 4. Enumerate subagent transcripts
 
 The real procedure often lives in subagent transcripts, not the main session file. This repo's own
-CLAUDE.md mandates delegating file modifications to subagents, so a main transcript frequently shows
+CLAUDE.md delegates parallel, independent, and large-read work to subagents, so a main transcript often shows
 only `TOOL Agent: <description>` while the actual commands run inside
 `<sessionId>/subagents/agent-*.jsonl`, each with a sibling `.meta.json` giving `agentType` and
 `description`. Look at those `.meta.json` files for the shortlisted session(s) and select the ones
@@ -98,7 +98,7 @@ sessions or subagents. That judgment is yours, in the next step.
 
 ### 6. Delegate extraction to a researcher agent
 
-Hand the filtered output to a `researcher` agent (`model: opus[1m]`) - not `Explore`
+Hand the filtered output to a `researcher` agent (`model: opus`) - not `Explore`
 (there is nothing left to _locate_ after step 5, only to _interpret_), and not a generic
 general-purpose agent (that would need `model: opus`, which this repo's CLAUDE.md reserves for
 specific trigger cases and forbids for generic agents). Tell the researcher explicitly that it is
@@ -145,7 +145,7 @@ Nothing is written to `.claude/skills/` before the user approves the draft. Pres
 
 ### 8. Hand off to skill-creator
 
-Once approved, write the file using `skill-creator`'s own authoring conventions (see its `SKILL.md`
+Once approved, write the file using `skill-creator`'s own authoring conventions (see the synced copy's `SKILL.md`
 for the anatomy of a skill directory), then:
 
 - **Append the new skill's directory to `.gitignore`** (e.g. `.claude/skills/<distilled-name>/`) as
@@ -153,7 +153,7 @@ for the anatomy of a skill directory), then:
   per-skill append at write time, not a single pre-declared output path - every distilled skill is a
   first write to a name that doesn't exist yet, so there is nothing to pre-declare in `.gitignore`
   ahead of time.
-- **Run the mandatory validation gate**: `python .claude/skills/skill-creator/scripts/quick_validate.py
+- **Run the mandatory validation gate**: `python .claude/skills/synced/*/skill-creator/scripts/quick_validate.py
 <path-to-new-SKILL.md>`. Don't consider the write done until this passes.
 
 Note: this gitignore-on-write default applies only to skills this tool _produces_. `distill-skill`

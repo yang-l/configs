@@ -5,12 +5,9 @@
 .ssh/
 !.ssh/config
 .wiki/
-.claude/skills/skill-creator/
 .claude/skills/council-review/
 .claude/skills/handoff/
-.claude/skills/reddit-fetch/
 .claude/skills/review-claudemd/
-.claude/skills/i-have-adhd/
 .claude/skills/diagram-design/
 .claude/skills/asd-ste100/
 .claude/skills/config-optimise/.last-audited.json

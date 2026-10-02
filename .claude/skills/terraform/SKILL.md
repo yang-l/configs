@@ -13,13 +13,9 @@ description: |
   Terratest), AWS patterns (IAM least-privilege, default_tags, S3/VPC/SG/RDS),
   OIDC workload identity for CI/CD, state management, drift detection, and
   security.
-  Trigger on: terraform, opentofu, tofu, hcl, tfvars, tfstate, .tf files,
-  iac, infrastructure-as-code, pulumi, cloudformation, hcp stacks, state
-  backend, drift detection, terraform test, tftest, mock provider, checkov,
-  tflint, terratest, ephemeral resource, moved block, import block, check
-  block, terraform query, oidc workload identity, aws provider, trivy cve,
-  GHSA-69fq-xp46-6x23, cdktf, state surgery, plan apply, terraform plan,
-  remote backend, module refactor
+  Also trigger on Trivy CVEs (GHSA-69fq-xp46-6x23), CDKTF migration, and
+  these files: .tf, .tfvars, .tfstate, .tftest.hcl, .tfquery.hcl,
+  .terraform.lock.hcl.
 ---
 
 # Terraform / IaC Skill
@@ -58,7 +54,7 @@ terraform {
 }
 ```
 
-Current latest stable is **1.15.2** (released 2026-05-06); 1.16.0-alpha is in preview. Set `required_version` to the minimum you've tested against, not the absolute latest.
+Set `required_version` to the minimum version you tested against, not the latest release.
 
 - Pin providers with pessimistic constraint (`~>`). Pin Terraform version via `.terraform-version` or `tfenv`.
 - **Commit `.terraform.lock.hcl`** — this is the only supply-chain lock for providers. Modules are NOT covered; pin exact versions for critical modules.
@@ -140,7 +136,7 @@ Use `default_tags` in the provider block. Supplement with a `common_tags` local 
 
 ## Alternative Tools
 
-- **OpenTofu**: Current version **1.12.0** (released 2026-05-14). Meaningfully diverged from Terraform. Key differentiators: native client-side state encryption (AES-GCM + KMS), provider `for_each`; 1.12 adds dynamic `prevent_destroy` (set via expressions, not just literals), improved provider checksum handling (`tofu init` auto-includes all-platform `zh:`/`h1:` hashes), and `destroy = false` lifecycle option. Migration from Terraform is easy; rollback after using OpenTofu-only features is not. Same HCL conventions apply. IBM closed its $6.4B HashiCorp acquisition (Feb 2025); BSL 1.1 unchanged, but 38% of Terraform users are evaluating or migrating to OpenTofu (Spacelift Q4 2024), making lock-in risk more concrete.
+- **OpenTofu**: Meaningfully diverged from Terraform. Key differentiators: native client-side state encryption (AES-GCM + KMS), provider `for_each`; 1.12 adds dynamic `prevent_destroy` (set via expressions, not just literals), improved provider checksum handling (`tofu init` auto-includes all-platform `zh:`/`h1:` hashes), and `destroy = false` lifecycle option. Migration from Terraform is easy; rollback after using OpenTofu-only features is not. Same HCL conventions apply. IBM closed its $6.4B HashiCorp acquisition (Feb 2025); BSL 1.1 unchanged, but 38% of Terraform users are evaluating or migrating to OpenTofu (Spacelift Q4 2024), making lock-in risk more concrete.
 - **Pulumi**: General-purpose languages (TypeScript, Python, Go). ESC for secrets management, native testing via pytest/Jest, Deployments for drift detection. `pulumi preview` before deploy.
 - **CloudFormation**: AWS CDK v2 is the recommended path for complex setups. Raw CFN templates for teams without programming expertise. Use `cfn-lint` and enable stack termination protection.
 - **CDKTF**: Deprecated and archived (Dec 2025). Do not use for new projects. Migrate existing to native HCL or Pulumi.

@@ -8,10 +8,13 @@
     "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1",
     "DISABLE_ERROR_REPORTING": "1",
     "DISABLE_FEEDBACK_COMMAND": "1",
-    "CLAUDE_CODE_SUPPRESS_SESSION_ATTRIBUTION": "1",
     "CLAUDE_CODE_PROMPT_CACHE_TTL": "1h"
   },
-  "includeCoAuthoredBy": false,
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
   "permissions": {
     "allow": [
       "Bash(bundle exec rspec:*)",
@@ -24,8 +27,7 @@
       "Bash(git stash:*)",
       "Bash(ls:*)",
       "Bash(which:*)",
-      "mcp__emacs-tools__*",
-      "mcp__sequentialthinking__*"
+      "mcp__emacs-tools__*"
     ],
     "deny": [
       "Bash(git add:*)",
@@ -43,7 +45,7 @@
       "Read(//**/*.key)"
     ]
   },
-  "model": "opus[1m]",
+  "model": "opus",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -86,14 +88,13 @@
   "sandbox": {
     "enabled": true,
     "failIfUnavailable": true,
+    "autoAllowBashIfSandboxed": true,
     "allowUnsandboxedCommands": false,
     "filesystem": {
       "allowWrite": ["/dev/ptmx", "/dev/ttys*"]
     },
     "excludedCommands": [
-      "bundle exec rspec",
       "bundle exec rspec *",
-      "bundle exec rubocop",
       "bundle exec rubocop *",
       "gh *",
       "git *",
@@ -102,8 +103,13 @@
     ]
   },
   "spinnerTipsEnabled": false,
-  "alwaysThinkingEnabled": true,
+  "includeGitInstructions": false,
   "effortLevel": "medium",
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "medium"
+    }
+  },
   "advisorModel": "fable",
   "promptSuggestionEnabled": false,
   "autoUpdatesChannel": "stable",
@@ -112,6 +118,5 @@
   "teammateMode": "in-process",
   "remoteControlAtStartup": false,
   "skipAutoPermissionPrompt": true,
-  "autoInstallIdeExtension": false,
-  "gitAttribution": false
+  "autoInstallIdeExtension": false
 }

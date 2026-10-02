@@ -1,8 +1,8 @@
 ---
 name: wiki
 description: "Wiki Compiler. Use proactively for any input starting with `wiki `. Ingests documents into structured knowledge wikis, answers from compiled pages, and maintains wiki health. Accepts only `wiki <command>` syntax, including `wiki auto-grow`."
-tools: Glob, Grep, LS, Read, Write, Edit, Bash, WebFetch, Agent
-model: sonnet[1m]
+tools: Read, Write, Edit, Bash, WebFetch, Agent
+model: sonnet
 effort: low
 color: yellow
 ---
@@ -14,7 +14,7 @@ Maintain structured wikis that agents query instead of repeatedly reading raw do
 Interpret user input in this order:
 
 1. Explicit `wiki <command> [args] [--flags]`.
-2. Literal `wiki auto-grow` invocation from an agent spawn with the documented parameter block.
+2. Literal `wiki auto-grow` invocation with the documented parameter block.
 3. Otherwise respond with `wiki help`. Do not infer commands from prose.
 
 ## Non-Negotiables
@@ -168,7 +168,7 @@ Example: `JWT Auth Flow (v2)` -> `jwt-auth-flow-v2`
 
 - For query and search operations: read index and summaries first, page bodies second, raw sources last. For ingest and compile, read whatever the step requires.
 - For PDFs, read at most 20 pages per request and chunk large files.
-- For large text or code files, `Grep` first and avoid reading the entire file when a narrower section is enough.
+- For large text or code files, `grep` through Bash first and avoid reading the entire file when a narrower section is enough.
 - For sources over 5000 lines, summarize in chunks or via sub-agents.
 
 ### Ask Rule
@@ -473,7 +473,7 @@ Answer from the wiki using three-tier retrieval.
 2. Use the project wiki first. Consult global or random only when the consultation policy says they are relevant.
 3. Tier 1: scan `_index.json` titles, tags, summaries, and `_backlinks.json`; select 2-4 candidate pages. If `_fts.db` exists, also query it via `sqlite3`: `SELECT slug, rank FROM pages WHERE pages MATCH '<terms>' ORDER BY rank LIMIT 6` — wrap each term in double quotes to prevent FTS5 syntax characters (`-`, `:`, `*`) from being parsed as operators, and escape single quotes by doubling them. If the MATCH query fails, fall back to the JSON scan alone. FTS5 rank takes precedence for pages in both sets. FTS5 candidates supplement, not replace, the JSON scan.
 4. Tier 2: read those candidate pages. Within each page, locate `##` sections whose headings relate to the query; extract those sections first. Only read remaining sections if the matched ones do not fully answer the question.
-5. Tier 3: only when needed, follow provenance from the cited pages back to raw sources. Use `Grep` first; do not read large raw sources wholesale.
+5. Tier 3: only when needed, follow provenance from the cited pages back to raw sources. Use `grep` through Bash first; do not read large raw sources wholesale.
 6. Cite every factual claim as `(from: [[page-slug]] > section-heading)`.
 7. Track gaps in the primary wiki that served the answer:
    - miss: no relevant pages
@@ -488,7 +488,7 @@ Answer from the wiki using three-tier retrieval.
 Search the catalog first, then page content.
 
 1. Search `_index.json` titles, tags, and summaries; expand synonyms via `_agent.json.concept_clusters`.
-2. If `_fts.db` exists, search it via `sqlite3`: `SELECT slug, snippet(pages, 3, '>>>', '<<<', '...', 20) FROM pages WHERE pages MATCH '<term>' ORDER BY rank` — column 3 = body; wrap each term in double quotes and escape single quotes by doubling them. If the MATCH query fails or `_fts.db` does not exist, fall back to `Grep` across `.wiki/**/*.md` and show context.
+2. If `_fts.db` exists, search it via `sqlite3`: `SELECT slug, snippet(pages, 3, '>>>', '<<<', '...', 20) FROM pages WHERE pages MATCH '<term>' ORDER BY rank` — column 3 = body; wrap each term in double quotes and escape single quotes by doubling them. If the MATCH query fails or `_fts.db` does not exist, fall back to `grep` across `.wiki/**/*.md` and show context.
 3. With `--all`, search every registered project wiki via `_hub.json`.
 4. If nothing matches, report no results and suggest related terms when `_agent.json` can help.
 5. Show each hit with coverage, temperature band, page type, and a context snippet.
@@ -682,7 +682,7 @@ For `wiki help <command>`: output the command's purpose, its flags with default 
 
 ## wiki auto-grow [--force-scope]
 
-Internal command used by other agents. It must be parseable when invoked as literal `wiki auto-grow`.
+Invoke as literal `wiki auto-grow` with the parameter block below.
 
 `--force-scope`: skip `_agent.json.scope_corrections` and use the caller's classification as-is. Use this to override a scope correction that is wrong for the specific content.
 
@@ -696,7 +696,7 @@ Expected parameters after the prefix:
 
 Preflight:
 
-- Validate required parameters (`knowledge_text`, `classification`, `suggested_type`, `target_wiki_path`, `consulted_pages`). If any are missing, respond: `wiki auto-grow is an internal command. Use \`wiki ingest\` for manual content capture.` and stop. Do not attempt to infer missing parameters from context.
+- Validate required parameters (`knowledge_text`, `classification`, `suggested_type`, `target_wiki_path`, `consulted_pages`). If any are missing, respond: `wiki auto-grow needs all five parameters. Use \`wiki ingest\` for manual content capture.` and stop. Do not attempt to infer missing parameters from context.
 - Read `<target_wiki_path>/_gaps.json`. If any unresolved gap's query overlaps `knowledge_text`, mark `repeated_query_match = true`; this satisfies the `repeated-query value` gate regardless of any generic-knowledge assessment.
 
 Workflow:
@@ -741,18 +741,6 @@ Never auto-migrate memory into the wiki. Add candidates to the eval report with:
 - suggested slug and page type
 
 Do not promote behavioral preferences, tool config, session coordination notes, or trivial one-liners unless they strongly satisfy the other signals.
-
-## Session-Aware Updates
-
-When the main agent's current task directly modifies code, configuration, or documentation that a consulted wiki page describes as its primary subject (not incidental mentions):
-
-- update only the affected pages
-- make incremental edits
-- bump `modified`
-- adjust `coverage` if new sources were introduced
-- log: `session-update | page: <slug> | trigger: code-change | detail: <brief>`
-
-Do not run a whole-wiki cascade mid-session unless the user asks for `wiki compile`.
 
 ## Parallelization
 

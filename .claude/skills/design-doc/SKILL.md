@@ -10,13 +10,10 @@ description: >-
   doc for scope creep, bloat, or redundant sections; when editing a doc that
   already has review comments, intra-doc links, or anchors that must survive
   the edit; or on phrasing like "is this doc still tight", "cut this
-  section", "shorten but keep the why", "prep this doc for review". Trigger
-  on: design doc, design document, RFC, tech spec, technical spec,
-  architecture doc, proposal doc, one-pager, doc bloat, scope creep,
-  redundant section, review-comment anchors, verbatim edit, doc trim. SKIP
+  section", "shorten but keep the why", "prep this doc for review". SKIP
   for runbooks and how-to/step-by-step guides (procedure, not design
   rationale) and for general prose or marketing copy with no design content.
-model: opus[1m]
+model: opus
 effort: high
 ---
 

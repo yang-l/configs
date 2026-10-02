@@ -5,8 +5,8 @@ description: >
   silent assumptions and anchoring bias (model runs with wrong framing
   without surfacing it), overcomplexity and abstraction bloat, unscoped
   side-effect edits, self-referential test blindspots, N+1 and batching
-  ignorance, security vulnerability amplification (2.7x higher density
-  in AI code), debugging decay after repeated fix attempts, deprecated
+  ignorance, security vulnerability amplification, debugging decay
+  after repeated fix attempts, deprecated
   API hallucination, and multi-agent coordination failure (conflicting
   outputs, silent duplication, absent end-to-end verification). Also
   covers leverage patterns: tests-first, naive-then-optimize, declarative

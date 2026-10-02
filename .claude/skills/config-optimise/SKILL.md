@@ -1,8 +1,8 @@
 ---
 name: config-optimise
 description: >-
-  Audits and optimises your Claude Code config files (CLAUDE.md, agent definitions, skills) — removing redundant instructions, adding missing best practices, restructuring misplaced rules, and improving vague instructions. Use whenever you want to keep your config lean, current, and effective — trigger phrases: "prune my config", "optimise my config", "audit my CLAUDE.md", "improve my CLAUDE.md", "is my CLAUDE.md still current", "what's missing from my config", "clean up my agents", "refresh my config", "update my claude setup", "health check my claude config", "my claude config is getting bloated". Orchestrates a 7-agent team backed by deep web research; no file is touched without your explicit approval.
-model: opus[1m]
+  Audits and optimises your Claude Code config files (CLAUDE.md, agent definitions, skills) — removing redundant instructions, adding missing best practices, restructuring misplaced rules, and improving vague instructions. Use when the user asks to audit, prune, refresh, improve, or health-check their Claude Code config, or says it is bloated or out of date. Orchestrates a 7-agent team backed by deep web research; no file is touched without your explicit approval.
+model: opus
 effort: high
 ---
 
@@ -16,7 +16,7 @@ Operate only on files in the **project-level** `.claude/` directory (git-tracked
 
 Never touch `~/.claude/` — that directory is nix-managed and may contain web-downloaded packages. You may write `.claude/settings.json` only to land an approved `RESTRUCTURE` target, such as a hook entry or a settings key.
 
-> **Nix propagation:** `~/.claude/` resolves through out-of-store symlinks to this repo's `.claude/` directory, so an edit to an existing file is live at once, with no rebuild. A new skill, or a newly downloaded package, still needs a nix rebuild to land in the repo. Verify a path with `diff ~/.claude/CLAUDE.md /Users/yangliu/personal/configs/.claude/CLAUDE.md`.
+> **Nix propagation:** `~/.claude/` resolves through out-of-store symlinks to this repo's `.claude/` directory, so an edit or a new skill directory is live at once, with no rebuild. A package that `ai.nix` downloads at activation lands only after a nix rebuild, and the rebuild replaces any local edit to it. Verify a path with `diff ~/.claude/CLAUDE.md /Users/yangliu/personal/configs/.claude/CLAUDE.md`.
 
 ---
 
@@ -118,21 +118,15 @@ Spawn the Planner to draft the annotated diff in this format:
       Evidence: https://code.claude.com/docs/en/hooks-guide — "Hooks provide deterministic control over Claude Code's behavior, ensuring certain actions always happen rather than relying on the LLM to choose to run them."
       Reason: Procedural "always do X" belongs in hooks, not CLAUDE.md — hooks execute deterministically, prose instructions do not.
 
-- [ ] IMPROVE  line 14: "think carefully before answering"
-      Current: "think carefully before answering"
-      Suggested: "Use Sequential Thinking when the path is uncertain, requires hypothesis testing, or has 3+ dependent decisions."
-      Evidence: https://code.claude.com/docs/en/settings — "Sequential Thinking MCP tool available for structured reasoning"
-      Reason: Vague instruction; specificity produces more consistent model behaviour.
-
 - [ ] REMOVE  line 62: "always run npm test after editing source files"
       Evidence: https://code.claude.com/docs/en/hooks-guide — "Hooks provide deterministic control over Claude Code's behavior, ensuring certain actions always happen rather than relying on the LLM to choose to run them."
       Reason: Procedural "always do X" instructions belong in PostToolUse hooks, not CLAUDE.md. Hooks execute deterministically; prose instructions are soft context the model may skip.
       Suggested: Move to a PostToolUse hook in settings.json; remove from CLAUDE.md.
 
-- [ ] UPDATE  line 45: "always use extended thinking for complex problems"
-      Evidence: https://code.claude.com/docs/en/settings — "alwaysThinkingEnabled — Enable extended thinking by default"
-      Reason: This behavior is now enforceable via settings.json key alwaysThinkingEnabled: true, making the prose instruction redundant.
-      Suggested: Move to settings.json; remove from CLAUDE.md.
+- [ ] UPDATE  line 45: "spawn the reviewer with model claude-opus-4-1"
+      Evidence: <models overview URL> — "<exact sentence from the fetched page>"
+      Reason: The pinned model ID names a model that the current models table no longer lists.
+      Suggested: Use the `opus` alias.
 
 - [ ] KEEP    line 31: "Never access, reveal, or manipulate secrets or credentials."
       (safety invariant — unconditional, no evidence could change this)
@@ -144,7 +138,7 @@ Spawn the Reviewer (reviewer, fable) to challenge every non-KEEP flag — if evi
 
 Present the reviewed annotated diff to the user. No files are written until explicit approval.
 
-For each flagged item, the user approves or rejects it individually. Remind the user: accepted edits to existing files go live at once, because `~/.claude/` symlinks to this repo. No nix rebuild is needed for an edit. A brand-new skill directory, or a package newly pulled from outside, does need a rebuild before it reaches the repo.
+For each flagged item, the user approves or rejects it individually. Remind the user: accepted edits go live at once, because `~/.claude/` symlinks to this repo. No nix rebuild is needed for an edit or for a new skill directory. A package that `ai.nix` downloads at activation needs a rebuild, and the rebuild replaces any local edit to it.
 
 Only proceed to Step 6 after receiving explicit approval.
 
@@ -178,3 +172,7 @@ Write (or update) `.claude/skills/config-optimise/.last-audited.json`:
 ```
 
 `kept_items` accumulates across runs. On subsequent invocations, Step 1 loads this list and the Analyst skips classifying those items (they stay as implicit `KEEP`). This prevents re-raising items the user has already decided to keep.
+
+### Step 8 — Ask the user to run `/doctor prompt-audit`
+
+Run this step last, after Step 7. Tell the user to run `/doctor prompt-audit` (Claude Code v2.1.283 or later). The command checks the config for instructions written for older models. Only the user can run it. Do not act on its report without user approval.
