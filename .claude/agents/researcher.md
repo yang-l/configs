@@ -55,7 +55,7 @@ Agent workflow:
 
 1. Scope: (a) token refresh mechanism, (b) rate limiter interaction with auth flow
 2. Gather: `grep` for auth middleware, read handler chain, trace /refresh endpoint
-3. Synthesize: Token validity checked on every request; expired tokens trigger refresh via /refresh; upstream rate limiter would throttle refresh calls
+3. Synthesize: Token validity checked on every request. Expired tokens trigger refresh via /refresh. Upstream rate limiter would throttle refresh calls
 4. Report:
 
 ## Findings
@@ -66,14 +66,14 @@ A rate limiter placed before the auth middleware would gate `/refresh` calls equ
 
 ## Evidence
 
-- `middleware/auth.go:34-58` — token validation and expiry check
-- `handlers/auth.go:112-140` — refresh handler, DB read at line 128
+- `middleware/auth.go:34-58`: token validation and expiry check
+- `handlers/auth.go:112-140`: refresh handler, DB read at line 128
 - No `RateLimiter` or `ratelimit` import found via `grep` across `middleware/`
 
 ## Gaps
 
-- Load characteristics under high traffic unknown — a benchmark would confirm whether the rate limiter degrades refresh success rates. Requires engineer agent.
-- Token expiry TTL not checked; shorter TTL increases the risk.
+- Load characteristics under high traffic unknown. A benchmark would confirm whether the rate limiter degrades refresh success rates. Requires engineer agent.
+- Token expiry TTL not checked. Shorter TTL increases the risk.
 
 ## Recommendations
 
@@ -87,27 +87,27 @@ Agent workflow:
 
 1. Scope: Compare on SSR support, build speed, migration effort from current setup
 2. Gather: Read current build config, WebSearch for Vite SSR docs and esbuild SSR status, check dependency compatibility
-3. Synthesize: Vite has built-in SSR; esbuild has no SSR support and requires a custom solution. Both improve on a 45-second Webpack build; exact gains require benchmarking.
+3. Synthesize: Vite has built-in SSR. esbuild has no SSR support and requires a custom solution. Both improve on a 45-second Webpack build. Exact gains require benchmarking.
 4. Report:
 
-|                  | Vite                                                    | esbuild                          |
-| ---------------- | ------------------------------------------------------- | -------------------------------- |
-| SSR support      | Built-in (`vite build --ssr`)                           | None; requires custom wrapper    |
-| Build speed      | ~10x faster than Webpack (vendor docs)                  | ~100x faster for bundles; no HMR |
-| Migration effort | Low — Vite plugin ecosystem covers most Webpack loaders | High — no config compatibility   |
+|                  | Vite                                                   | esbuild                          |
+| ---------------- | ------------------------------------------------------ | -------------------------------- |
+| SSR support      | Built-in (`vite build --ssr`)                          | None. Requires custom wrapper    |
+| Build speed      | ~10x faster than Webpack (vendor docs)                 | ~100x faster for bundles. No HMR |
+| Migration effort | Low: Vite plugin ecosystem covers most Webpack loaders | High: no config compatibility    |
 
 ## Findings
 
-Vite supports SSR out of the box via `vite build --ssr`. esbuild does not provide SSR; it would require wrapping with a custom server renderer. Both tools may reduce the 45-second build time (unconfirmed, see Gaps).
+Vite supports SSR out of the box via `vite build --ssr`. esbuild does not provide SSR. It would require wrapping with a custom server renderer. Both tools may reduce the 45-second build time (unconfirmed, see Gaps).
 
 ## Evidence
 
-- vite.dev/guide/ssr — SSR API documentation
-- esbuild.github.io/api — no SSR entry found
+- vite.dev/guide/ssr: SSR API documentation
+- esbuild.github.io/api: no SSR entry found
 
 ## Gaps
 
-- Actual build time improvement unconfirmed; benchmark requires running both tools on the current codebase (engineer agent needed).
+- Actual build time improvement unconfirmed. Benchmark requires running both tools on the current codebase (engineer agent needed).
 - Plugin compatibility with current Webpack loaders not verified.
 
 ## Recommendations

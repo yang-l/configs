@@ -60,7 +60,7 @@ session, it does not belong in the answer.
 
 ## Step 1 — "What are you least confident about right now?"
 
-List 4-8 concrete items from Step 0's gather list. Each item must name an
+List each concrete item from Step 0's gather list that you are unsure about. Each item must name an
 actual file, function, decision, or assumption from _this_ session — never a
 hypothetical or generic one.
 
@@ -76,10 +76,10 @@ This is vague, unfalsifiable, and could be pasted into any session unchanged
 **Good answer (this is the bar):**
 
 > - I assumed `parseConfig()` in `config.ts:42` treats a missing `timeout`
->   field as `0`, but I never actually checked — if it's `undefined` instead,
+>   field as `0`, but I never actually checked. If it's `undefined` instead,
 >   the retry loop in `retry.ts:18` could spin forever. **[HIGH RISK]**
 > - I renamed `getUserById` to `fetchUser` across 6 call sites but only
->   grepped for the old name in `src/`, not `scripts/` or `tests/` — there
+>   grepped for the old name in `src/`, not `scripts/` or `tests/`. There
 >   could be stale references outside what I searched.
 > - I chose to store the new cache in-memory rather than on disk because the
 >   existing `Cache` class only supported memory, but I didn't check whether
@@ -153,8 +153,8 @@ required no actual outside-view thinking and could apply to any session.
 > Looking at the framing lens: we've spent this whole session optimizing the
 > query in `reports.sql`, but the actual user complaint (from the top of the
 > conversation) was that the report _page_ feels slow, and the query was only
-> ~15% of that page's load time based on what I saw in `perf.log` earlier —
-> the bigger win is probably the unbatched image fetches in
+> ~15% of that page's load time based on what I saw in `perf.log` earlier.
+> The bigger win is probably the unbatched image fetches in
 > `ReportView.tsx:88`, which we never looked at. That might be the real ask
 > underneath the stated one.
 
@@ -173,30 +173,29 @@ Use this shape:
 ```
 ## What I'm least confident about
 
-- [item 1 — file/decision + what could go wrong]
-- [item 2 — file/decision + what could go wrong] **[HIGH RISK]**
-- ...(4-8 items total)
+- [item: file/decision + what could go wrong] [add **[HIGH RISK]** only when the item meets a criterion above]
+- [one line per further item, same shape]
 
 [If any HIGH RISK items exist:]
-The [item N] above is the one I'd actually want to resolve before we call
-this done — want me to dig into it now? I'd [specific next action: read X,
+The [name the HIGH RISK item: file/decision] is the one I'd actually want to resolve before we call
+this done. Do you want me to look into it now? I'd [specific next action: read X,
 trace Y, ask Z].
 
 ## What you might be missing about this session (Sam Altman's question)
 
 [Either:]
-- [1-3 concrete outside-view findings, each tied to a specific lens and
+- [each concrete outside-view finding, tied to a specific lens and
   grounded in this session's actual content]
 
 [Or, if genuinely nothing:]
 I went through each lens (framing, unstated assumptions, scope, simpler
-alternatives, unraised risks) and didn't find a real gap — [one line on why
+alternatives, unraised risks) and didn't find a real gap. [One line on why
 for each, or a combined summary if they're all clearly fine].
 
 ---
 Want me to save any of this to memory before we close out? If you'll be
 picking this up in a future session, I can also run `/handoff` to write a
-continuity doc (goal, progress, what worked/didn't, next steps) — just say
+continuity doc (goal, progress, what worked/didn't, next steps). Just say
 the word.
 ```
 

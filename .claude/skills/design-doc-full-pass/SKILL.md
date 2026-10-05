@@ -34,7 +34,7 @@ Main thread coordinates: partition, dispatch, assemble, guard. Section agents ar
 | ----------------------- | --------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Coordinator**         | main thread (or lead agent) | opus/fable | Reads the whole doc; splits it into disjoint ranges on heading boundaries; builds a cross-ref/dependency map (headings, anchors, intra-doc links, table mirrors, review-comment anchors); assigns one range per agent; applies edits as exact string replacements; owns whole-doc integrity. |
 | **Section editor** (×N) | `Agent`, read-only          | sonnet     | Applies `design-doc`'s rules to **one range only**; returns verbatim `old_string`→`new_string` pairs, a one-line rationale each, and a risk tier per edit. Never writes.                                                                                                                     |
-| **Verifier**            | fresh `Agent`               | opus/fable | The synthesis-reviewer gate. Resolves every anchor/link/table-mirror/comment-anchor across the whole doc, confirms every intended cut landed, and that meaning + rationale survived. Must be an agent that did **not** produce cuts.                                                         |
+| **Verifier**            | fresh `reviewer`            | opus/fable | The synthesis-reviewer gate. Resolves every anchor/link/table-mirror/comment-anchor across the whole doc, confirms every intended cut landed, and that meaning + rationale survived. Must be an agent that did **not** produce cuts.                                                         |
 
 Hand each section editor the read-only dependency map for its range ("your heading is linked from §2; this figure is mirrored in the table in §7") so it wastes fewer proposals — agents stay disjoint on writes, they just aren't blind on cross-refs.
 
@@ -89,7 +89,7 @@ Apply every proposal as an **exact string replacement, never a freehand rewrite*
 
 ## Verify
 
-Final pass, run by a **fresh opus/fable agent** (the synthesis-reviewer gate):
+Final pass, run by a **fresh `reviewer` agent** at opus or fable (the synthesis-reviewer gate):
 
 1. **Structure** — headings, anchors, tables, code blocks intact; every intra-doc link still resolves across the whole doc, and every mapped review-comment anchor still points at live text (for external anchors, confirm the pinned passage still exists).
 2. **Completeness** — every intended cut actually landed.

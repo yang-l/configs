@@ -35,6 +35,8 @@ Usage:
     agent_cost.py --days 30 --usd
     agent_cost.py --days 30 --usd --billed 2500
     agent_cost.py --agent <id>
+    agent_cost.py --days 30 --tools --sort cost --top 10
+    agent_cost.py --since 2026-09-01 --reprice claude-opus-5-5
 
 Exit codes:
     0  success, output on stdout
@@ -225,9 +227,24 @@ def turn_and_advisors_from_usage(usage: dict, record_model: str | None) -> tuple
     return turn, advisor_turns, fallback_count
 
 
+def add_tool_use_ids(message: dict, message_id: str, tool_ids: dict[str, set]) -> None:
+    """Record the id of each `tool_use` content block of one assistant record
+    under its `message.id`. One message streams across several records, one
+    content block each, and only one record per id is retained for usage, so
+    tool calls need their own accumulator. Keying on the block id keeps a
+    block that repeats across records from counting twice."""
+    content = message.get("content")
+    if not isinstance(content, list):
+        return
+    for block in content:
+        if isinstance(block, dict) and block.get("type") == "tool_use" and block.get("id"):
+            tool_ids.setdefault(message_id, set()).add(block["id"])
+
+
 def turns_from_transcript(jsonl_path: Path, cutoff: float | None = None):
-    """Return (model, effort, turns, advisor_turns, fallback_count) for one
-    subagent transcript.
+    """Return (model, effort, turns, advisor_turns, fallback_count,
+    tool_counts) for one subagent transcript. `tool_counts` is one tool-call
+    count per entry of `turns`, in the same order.
 
     `turns` and `advisor_turns` are lists of
     (uncached, write_5m, write_1h, read, output, model, speed, geo) tuples,
@@ -252,6 +269,7 @@ def turns_from_transcript(jsonl_path: Path, cutoff: float | None = None):
     effort = None
     first_assistant_seen = False
     order: list[str] = []
+    tool_ids: dict[str, set] = {}
 
     for record in read_jsonl_records(jsonl_path):
         if record.get("type") != "assistant":
@@ -273,6 +291,7 @@ def turns_from_transcript(jsonl_path: Path, cutoff: float | None = None):
         message_id = message.get("id")
         if message_id is None:
             continue
+        add_tool_use_ids(message, message_id, tool_ids)
         usage = message.get("usage") or {}
         output_tokens = usage.get("output_tokens", 0)
 
@@ -292,8 +311,9 @@ def turns_from_transcript(jsonl_path: Path, cutoff: float | None = None):
         fallback_count += turn_fallback
         turns.append(turn)
         advisor_turns.extend(turn_advisors)
+    tool_counts = [len(tool_ids.get(message_id, ())) for message_id in order]
 
-    return model, effort, turns, advisor_turns, fallback_count
+    return model, effort, turns, advisor_turns, fallback_count, tool_counts
 
 
 def turn_total_input(turn: tuple) -> int:
@@ -315,6 +335,24 @@ def price_turn(turn: tuple) -> float | None:
         return None
     if speed == "fast" or geo == "us":
         return None
+    cost = (
+        uncached * prices["input"]
+        + write_5m * prices["write_5m"]
+        + write_1h * prices["write_1h"]
+        + read * prices["read"]
+        + output * prices["output"]
+    )
+    return cost / 1_000_000
+
+
+def reprice_turn(turn: tuple, model: str) -> float | None:
+    """Price one turn's own token split at `model`'s rates, ignoring the
+    turn's own model. Same skip rule as `price_turn` for `speed` "fast" and
+    `inference_geo` "us"."""
+    uncached, write_5m, write_1h, read, output, _, speed, geo = turn
+    if speed == "fast" or geo == "us":
+        return None
+    prices = PRICE_TABLE[model]
     cost = (
         uncached * prices["input"]
         + write_5m * prices["write_5m"]
@@ -426,9 +464,9 @@ def collect_spawns(project_dirs: list[Path], cutoff: float | None):
 
             mtime = jsonl_path.stat().st_mtime
             if cutoff is not None and mtime < cutoff:
-                model, effort, turns, advisor_turns, fallback_count = None, None, [], [], 0
+                model, effort, turns, advisor_turns, fallback_count, tool_counts = None, None, [], [], 0, []
             else:
-                model, effort, turns, advisor_turns, fallback_count = turns_from_transcript(jsonl_path, cutoff)
+                model, effort, turns, advisor_turns, fallback_count, tool_counts = turns_from_transcript(jsonl_path, cutoff)
             # The task-id a task-notification names is the agent id in the
             # transcript file name - the same id cmd_agent matches against.
             # A teammate never gets its own notification (only the top-level
@@ -444,6 +482,7 @@ def collect_spawns(project_dirs: list[Path], cutoff: float | None):
                 "effort": effort or "-",
                 "status": status,
                 "turns": turns,
+                "tool_calls": tool_counts,
                 "is_respawn": is_respawn,
                 "is_advisor": False,
                 "is_main": False,
@@ -473,6 +512,7 @@ def collect_spawns(project_dirs: list[Path], cutoff: float | None):
                     "effort": "-",
                     "status": None,
                     "turns": adv_turns,
+                    "tool_calls": [],
                     "is_respawn": False,
                     "is_advisor": True,
                     "is_main": False,
@@ -497,6 +537,7 @@ def parse_main_records(jsonl_path: Path, cutoff: float | None):
     file."""
     best_by_id: dict[str, tuple[int, dict, str | None, str | None, float | None]] = {}
     order: list[str] = []
+    tool_ids: dict[str, set] = {}
 
     for record in read_jsonl_records(jsonl_path):
         if record.get("type") != "assistant":
@@ -511,6 +552,7 @@ def parse_main_records(jsonl_path: Path, cutoff: float | None):
         message_id = message.get("id")
         if message_id is None:
             continue
+        add_tool_use_ids(message, message_id, tool_ids)
         effort = record.get("effort")
         usage = message.get("usage") or {}
         output_tokens = usage.get("output_tokens", 0)
@@ -535,6 +577,7 @@ def parse_main_records(jsonl_path: Path, cutoff: float | None):
             "effort": effort,
             "turn": turn,
             "advisor_turns": advisor_turns,
+            "tool_calls": len(tool_ids.get(message_id, ())),
         })
     return records, fallback_count
 
@@ -574,6 +617,7 @@ def collect_main_parts(project_dirs: list[Path], cutoff: float | None):
             by_message_id.setdefault(rec["message_id"], []).append((jsonl_path, rec))
 
     parts: dict[tuple[str, str, str], list[tuple]] = {}
+    part_tool_calls: dict[tuple[str, str, str], list[int]] = {}
     advisor_parts: dict[tuple[str, str], list[tuple]] = {}
     session_ids: set[str] = set()
     duplicate_id_count = 0
@@ -589,6 +633,7 @@ def collect_main_parts(project_dirs: list[Path], cutoff: float | None):
         effort = retained_rec["effort"] or "-"
         model = retained_rec["model"]
         parts.setdefault((session_id, model, effort), []).append(retained_rec["turn"])
+        part_tool_calls.setdefault((session_id, model, effort), []).append(retained_rec["tool_calls"])
 
         for adv_turn in retained_rec["advisor_turns"]:
             advisor_parts.setdefault((session_id, adv_turn[5]), []).append(adv_turn)
@@ -601,6 +646,7 @@ def collect_main_parts(project_dirs: list[Path], cutoff: float | None):
             "effort": effort,
             "status": None,
             "turns": turns,
+            "tool_calls": part_tool_calls[(session_id, model, effort)],
             "is_respawn": False,
             "is_advisor": False,
             "is_main": True,
@@ -613,6 +659,7 @@ def collect_main_parts(project_dirs: list[Path], cutoff: float | None):
             "effort": "-",
             "status": None,
             "turns": turns,
+            "tool_calls": [],
             "is_respawn": False,
             "is_advisor": True,
             "is_main": True,
@@ -637,9 +684,14 @@ def percentile(values: list[float], pct: float) -> float:
     return ordered[lower] * (upper - rank) + ordered[upper] * (rank - lower)
 
 
-def cmd_table(project_dirs: list[Path], days: int, usd: bool, billed: float | None = None) -> None:
+def cmd_table(project_dirs: list[Path], days: int, usd: bool, billed: float | None = None,
+              tools: bool = False, sort: str = "spawns", top: int | None = None,
+              reprice: list[str] | None = None, since: datetime | None = None) -> None:
+    reprice = reprice or []
     cutoff = None
-    if days is not None:
+    if since is not None:
+        cutoff = since.timestamp()
+    elif days is not None:
         import time
         cutoff = time.time() - days * 86400
 
@@ -684,11 +736,24 @@ def cmd_table(project_dirs: list[Path], days: int, usd: bool, billed: float | No
         priced_prices = [p for p in spawn_prices if p is not None]
         priced_turns = sum(p[1] for p in price_results)
 
+        tool_calls = [n for s in group_spawns for n in s["tool_calls"]]
+        tool_using = [n for n in tool_calls if n >= 1]
+        reprice_totals = {}
+        for target in reprice:
+            repriced = [c for c in (reprice_turn(t, target) for s in group_spawns for t in s["turns"])
+                        if c is not None]
+            reprice_totals[target] = sum(repriced) if repriced else None
+
         rows.append({
             "agent_type": agent_type,
             "model": model,
             "effort": effort,
             "is_main": is_main,
+            "is_advisor": group_spawns[0]["is_advisor"],
+            "tool_using_turns": len(tool_using),
+            "tool_calls_total": sum(tool_using),
+            "one_call_turns": sum(1 for n in tool_using if n == 1),
+            "reprice_totals": reprice_totals,
             "spawns": len(group_spawns),
             "median_turns": statistics.median(turn_counts),
             "p90_turns": percentile(turn_counts, 90),
@@ -708,14 +773,25 @@ def cmd_table(project_dirs: list[Path], days: int, usd: bool, billed: float | No
             "total_price": sum(priced_prices) if priced_prices else None,
         })
 
-    rows.sort(key=lambda r: (-r["spawns"], r["agent_type"], r["model"], r["effort"]))
+    tie_key = lambda r: (r["agent_type"], r["model"], r["effort"])
+    if sort == "cost":
+        rows.sort(key=lambda r: (r["total_price"] is None, -(r["total_price"] or 0)) + tie_key(r))
+    elif sort == "input":
+        rows.sort(key=lambda r: (-r["total_input"],) + tie_key(r))
+    else:
+        rows.sort(key=lambda r: (-r["spawns"],) + tie_key(r))
+    all_rows = rows
+    rows = rows[:top] if top is not None else rows
 
     header = ["agentType", "model", "effort", "spawns", "median turns", "p90 turns",
               "median uncached", "median cache write", "median cache read",
               "median input/turn", "median output tokens", "total input", "p90 input",
               "respawns", "failed/killed"]
+    if tools:
+        header += ["calls/turn", "1-call %"]
     if usd:
         header += ["priced", "median $", "total $"]
+        header += [f"$ at {m}" for m in reprice]
     print("| " + " | ".join(header) + " |")
     print("|" + "|".join(["---"] * len(header)) + "|")
     for row in rows:
@@ -732,16 +808,25 @@ def cmd_table(project_dirs: list[Path], days: int, usd: bool, billed: float | No
             row["total_input"], round(row["p90_input"]),
             respawns_cell, failed_killed_cell,
         ]
+        if tools:
+            if row["tool_using_turns"]:
+                values += [round(row["tool_calls_total"] / row["tool_using_turns"], 1),
+                           f"{round(row['one_call_turns'] / row['tool_using_turns'] * 100)}%"]
+            else:
+                values += ["-", "-"]
         if usd:
             priced_cell = f"{row['priced_turns']}/{row['total_turns']}"
             median_price_cell = round(row["median_price"], 4) if row["median_price"] is not None else "?"
             total_price_cell = round(row["total_price"], 4) if row["total_price"] is not None else "?"
             values += [priced_cell, median_price_cell, total_price_cell]
+            for target in reprice:
+                cell = row["reprice_totals"][target]
+                values.append(round(cell, 4) if cell is not None else "?")
         print("| " + " | ".join(str(v) for v in values) + " |")
 
     if usd:
-        main_total = sum(r["total_price"] for r in rows if r["is_main"] and r["total_price"] is not None)
-        subagent_total = sum(r["total_price"] for r in rows if not r["is_main"] and r["total_price"] is not None)
+        main_total = sum(r["total_price"] for r in all_rows if r["is_main"] and r["total_price"] is not None)
+        subagent_total = sum(r["total_price"] for r in all_rows if not r["is_main"] and r["total_price"] is not None)
         grand_total = main_total + subagent_total
         print(f"\nmain total: ${round(main_total, 2)}")
         print(f"subagent total: ${round(subagent_total, 2)}")
@@ -751,6 +836,24 @@ def cmd_table(project_dirs: list[Path], days: int, usd: bool, billed: float | No
             gap_pct = (gap / billed * 100) if billed else float("nan")
             print(f"billed (user-supplied): ${round(billed, 2)}")
             print(f"gap: ${round(gap, 2)} ({round(gap_pct, 1)}% over billed)")
+        advisor_total = sum(r["total_price"] for r in all_rows if r["is_advisor"] and r["total_price"] is not None)
+        by_model: dict[str, float] = {}
+        for r in all_rows:
+            if r["total_price"] is not None:
+                by_model[r["model"]] = by_model.get(r["model"], 0.0) + r["total_price"]
+        share = lambda amount: round(amount / grand_total * 100, 1) if grand_total else 0.0
+        print("\ncost split, share of grand total:")
+        print(f"  main: ${round(main_total, 2)} ({share(main_total)}%)")
+        print(f"  subagent: ${round(subagent_total, 2)} ({share(subagent_total)}%)")
+        print(f"  advisor (main and subagent [advisor] rows, also included in main and subagent above): "
+              f"${round(advisor_total, 2)} ({share(advisor_total)}%)")
+        print("cost by model:")
+        for m, amount in sorted(by_model.items(), key=lambda kv: -kv[1]):
+            print(f"  {m}: ${round(amount, 2)} ({share(amount)}%)")
+        for target in reprice:
+            repriced_total = sum(r["reprice_totals"][target] for r in all_rows
+                                 if r["reprice_totals"][target] is not None)
+            print(f"grand total at {target}: ${round(repriced_total, 2)}")
     else:
         print()
 
@@ -760,7 +863,10 @@ def cmd_table(project_dirs: list[Path], days: int, usd: bool, billed: float | No
     advisor_count = sum(len(s["turns"]) for s in in_range if s["is_advisor"])
     fallback_count = sum(s["fallback_count"] for s in sub_in_range) + main_fallback_count
 
-    window = f"last {days} days" if days is not None else "all time"
+    if since is not None:
+        window = f"since {since.strftime('%Y-%m-%d')}"
+    else:
+        window = f"last {days} days" if days is not None else "all time"
     print(f"{real_count} spawns, {window}, {skipped} files skipped (no meta.json or bad JSON).")
     print(f"{main_session_count} main sessions, {window}, counted separately from the spawn count above.")
     print(f"{duplicate_id_count} message ids appeared in more than one main file "
@@ -818,7 +924,7 @@ def cmd_agent(project_dirs: list[Path], agent_token: str, usd: bool) -> None:
     jsonl_path = matches[0]
     meta_path = jsonl_path.with_name(jsonl_path.stem + ".meta.json")
     meta = load_meta(meta_path) or {}
-    model, effort, turns, advisor_turns, fallback_count = turns_from_transcript(jsonl_path)
+    model, effort, turns, advisor_turns, fallback_count, _tool_counts = turns_from_transcript(jsonl_path)
 
     uncached_total = sum(t[0] for t in turns)
     write_5m_total = sum(t[1] for t in turns)
@@ -880,15 +986,36 @@ def cmd_agent(project_dirs: list[Path], agent_token: str, usd: bool) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--days", type=int, default=7, help="Only include spawns from the last N days (default 7). Ignored with --agent.")
+    parser.add_argument("--days", type=int, default=None, help="Only include spawns from the last N days (default 7). Ignored with --agent.")
     parser.add_argument("--project", default=None, help="Substring to match against a directory name under ~/.claude/projects/")
     parser.add_argument("--agent", default=None, help="Print turns and tokens for one spawn id, ignoring --days")
     parser.add_argument("--usd", action="store_true", help="Add a list-price USD estimate, per the price table in this script")
     parser.add_argument("--billed", type=float, default=None,
                          help="Compare the USD estimate against this billed figure, e.g. from the "
                               "claude.ai usage page for the same window. Implies --usd.")
+    parser.add_argument("--tools", action="store_true",
+                         help="Add calls/turn and 1-call % columns (tool calls per tool-using turn).")
+    parser.add_argument("--sort", choices=["spawns", "cost", "input"], default="spawns",
+                         help="Row order: spawns (default), cost (descending total $, implies --usd), or input (descending total input).")
+    parser.add_argument("--top", type=int, default=None, help="Print only the first N rows after sorting. Totals still cover every row.")
+    parser.add_argument("--reprice", action="append", default=[], metavar="MODEL",
+                         help="Add a '$ at MODEL' column pricing every turn at MODEL's rates. Implies --usd. May repeat.")
+    parser.add_argument("--since", default=None, metavar="YYYY-MM-DD",
+                         help="Start the window at local midnight of this date. Cannot be combined with --days.")
     args = parser.parse_args()
-    if args.billed is not None:
+    if args.since is not None:
+        if args.days is not None:
+            parser.error("--since cannot be combined with --days")
+        try:
+            args.since = datetime.strptime(args.since, "%Y-%m-%d")
+        except ValueError:
+            parser.error(f"--since expects YYYY-MM-DD, got '{args.since}'")
+    if args.days is None:
+        args.days = 7
+    for model in args.reprice:
+        if model not in PRICE_TABLE:
+            parser.error(f"--reprice: unknown model '{model}'. Known: {', '.join(PRICE_TABLE)}")
+    if args.billed is not None or args.sort == "cost" or args.reprice:
         args.usd = True
 
     project_dirs = resolve_project_dirs(args.project)
@@ -897,7 +1024,8 @@ def main() -> None:
         cmd_agent(project_dirs, args.agent, args.usd)
         return
 
-    cmd_table(project_dirs, args.days, args.usd, args.billed)
+    cmd_table(project_dirs, args.days, args.usd, args.billed,
+              args.tools, args.sort, args.top, args.reprice, args.since)
 
 
 if __name__ == "__main__":

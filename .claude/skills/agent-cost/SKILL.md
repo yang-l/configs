@@ -1,6 +1,6 @@
 ---
 name: agent-cost
-description: Measure turns, tokens and estimated cost for main conversations and each subagent type from local Claude Code transcripts. Use for "agent cost", "cost per task", "which agents burn tokens", "retries per agent type", "Claude Code spend", or "compare with the usage page".
+description: Measure turns, tokens and estimated cost for main conversations and each subagent type from local Claude Code transcripts. Use for "agent cost", "cost per task", "which agents burn tokens", "retries per agent type", "Claude Code spend", "compare with the usage page", "usage logs", "measure usage", "cost drivers", or "tool calls per turn".
 ---
 
 # Agent Cost
@@ -46,6 +46,53 @@ window. `--billed` implies `--usd`.
 ```
 python3 ~/.claude/skills/agent-cost/scripts/agent_cost.py --days 30 --billed 2500
 ```
+
+## Find cost drivers
+
+Use these flags to find where the money goes.
+
+Add `--tools` to show tool calls per turn. It adds two columns. **calls/turn** is the
+total tool calls divided by the turns that made at least one call. **1-call %** is the
+share of those turns that made exactly one call. Both show `-` for a row with no
+tool-using turn, and for every `[advisor]` row. A low **calls/turn** near 1.0 means the
+agent rarely batches independent calls.
+
+```
+python3 ~/.claude/skills/agent-cost/scripts/agent_cost.py --days 30 --tools
+```
+
+Add `--sort cost` to order rows by descending total dollars. It implies `--usd`. Rows with
+no price come last. `--sort input` orders by descending total input. The default,
+`--sort spawns`, orders by descending spawn count. Add `--top <N>` to print only the
+first N rows. The footer totals still cover every row.
+
+```
+python3 ~/.claude/skills/agent-cost/scripts/agent_cost.py --days 30 --sort cost --top 10
+```
+
+Add `--since YYYY-MM-DD` to start the window at local midnight of that date. Do not
+combine it with `--days`. The script exits with an error if you do. With `--since`,
+the footer names the start date instead of "last N days".
+
+```
+python3 ~/.claude/skills/agent-cost/scripts/agent_cost.py --since 2026-09-01 --usd
+```
+
+Add `--reprice <model>` to price every turn at another model's rates. It implies `--usd`.
+The script adds one `$ at <model>` column. It prices each turn's own token split and
+ignores the turn's real model. It still skips `speed: fast` and `inference_geo: us`
+turns. Repeat the flag for more models. The script exits with an error on an unknown model id.
+
+```
+python3 ~/.claude/skills/agent-cost/scripts/agent_cost.py --days 30 --reprice claude-opus-5-5 --reprice claude-sonnet-5-5
+```
+
+With `--usd`, a summary follows the footer totals. It shows the cost and the share of the
+grand total for `main`, for subagents, and for advisors. The advisor line sums every
+`[advisor]` row, main and subagent. Those rows also stay inside the `main` and subagent
+totals, so the three shares sum to more than 100% when any advisor cost exists. The summary then lists the cost
+per model, largest first. With `--reprice`, it ends with the grand total at each
+repriced model.
 
 ## Read the table
 

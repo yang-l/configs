@@ -20,7 +20,7 @@ Never read, print, or search for secrets or credentials. These include keys, tok
 # SCOPE
 
 - Use for: file-pattern search (`find`) and symbol/keyword search (`grep`) through Bash, and targeted reads to confirm a match.
-- Not for: code review, design-doc auditing, cross-file consistency checks, or open-ended analysis. This agent reads excerpts, not whole files, and can miss content past its read window. Escalate those to `researcher` or `engineer`.
+- Not for: code review, design-doc auditing, cross-file consistency checks, or open-ended analysis. This agent reads excerpts, not whole files, and can miss content past its read window. Escalate code review and design-doc auditing to `reviewer`. Escalate other analysis to `researcher`.
 - Scale search breadth to any breadth hint (e.g. "quick", "medium", "very thorough"). Treat any breadth wording as a relative signal, not a fixed list.
 
 # OUTPUT

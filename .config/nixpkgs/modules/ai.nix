@@ -28,16 +28,8 @@
     };
   };
 
-  home.activation.claude-research-code-command = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD bash -c 'set -x ; mkdir -p ~/.claude/commands && /Users/$USER/.nix-profile/bin/curl -sf https://raw.githubusercontent.com/humanlayer/humanlayer/main/.claude/commands/research_codebase.md -o ~/.claude/commands/research_codebase.md'
-  '';
-
   home.activation.claude-skill-handoff = lib.hm.dag.entryAfter ["writeBoundary"] ''
     $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/handoff && mkdir -p ~/.claude/skills/handoff && /Users/$USER/.nix-profile/bin/curl -sfL https://github.com/ykdojo/claude-code-tips/archive/main.tar.gz | /usr/bin/tar xz --strip-components=3 -C ~/.claude/skills/handoff claude-code-tips-main/skills/handoff'
-  '';
-
-  home.activation.claude-skill-review-claudemd = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/review-claudemd && mkdir -p ~/.claude/skills/review-claudemd && /Users/$USER/.nix-profile/bin/curl -sfL https://github.com/ykdojo/claude-code-tips/archive/main.tar.gz | /usr/bin/tar xz --strip-components=3 -C ~/.claude/skills/review-claudemd claude-code-tips-main/skills/review-claudemd'
   '';
 
   home.activation.claude-skill-council-review = lib.hm.dag.entryAfter ["writeBoundary"] ''

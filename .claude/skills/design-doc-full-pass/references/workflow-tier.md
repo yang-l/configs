@@ -45,8 +45,11 @@ for (const e of proposals.flat()) {
 }
 const updated = applyExact(doc, edits); // exact string replacement, not freehand
 
-// 4. Verify (synthesis-reviewer gate): fresh opus/fable agent, not one that produced cuts.
-await agent(verifyPrompt(doc, updated, edits, depMap), { model: "fable" });
+// 4. Verify (synthesis-reviewer gate): fresh `reviewer` agent at fable, not one that produced cuts.
+await agent(verifyPrompt(doc, updated, edits, depMap), {
+  agentType: "reviewer",
+  model: "fable",
+});
 // confirms: structure byte-identical except intended cuts; all cross-refs resolve
 // whole-doc; every intended cut landed; meaning + rationale preserved.
 ```

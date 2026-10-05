@@ -114,15 +114,15 @@ LLM effectiveness drops 60-80% after 2-3 fix attempts on the same bug.
 The model guesses rather than reasons, deletes and rewrites rather than
 diagnoses, and produces worse code than the original after extended iteration.
 
-**Fix:** If the second fix attempt fails, stop. Revert to last known good state,
-re-read the error with fresh context, and reason about root cause before
-changing code.
+**Fix:** If the second fix attempt fails, stop. Re-read the error with fresh
+context. Before you change code, state the root cause or your best hypothesis,
+with the evidence. Try a different approach, and use `codex:rescue` for a
+fresh perspective. Ask before you revert.
 
 ### 8. Deprecated API Hallucination
 
 LLMs hallucinate deprecated API methods, outdated model names, and removed
-parameters — drawing from stale training data. Karpathy documented Claude
-generating ~1000 lines of deprecated Clerk authentication code.
+parameters — drawing from stale training data.
 
 **Fix:** Pin to current API docs. Verify method signatures against official
 documentation before using unfamiliar APIs. Treat all API calls as suspect
@@ -155,10 +155,6 @@ Agentic engineering strategies that exploit LLM strengths:
   instructions — agents loop longer and gain more leverage
 - **Plan before execute:** Use plan mode for complex tasks to surface
   assumptions before committing to an approach
-- **Exploit stamina:** LLMs never tire or get demoralized. Give them
-  exploratory or repetitive work humans abandon early
-- **Browser MCP:** Put the agent in the loop with a browser — enables
-  self-verification against live docs, APIs, and UI
 - **Context quality over volume:** Most models don't benefit from maximizing
   context — the real bottleneck is which information drives the decision.
   Curate what goes into context rather than filling it. (Datadog State of AI
@@ -174,6 +170,6 @@ Agentic engineering strategies that exploit LLM strengths:
 | Test blindspot           | Test asserts what code does, not what spec requires                     | Write criteria from spec, not from code                                                                       |
 | N+1 patterns             | `await`/`fetch`/`query` inside `for`/`map`                              | Batch operations, review loop bodies                                                                          |
 | Security gaps            | No input validation; hardcoded secrets; no re-audit after iteration     | Treat output as untrusted; lint; re-audit each pass                                                           |
-| Debugging decay          | 3rd+ fix attempt; diff keeps growing; same error recurs                 | Stop, revert, re-read error, reason before editing                                                            |
+| Debugging decay          | 3rd+ fix attempt; diff keeps growing; same error recurs                 | Stop, re-read error, change approach, use `codex:rescue`                                                      |
 | API hallucination        | Unfamiliar method names; API call with no doc reference                 | Pin to current docs; verify signatures                                                                        |
 | Multi-agent coordination | Conflicting outputs; duplicated work across agents; no end-to-end check | Explicit input/output contracts; single done-condition per agent; orchestrator verifies against original spec |

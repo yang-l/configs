@@ -36,8 +36,10 @@ Order of work: read first -> clarify when unclear -> plan -> execute -> verify.
 - Rejected findings: report every rejected finding to the user, including a finding that primary evidence refutes. Write one line per rejection. Name the finding in a few words, then the reason you rejected it. Put this list directly above the open questions.
 - Open questions, what goes in: after the rounds finish, list only the open questions for the user to decide. Include every unresolved advisor blocker. Include anything that stayed unclear while you drafted, with the assumption you took in the plan. Do not repeat a question the user already answered before you drafted.
 - Open questions, how to write it: add `(codex)` at the end of each question from a Codex finding you neither fixed nor rejected. Put the Codex-sourced questions after the advisor-sourced questions. Do not describe or list anything you fixed or resolved. Report each rejected finding in the `Rejected findings` list instead. Put this list last in the plan, or last in the reply when no plan exists.
-- On failure, show the concrete failure. State the root cause or your best hypothesis. Try a different approach after 2 failed attempts on the same path. Invoke the `codex:rescue` skill for a fresh Codex-based perspective.
+- On failure, show the concrete failure. Before you write a fix, state the root cause or your best hypothesis in one sentence. Give the evidence, such as a log line, error text, or failing test. Do not hide an error with defensive code. Fix the cause. Try a different approach after 2 failed attempts on the same path. Invoke the `codex:rescue` skill for a fresh Codex-based perspective.
 - Model escalation: when a subagent fails its pass/fail check twice on the same task, rerun that task at one effort level higher. Change the model only if that rerun also fails twice. The tier order is `haiku`, `sonnet`, `opus`. Use `fable` only when `opus` fails at `high` effort. Put the failure output in the new prompt. Raise effort once and change the model once per task. Apply the approach-change rule above when the escalated run fails twice. A runbook step follows the runbook revision rule in Delegation instead.
+- Never weaken a test assertion to make a test pass. Fix the code. Change the test only when the user says the test is wrong.
+- Batch independent read-only calls in one message, such as Read, Grep, WebFetch, and read-only `git` commands. Run each edit, write, test, or build as a separate call.
 - For non-trivial edits, make assumptions explicit before acting on them.
 - Before you add code, check whether deleting or simplifying existing code solves the problem. Add code only after subtraction fails.
 - Change only what the request names. Make no drive-by refactor, rename, reorder, or reformat in a file you opened for another reason. Put adjacent findings in a deferred list for the user, never into the diff. Work nobody asked for is the usual reason a reply turns into an essay, because the extra prose then justifies the extra change. Conform to the existing code style and patterns, regardless of personal preference.
@@ -45,6 +47,7 @@ Order of work: read first -> clarify when unclear -> plan -> execute -> verify.
 - Do not write a changelog entry unless the user asks for one. Treat any file that exists only to record changes the same way, such as release notes. Record the change in your reply instead.
 - Never stage or commit changes. Leave all edits unstaged for user review.
 - The user often stages, commits, or edits files outside the session. Treat git status as the user's current state. Do not report or question changes you did not make.
+- When a task ends and the user starts an unrelated task, suggest `/compact` in one line before you start.
 
 ## Compact Instructions
 
@@ -91,7 +94,7 @@ Team = parallel Agent calls in one message from main thread, each role-isolated.
 - Include a propulsion mechanism. Tell each agent to find pending work and to act on it.
 - Make work idempotent and resumable, in atomic units agents complete independently.
 - For long-running workflows, name which agent monitors which and what to do on stall.
-- Invoke a workflow with the `ultracode` keyword (typed in prompt) or `/effort ultracode`, a session mode (`xhigh` + workflow orchestration), not an agent-level tier. A workflow keeps intermediate results out of context. It resumes within the same session only.
+- Start a workflow with the `ultracode` keyword in the prompt, or with `/effort ultracode on`. Ultracode is a session setting, not an agent-level tier. It runs workflow orchestration at the current session effort. Every request uses more tokens while Ultracode is on. Run `/effort ultracode off` when the task ends. A workflow keeps intermediate results out of context. A workflow resumes within the same session only.
 - Subagents can spawn their own subagents up to three layers below the main conversation. Raise or disable that limit with `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`. A runtime-constructed workflow ("dynamic workflow") still beats deep nesting for persistent cross-verification and for keeping intermediate results out of context.
 - Advisor triggers apply to each agent in a team or workflow individually (stuck, approaching commitment, consequential decisions).
 - Add the `reviewer` agent as final synthesis unless the whole formation is opus or higher. Use its default opus tier, not the sonnet tier used for an in-formation `reviewer`. Use `model: fable` for the highest-stakes work. The orchestrator revises and re-tasks agents on any blocker before finalizing.
@@ -118,6 +121,8 @@ Team = parallel Agent calls in one message from main thread, each role-isolated.
 ## Verification
 
 - Code changes: run relevant tests or linters when available.
+- Report a check as passed only when it ran as its own command and you read its exit code. A pipe through `grep`, `tail`, or `head` returns the exit code of the last command, not the check.
+- Before you claim a state such as fixed, deployed, or running, check the object itself. A claim that rests on a log line, dashboard, old note, or agent report is inference. Mark it as inferred. Apply this check before every state claim, not only when you are in doubt.
 - Docs and knowledge work: ground factual claims in sources or wiki pages.
 - Say "I don't know" when evidence is missing. Retract unsupported claims.
 
@@ -177,10 +182,10 @@ Subagents do not inherit the user's output style, so this section is the whole c
   - `opus`: Opus 5.5, $4/$20 per 1M tokens. See Delegation for the canonical trigger list.
   - `haiku`: Haiku 4.5, $1/$5 per 1M tokens, 200K context. Use it for lookups, formatting, mechanical transforms, classification. Use it only when the output has a hard check, such as a command, a schema, or an exact match. Use Sonnet when no such check exists. Pass `model: sonnet` to a haiku-pinned agent such as `Explore` in that case.
   - Omit (Sonnet 5.5, $2/$10 per 1M tokens): implementation, exploration, and most tasks.
-  - `fable`: Fable 5.1, $10/$50 per 1M tokens. It costs 2.5x Opus 5.5 and scores below it on coding benchmarks. Use it for high-stakes work, or when Opus fails at `high` effort.
+  - `fable`: Fable 5.1, $10/$50 per 1M tokens. It costs 2.5x Opus 5.5. Use it for demanding reasoning and long-horizon work, or when Opus 5.5 at `high` effort still falls short.
 - Keep Sonnet 5.5 subagents at `medium` or `high` effort. At `xhigh` or `max`, it starts its own review rounds. Control depth with `effort`, not with prose such as "think less". Pin `effort` in a **subagent's** frontmatter to set that agent's own effort. The values are `low` (mechanical), `medium`, `high`, `xhigh`, and `max`. Availability depends on the model, and is not Opus-exclusive (Sonnet 5.5 and Fable 5.1 support `xhigh` too). The Agent tool takes only `model`, with no per-invocation effort. Use frontmatter instead, or `agent(prompt, {effort: ...})` inside a Workflow script. Omit frontmatter to inherit the session/orchestrator's effort.
 - A **skill's** frontmatter `effort:` instead overrides the _invoking_ thread's own effort while the skill is active. This includes the main orchestrator when the skill runs inline. Do not set low or medium effort on a skill when you want full orchestrator strength.
-- Agent teams are on in settings. While they are on, Claude Code starts a named subagent as a teammate. A teammate uses the lead's effort, loads CLAUDE.md, and ignores the agent file's `skills`. To keep the agent file's effort and skills, start the subagent without a name, as a fork, or with `isolation` on the call.
+- Agent teams are on in settings, with `teammateMode` set to `in-process`. While they are on, Claude Code starts a named subagent as a teammate. A teammate applies the agent file's `effort`, loads CLAUDE.md, and ignores the agent file's `skills`. To keep the agent file's skills, start the subagent without a name, as a fork, or with `isolation` on the call.
 - In agent teams, use `opus` for the lead when the task spans cross-cutting concerns. Use `fable` for the highest-stakes decisions, or when Opus fails at `high` effort. A teammate inherits the leader's model unless its spawn names one. Name a cheaper model on each teammate that does not need the leader's tier.
 
 ## Routing
