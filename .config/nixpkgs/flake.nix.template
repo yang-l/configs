@@ -99,6 +99,8 @@
               sessionVariables = {
                 _BASE_CONFIG_FOLDER_PATH = "${__FULL_BASE_FOLDER_PATH}";
                 XDG_CONFIG_HOME = "$HOME/.config";
+                EDITOR = "\${EDITOR:-emacsclient -q -t -a 'emacs -nw'}";
+                VISUAL = "\${VISUAL:-emacsclient -q -t -a 'emacs -nw'}";
               };
             };
 
