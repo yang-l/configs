@@ -10,7 +10,8 @@
     "DISABLE_FEEDBACK_COMMAND": "1",
     "CLAUDE_CODE_PROMPT_CACHE_TTL": "1h",
     "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
-    "CLAUDE_CODE_THRIFTY_SONIC": "0"
+    "CLAUDE_CODE_THRIFTY_SONIC": "0",
+    "CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL": "1h"
   },
   "attribution": {
     "commit": "",

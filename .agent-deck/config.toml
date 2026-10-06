@@ -1,0 +1,20 @@
+# Agent Deck Configuration
+# All options: https://github.com/asheshgoplani/agent-deck/blob/main/skills/agent-deck/references/config-reference.md
+
+[updates]
+  check_enabled = false
+
+[notifications]
+  enabled = false
+
+[docker]
+  volume_ignores = [".gitconfig"]
+
+[feedback]
+  disabled = true
+
+[ui]
+  preview_pct = 70
+
+[hotkeys]
+  scrollback = ""
