@@ -18,6 +18,10 @@ skip() {
   exit 0
 }
 
+# hooks inside a subagent get agent_id; only the main session's plans reach the user
+agent_id=$(jq -r '.agent_id // empty' <<<"$input")
+[ -z "$agent_id" ] || skip "subagent $(jq -r '.agent_type // empty' <<<"$input")"
+
 # Inside an Emacs terminal (claude-code-ide), open the plan in that Emacs.
 # In a tmux pane (agent-deck), the server's Emacs may be on another screen,
 # so show a terminal frame in a popup over the Claude pane instead.
