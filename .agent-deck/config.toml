@@ -1,6 +1,12 @@
 # Agent Deck Configuration
 # All options: https://github.com/asheshgoplani/agent-deck/blob/main/skills/agent-deck/references/config-reference.md
 
+[health]
+  enabled = false
+
+[hotkeys]
+  scrollback = ""
+
 [updates]
   check_enabled = false
 
@@ -13,8 +19,12 @@
 [feedback]
   disabled = true
 
-[ui]
-  preview_pct = 70
+[telemetry]
+  disabled = true
 
-[hotkeys]
-  scrollback = ""
+[ui]
+  preview_pct = 73
+
+[claude]
+  dangerous_mode = false
+

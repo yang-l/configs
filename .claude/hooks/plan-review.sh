@@ -22,13 +22,15 @@ skip() {
 agent_id=$(jq -r '.agent_id // empty' <<<"$input")
 [ -z "$agent_id" ] || skip "subagent $(jq -r '.agent_type // empty' <<<"$input")"
 
-# Inside an Emacs terminal (claude-code-ide), open the plan in that Emacs.
-# In a tmux pane (agent-deck), the server's Emacs may be on another screen,
-# so show a terminal frame in a popup over the Claude pane instead.
-if [ -n "$INSIDE_EMACS" ] || [ -z "$TMUX" ]; then
+# claude-code-ide sets EMACS_SOCKET_NAME to the server of the Emacs that runs
+# Claude, so open the plan there. In a tmux pane (agent-deck), no server is
+# used: a fresh `emacs -nw` opens in a popup over the Claude pane.
+if [ -n "$EMACS_SOCKET_NAME" ]; then
   mode=emacs
-else
+elif [ -n "$TMUX" ]; then
   mode=tmux
+else
+  skip "no emacs server or tmux"
 fi
 note "start: mode=$mode plan=$plan PATH=$PATH TMPDIR=$TMPDIR tools=$(command -v jq emacsclient tmux | tr '\n' ' ')"
 
@@ -36,7 +38,7 @@ note "start: mode=$mode plan=$plan PATH=$PATH TMPDIR=$TMPDIR tools=$(command -v 
 [ -f "$plan" ] || skip "plan file missing: $plan"
 # emacsclient prints `t` on success; hook stdout must hold only JSON
 if [ "$mode" = emacs ]; then
-  emacsclient -s emacs -e t >/dev/null 2>&1 || skip "no emacs server"
+  emacsclient -s "$EMACS_SOCKET_NAME" -e t >/dev/null 2>&1 || skip "no emacs server"
 else
   # agent-deck keeps a control-mode client on each session. Without -c, tmux
   # can draw the popup there, where nobody sees it, so pick the newest real one.
@@ -53,12 +55,12 @@ cp "$plan" "$before" || { rm -f "$before"; skip "copy failed"; }
 if [ "$mode" = emacs ]; then
   # the plan opens in another window, so remember where the cursor was and
   # return there after C-x #; fall back to any window showing a Claude buffer
-  emacsclient -s emacs -e '(setq my-plan-review--window (selected-window))' >/dev/null 2>&1
-  if ! emacsclient -q -s emacs "$plan" >&2; then
+  emacsclient -s "$EMACS_SOCKET_NAME" -e '(setq my-plan-review--window (selected-window))' >/dev/null 2>&1
+  if ! emacsclient -q -s "$EMACS_SOCKET_NAME" "$plan" >&2; then
     rm -f "$before"
     skip "emacsclient edit failed"
   fi
-  emacsclient -s emacs -e '(let* ((claude-p (lambda (w) (string-prefix-p "*claude-code[" (buffer-name (window-buffer w)))))
+  emacsclient -s "$EMACS_SOCKET_NAME" -e '(let* ((claude-p (lambda (w) (string-prefix-p "*claude-code[" (buffer-name (window-buffer w)))))
        (saved my-plan-review--window)
        (w (if (and (window-live-p saved) (funcall claude-p saved))
               saved
@@ -67,10 +69,9 @@ if [ "$mode" = emacs ]; then
     (select-frame-set-input-focus (window-frame w))
     (select-window w)))' >/dev/null 2>&1
 else
-  # display-popup -E waits until the editor exits; with no server running,
-  # -a starts a plain emacs -nw in the popup
+  # display-popup -E waits until the editor exits
   if ! tmux display-popup -E -c "$client" ${TMUX_PANE:+-t "$TMUX_PANE"} -w 96% -h 96% \
-    "emacsclient -q -t -s emacs -a 'emacs -nw' $(printf %q "$plan")" >&2; then
+    "emacs -nw $(printf %q "$plan")" >&2; then
     rm -f "$before"
     skip "tmux popup failed"
   fi
