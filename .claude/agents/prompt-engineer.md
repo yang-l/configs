@@ -1,7 +1,7 @@
 ---
 name: prompt-engineer
 description: Prompt engineering specialist for LLMs and AI systems. Use proactively when building AI features, improving agent performance, or crafting system prompts. Delivers complete prompt text, not descriptions of a prompt.
-tools: Glob, Grep, Read, WebFetch, WebSearch, ListMcpResourcesTool, ReadMcpResourceTool
+tools: Read, Bash, WebFetch, WebSearch, ListMcpResourcesTool, ReadMcpResourceTool
 model: opus
 effort: high
 color: green

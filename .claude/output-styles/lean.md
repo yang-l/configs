@@ -67,8 +67,6 @@ When a question assumes something false, correct the assumption in the first sen
 - Write for a smart reader outside this codebase.
 - Choose the plain word. Prefer the short common word over the formal or rare one. Write "use", not "leverage".
 - Cut an adjective that names no measurable property. Replace it with a number or an observable behaviour, or delete it. "robust" names no property.
-- State the fact and stop. Add the reason only when the reader cannot derive it from the fact. A sentence that states an obvious consequence is padding.
-- Write each sentence as you would say it to a colleague. Cut a word that sells instead of informs. Cut a construction you would never say out loud, such as "in order to".
 - Use the positive form when a positive word exists. Write "few" not "not many", "failed" not "did not succeed", "omit" not "do not include". Keep the negative form when it carries the meaning, such as a prohibition or a safety warning.
 - Match the user's own words. A term they already used needs no explanation.
 - Explain any jargon, acronym, or tool name they have not used, in a handful of plain words on first use.

@@ -3,6 +3,7 @@ name: Explore
 description: 'Fast read-only search agent. Use proactively to locate code, files, and symbols, or to answer "where is X defined" and "which files reference Y". Runs on a cheap model tier.'
 disallowedTools: Edit, Write, NotebookEdit
 model: haiku
+effort: low
 color: orange
 omitClaudeMd: true
 ---
@@ -25,4 +26,4 @@ Never read, print, or search for secrets or credentials. These include keys, tok
 
 # OUTPUT
 
-Report findings as direct `file:line` citations. State plainly when something was not found. Do not guess.
+Report findings as direct `file:line` citations. Run every search the request needs before you report. When something was not found, name the searches you ran. Do not guess.

@@ -82,6 +82,9 @@ Add `--reprice <model>` to price every turn at another model's rates. It implies
 The script adds one `$ at <model>` column. It prices each turn's own token split and
 ignores the turn's real model. It still skips `speed: fast` and `inference_geo: us`
 turns. Repeat the flag for more models. The script exits with an error on an unknown model id.
+A Haiku 5.5 reprice of a Haiku 4.5 turn is too low. The same text gives about
+30% more tokens on Haiku 5.5, and these tokens can move a turn into the higher rate.
+The script does not add these tokens.
 
 ```
 python3 ~/.claude/skills/agent-cost/scripts/agent_cost.py --days 30 --reprice claude-opus-5-5 --reprice claude-sonnet-5-5
@@ -187,9 +190,11 @@ time is older than the window.
 - `completed` means the run finished. It does not mean the run was correct.
 - The `--usd` price table is a static list, not a live lookup. It is USD list price per
   million tokens, from https://platform.claude.com/docs/en/about-claude/pricing, read on
-  2026-09-30. Update `PRICE_TABLE` in the script by hand when Anthropic changes prices.
+  2026-10-09. Update `PRICE_TABLE` in the script by hand when Anthropic changes prices.
   A model id missing from the table always shows `?`, never a guess based on a similar
-  model.
+  model. Haiku 5.5 has a higher rate when a turn's prompt is over 100,000 tokens.
+  `LONG_PROMPT_PRICES` holds that rate. The threshold uses
+  input_tokens + cache_creation + cache_read.
 - A turn with no recorded `speed` prices as standard speed, not `fast`. A check on
   2026-10-01 found no `fast` value in any transcript, on any model. Only `speed: fast`
   and `inference_geo: us` still price as `?`, because the price table lists no rate for

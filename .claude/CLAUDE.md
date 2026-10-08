@@ -42,9 +42,9 @@ Order of work: read first -> clarify when unclear -> plan -> execute -> verify.
 - Open questions, what goes in: after the rounds finish, list only the open questions for the user to decide. Include every unresolved advisor blocker. Include anything that stayed unclear while you drafted, with the assumption you took in the plan. Do not repeat a question the user already answered before you drafted.
 - Open questions, how to write it: add `(codex)` at the end of each question from a Codex finding you neither fixed nor rejected. Put the Codex-sourced questions after the advisor-sourced questions. Do not describe or list anything you fixed or resolved. Report each rejected finding in the `Rejected findings` list instead. Put this list last in the plan, or last in the reply when no plan exists.
 - On failure, show the concrete failure. Before you write a fix, state the root cause or your best hypothesis in one sentence. Give the evidence, such as a log line, error text, or failing test. Do not hide an error with defensive code. Fix the cause. Try a different approach after 2 failed attempts on the same path. Invoke the `codex:rescue` skill for a fresh Codex-based perspective.
-- Model escalation: when a subagent fails its pass/fail check twice on the same task, rerun that task at one effort level higher. Change the model only if that rerun also fails twice. The tier order is `haiku`, `sonnet`, `opus`. Use `fable` only when `opus` fails at `high` effort. Put the failure output in the new prompt. Raise effort once and change the model once per task. Apply the approach-change rule above when the escalated run fails twice. A runbook step follows the runbook revision rule in Delegation instead.
+- Model escalation: when a subagent fails its pass/fail check twice on the same task, rerun that task at one effort level higher. Pass the higher level with the Agent tool `effort` parameter. Change the model only if that rerun also fails twice. The tier order is `haiku`, `sonnet`, `opus`. Use `fable` only when `opus` fails at `high` effort. Put the failure output in the new prompt. Raise effort once and change the model once per task. Apply the approach-change rule above when the escalated run fails twice. A runbook step follows the runbook revision rule in Delegation instead.
 - Never weaken a test assertion to make a test pass. Fix the code. Change the test only when the user says the test is wrong.
-- Batch independent read-only calls in one message, such as Read, Grep, WebFetch, and read-only `git` commands. Run each edit, write, test, or build as a separate call.
+- Batch independent read-only calls in one message, such as Read, WebFetch, and read-only `git`, `grep`, or `find` commands. Run each edit, write, test, or build as a separate call.
 - Keep Bash output small. Before you read a large diff, list the changed files with `git diff --stat` or `gh pr diff --name-only`. Then read the diff one file at a time.
 - For non-trivial edits, make assumptions explicit before acting on them.
 - Before you add code, check whether deleting or simplifying existing code solves the problem. Add code only after subtraction fails.
@@ -76,7 +76,7 @@ Drop: raw logs and command output unless they show an unresolved error. Ideas ne
 ## Delegation
 
 Main thread coordinates: route, delegate, track state.
-Spawn Opus 5.5 for planning, architecture, root-cause debugging, final and high-risk review, and prompts. Spawn Sonnet 5.5 for implementation. Spawn Haiku 4.5 for lookups with a hard check. Spawn Fable 5.1 for high-stakes work and as the last resort. Use a defined agent, never a generic Opus one. All review goes to the `reviewer` agent.
+Spawn Opus 5.5 for planning, architecture, root-cause debugging, final and high-risk review, and prompts. Spawn Sonnet 5.5 for implementation. Spawn Haiku 5.5 for lookups with a hard check. Spawn Fable 5.1 for high-stakes work and as the last resort. Use a defined agent, never a generic Opus one. All review goes to the `reviewer` agent.
 Reviews return merge-blocking findings first. Style notes and adjacent improvements go in a separate optional list, never mixed into the blockers.
 Use the `advisor` tool for a second opinion when you keep the work yourself. The main thread calls the advisor only under triggers (a) and (b), or when it is stuck.
 Verification (tests pass, feature behaves correctly) stays with the implementing agent.
@@ -94,7 +94,7 @@ When coordinating multiple agents, choose the tier by task shape:
 - ≥3 phases where 2+ can run in parallel, <~20 files → team
 - ~20+ files or persistent cross-verification → workflow
 
-Team = parallel Agent calls in one message from main thread, each role-isolated. The main thread synthesizes between phases. Spawn only the roles the task needs. Use researcher, designer, and reviewer for analysis. Use designer, implementer, and reviewer for refactors. Add QA when behavioral verification is required.
+Team = parallel Agent calls in one message from main thread, each role-isolated. The main thread synthesizes between phases. Spawn only the roles the task needs. Use researcher, Plan, and reviewer for analysis. Use Plan, engineer, and reviewer for refactors. Add an engineer for QA when behavioral verification is required.
 
 - Give each agent a role boundary: what it owns, what it must not touch.
 - Include a propulsion mechanism. Tell each agent to find pending work and to act on it.
@@ -186,10 +186,10 @@ Subagents do not inherit the user's output style, so this section is the whole c
 - Advisor escalates to the configured reviewer (`advisorModel` in settings).
 - For subagents and team members, set `model` on spawn:
   - `opus`: Opus 5.5, $4/$20 per 1M tokens. See Delegation for the canonical trigger list.
-  - `haiku`: Haiku 4.5, $1/$5 per 1M tokens, 200K context. Use it for lookups, formatting, mechanical transforms, classification. Use it only when the output has a hard check, such as a command, a schema, or an exact match. Use Sonnet when no such check exists. Pass `model: sonnet` to a haiku-pinned agent such as `Explore` in that case.
+  - `haiku`: Haiku 5.5 on the Anthropic API, 1M context. It costs $0.10/$0.50 per 1M tokens for a prompt up to 100K tokens, and $0.50/$2.50 above that. Use it for lookups, formatting, mechanical transforms, classification. Use it only when the output has a hard check, such as a command, a schema, or an exact match. Use Sonnet when no such check exists. Pass `model: sonnet` to a haiku-pinned agent such as `Explore` in that case.
   - Omit (Sonnet 5.5, $2/$10 per 1M tokens): implementation, exploration, and most tasks.
   - `fable`: Fable 5.1, $10/$50 per 1M tokens. It costs 2.5x Opus 5.5. Use it for demanding reasoning and long-horizon work, or when Opus 5.5 at `high` effort still falls short.
-- Keep Sonnet 5.5 subagents at `medium` or `high` effort. At `xhigh` or `max`, it starts its own review rounds. Control depth with `effort`, not with prose such as "think less". Pin `effort` in a **subagent's** frontmatter to set that agent's own effort. The values are `low` (mechanical), `medium`, `high`, `xhigh`, and `max`. Availability depends on the model, and is not Opus-exclusive (Sonnet 5.5 and Fable 5.1 support `xhigh` too). The Agent tool takes only `model`, with no per-invocation effort. Use frontmatter instead, or `agent(prompt, {effort: ...})` inside a Workflow script. Omit frontmatter to inherit the session/orchestrator's effort.
+- Keep Sonnet 5.5 subagents at `medium` or `high` effort. At `xhigh` or `max`, it starts its own review rounds. Control depth with `effort`, not with prose such as "think less". Pin `effort` in a **subagent's** frontmatter to set that agent's own effort. The values are `low` (mechanical), `medium`, `high`, `xhigh`, and `max`. Availability depends on the model, and is not Opus-exclusive (Sonnet 5.5, Haiku 5.5, and Fable 5.1 support `xhigh` too). The Agent tool also takes an `effort` parameter for one spawn. Inside a Workflow script, use `agent(prompt, {effort: ...})`. Omit frontmatter to inherit the session/orchestrator's effort.
 - A **skill's** frontmatter `effort:` instead overrides the _invoking_ thread's own effort while the skill is active. This includes the main orchestrator when the skill runs inline. Do not set low or medium effort on a skill when you want full orchestrator strength.
 - Agent teams are on in settings, with `teammateMode` set to `in-process`. While they are on, Claude Code starts a named subagent as a teammate. A teammate applies the agent file's `effort`, loads CLAUDE.md, and ignores the agent file's `skills`. To keep the agent file's skills, start the subagent without a name, as a fork, or with `isolation` on the call.
 - In agent teams, use `opus` for the lead when the task spans cross-cutting concerns. Use `fable` for the highest-stakes decisions, or when Opus fails at `high` effort. A teammate inherits the leader's model unless its spawn names one. Name a cheaper model on each teammate that does not need the leader's tier.
@@ -199,7 +199,8 @@ Subagents do not inherit the user's output style, so this section is the whole c
 The routes apply only to work that the task-shape rule delegates.
 
 - `prompt*` -> prompt-engineer
-- `understand* code*` -> Explore
+- `locate* code*|find* file*|where* defined*` -> Explore
+- `understand* code*` -> researcher
 - `analyse* architecture*` -> researcher
 - `design* solution*|plan* implementation*` -> Plan
 - `*golang*|*go code*|*go lang*` -> golang-developer

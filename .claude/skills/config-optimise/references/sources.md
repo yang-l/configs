@@ -54,6 +54,7 @@ General prompting guidance for current Claude models. It warns that forceful pro
 
 - `https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5`
 - `https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5-5`
+- `https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5`
 
 Model-specific guidance. Use them to check model or effort routing choices, and instructions written for older models. Record the page date and the model each finding applies to.
 

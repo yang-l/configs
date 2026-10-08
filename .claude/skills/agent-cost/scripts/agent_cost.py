@@ -58,17 +58,25 @@ PROJECTS_ROOT = Path.home() / ".claude" / "projects"
 SYNTHETIC_MODEL = "<synthetic>"
 
 # Source: https://platform.claude.com/docs/en/about-claude/pricing, read on
-# 2026-09-30. USD per million tokens. A model id absent here has no listed
+# 2026-10-09. USD per million tokens. A model id absent here has no listed
 # price - the script shows "?" rather than guess from a similar model.
+# Haiku 5.5 has a higher rate when a turn's prompt is over 100,000 tokens. The
+# threshold uses input_tokens + cache_creation + cache_read. The pricing page
+# does not define it further.
 PRICE_TABLE = {
     "claude-fable-5-1": {"input": 10, "write_5m": 12.50, "write_1h": 20, "read": 0.25, "output": 50},
     "claude-fable-5": {"input": 10, "write_5m": 12.50, "write_1h": 20, "read": 1, "output": 50},
     "claude-opus-5-5": {"input": 4, "write_5m": 5, "write_1h": 8, "read": 0.20, "output": 20},
     "claude-opus-5": {"input": 5, "write_5m": 6.25, "write_1h": 10, "read": 0.50, "output": 25},
     "claude-opus-4-8": {"input": 5, "write_5m": 6.25, "write_1h": 10, "read": 0.50, "output": 25},
-    "claude-sonnet-5-5": {"input": 2, "write_5m": 2.50, "write_1h": 4, "read": 0.20, "output": 10},
+    "claude-sonnet-5-5": {"input": 2, "write_5m": 2.50, "write_1h": 4, "read": 0.10, "output": 10},
     "claude-sonnet-5": {"input": 2, "write_5m": 2.50, "write_1h": 4, "read": 0.20, "output": 10},
+    "claude-haiku-5-5": {"input": 0.10, "write_5m": 0.125, "write_1h": 0.20, "read": 0.01, "output": 0.50},
     "claude-haiku-4-5-20251001": {"input": 1, "write_5m": 1.25, "write_1h": 2, "read": 0.10, "output": 5},
+}
+
+LONG_PROMPT_PRICES = {
+    "claude-haiku-5-5": (100_000, {"input": 0.50, "write_5m": 0.625, "write_1h": 1, "read": 0.05, "output": 2.50}),
 }
 
 SMALL_SAMPLE_THRESHOLD = 5
@@ -321,6 +329,14 @@ def turn_total_input(turn: tuple) -> int:
     return uncached + write_5m + write_1h + read
 
 
+def tier_prices(model: str, turn: tuple) -> dict:
+    """Return `model`'s rates for this turn. A turn whose prompt is over the model's LONG_PROMPT_PRICES threshold uses the higher rates for every token in the turn, output included."""
+    long_tier = LONG_PROMPT_PRICES.get(model)
+    if long_tier and turn_total_input(turn) > long_tier[0]:
+        return long_tier[1]
+    return PRICE_TABLE[model]
+
+
 def price_turn(turn: tuple) -> float | None:
     """Return the list-price USD cost of one turn, or None when unpriceable:
     an unknown model, `speed` "fast" (an unlisted fast-mode multiplier), or
@@ -330,11 +346,11 @@ def price_turn(turn: tuple) -> float | None:
     unpriceable was leaving out real turns, mostly on Opus models, without
     actually catching any fast-mode turn."""
     uncached, write_5m, write_1h, read, output, model, speed, geo = turn
-    prices = PRICE_TABLE.get(model)
-    if prices is None:
+    if model not in PRICE_TABLE:
         return None
     if speed == "fast" or geo == "us":
         return None
+    prices = tier_prices(model, turn)
     cost = (
         uncached * prices["input"]
         + write_5m * prices["write_5m"]
@@ -352,7 +368,7 @@ def reprice_turn(turn: tuple, model: str) -> float | None:
     uncached, write_5m, write_1h, read, output, _, speed, geo = turn
     if speed == "fast" or geo == "us":
         return None
-    prices = PRICE_TABLE[model]
+    prices = tier_prices(model, turn)
     cost = (
         uncached * prices["input"]
         + write_5m * prices["write_5m"]
