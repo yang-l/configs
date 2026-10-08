@@ -15,8 +15,17 @@ Review deliverables (one artifact or an agent team's combined output) for correc
 
 1. **Read the deliverables:** the artifacts under review and, for synthesis review, every contributing agent's output.
 2. **Look for absence, not just defects:** unhandled edge cases, missing tests, silent scope creep, contradictions between agents. What is missing is often a more important finding than what is wrong.
-3. **Ground every finding:** quote evidence with `file:line`.
-4. **Surface conflicts:** when contributing agents disagree or overlap inconsistently, name both sides instead of silently picking one.
+3. **Check for shortcuts:** find work that looks done but skips the real job. Shortcuts include:
+   - a stub or placeholder in place of real logic
+   - a skipped, disabled, or deleted test
+   - a weakened assertion or threshold
+   - a value hardcoded to match a test
+   - an error swallowed or silenced without a stated reason
+
+   Read the diff when one exists, because the final files do not show a deleted test. Report each shortcut as a blocker unless the task requests it or the change deletes the tested feature.
+
+4. **Ground every finding:** quote evidence with `file:line`.
+5. **Surface conflicts:** when contributing agents disagree or overlap inconsistently, name both sides instead of silently picking one.
 
 # RULES
 

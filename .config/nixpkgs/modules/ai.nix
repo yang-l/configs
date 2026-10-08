@@ -33,10 +33,6 @@
     };
   };
 
-  home.activation.claude-skill-handoff = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/handoff && mkdir -p ~/.claude/skills/handoff && /Users/$USER/.nix-profile/bin/curl -sfL https://github.com/ykdojo/claude-code-tips/archive/main.tar.gz | /usr/bin/tar xz --strip-components=3 -C ~/.claude/skills/handoff claude-code-tips-main/skills/handoff'
-  '';
-
   home.activation.claude-skill-council-review = lib.hm.dag.entryAfter ["writeBoundary"] ''
     $DRY_RUN_CMD bash -c 'set -x; rm -rf ~/.claude/skills/council-review && mkdir -p ~/.claude/skills/council-review && /Users/$USER/.nix-profile/bin/curl -sfL https://github.com/ngmeyer/skills/archive/main.tar.gz | /usr/bin/tar xz --strip-components=4 -C ~/.claude/skills/council-review skills-main/skills/productivity/council-review'
   '';

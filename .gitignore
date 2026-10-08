@@ -6,7 +6,6 @@
 !.ssh/config
 .wiki/
 .claude/skills/council-review/
-.claude/skills/handoff/
 .claude/skills/diagram-design/
 .claude/skills/asd-ste100/
 .claude/skills/config-optimise/.last-audited.json
@@ -14,3 +13,4 @@
 .claude/skills/agent-cost/calibration.md
 .claude/skills/synced/
 audits/
+docs/handoffs

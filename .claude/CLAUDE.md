@@ -17,6 +17,8 @@ Order of work: read first -> clarify when unclear -> plan -> execute -> verify.
 - Clarifying questions, main thread only. Before you draft, ask the user each question whose answer would change the work. Use `AskUserQuestion`. Wait for the answer. Then write the plan.
 - Questions you find after the draft starts. Do not stop the draft. State the assumption you took in the plan. List the question in the open questions. A question a reviewer raises after the draft follows the same rule.
 - Take the simplest approach that meets the request, for a plan, an answer, or a change. Add no step, phase, abstraction, or contingency that the request does not need.
+- Finish one approach before you start another. Switch only after you state the obstacle in one line.
+- Treat a checked result as settled until a later change affects it. Reopen it only for a concrete reason: a failed check, a fact that contradicts it, a named error, or a counterexample. Doubt alone is not a reason.
 - Advisor gate, main thread only. The rule that routes reviews to the `reviewer` agent does not apply here.
 - Advisor trigger (a). Call `advisor` before the first `ExitPlanMode` only when the plan meets the review trigger below. Fix every blocker. Run at most two advisor rounds, then stop. Send every blocker that survives round 2 to the open questions list.
 - Advisor trigger (b). In auto-mode only, call `advisor` before a consequential decision: an architecture choice, a security-relevant change, or a multi-agent team structure. Fix every blocker, then call `advisor` again. Repeat until `advisor` agrees with no blocker left. Trigger (b) never fires in plan mode. Codex never runs under trigger (b), so trigger (b) has no fixed round limit, unlike trigger (a). Put the disagreement to the user when a blocker stands after about 3 rounds, instead of looping again.
@@ -28,7 +30,7 @@ Order of work: read first -> clarify when unclear -> plan -> execute -> verify.
 - Codex round limit: before round 1, choose a limit of 2 to 5 rounds from the plan's complexity. Fix every Critical and High finding in every round. Stop when a round returns `VERDICT: approve` with no new Critical or High finding, even in round 1. Fix or reject every finding that the last round leaves open. Each new user request starts a new set of rounds.
 - Codex findings you do not fix: skip a finding that primary evidence refutes. Skip a finding you reject under the Codex findings rule below. Skip a finding that re-opens a settled decision, unless Codex marked it `settled-decision challenge`. Send each `settled-decision challenge` to the open questions list with the `(codex)` marker. Change nothing for it. List every other finding you skipped in the `Rejected findings` list.
 - Codex findings: judge each finding against the whole system, not against the line it names. Accept the finding when the fix solves the problem and breaks nothing else. Reject it when the fix would break a working behaviour, defeat the design intent, or trade a small gain for a larger regression. Rejection is a valid outcome in both the plan and the implementation phase, including a `codex:rescue` result. Never apply a fix you judge wrong just to close a round.
-- Judge a user suggestion, or the work the user asks you to review, on the merits. A request for your opinion is never a signal to agree. Reject a suggestion, a review comment, or a proposed fix when the evidence contradicts it. Give the reason and the evidence. Then follow the user's decision when they repeat the request.
+- Judge a user suggestion, or the work the user asks you to review, on the merits. A request for your opinion is never a signal to agree. Reject a suggestion, a review comment, or a proposed fix when the evidence contradicts it. Give the reason and the evidence. Then follow the user's decision when they repeat the request. When the user disputes a fact without new evidence, restate your answer with its one-line reason. Then ask for the evidence. A repeated dispute is not new evidence. Never record a disputed claim that lacks evidence as a fact, preference, or rule, unless the user asks you to. This covers memory, CLAUDE.md, and AGENTS.md.
 - Sign-off line: write exactly one sign-off line. Delete any earlier sign-off line first. Put it on the line directly below the plan file's title. In a reply with no plan, put it directly below the tier line. Make the line match what happened. Never claim agreement that a reviewer did not give. The line always carries the advisor slot.
   - `> **Advisor sign-off:** advisor: <agreed, no blockers | <N> unresolved blockers | skipped, <reason>>.`
   - Write `skipped, <reason>` when the advisor did not run. Give the reason in one clause, such as `skipped, plan below review trigger`.
@@ -50,25 +52,25 @@ Order of work: read first -> clarify when unclear -> plan -> execute -> verify.
 - Do not write a changelog entry unless the user asks for one. Treat any file that exists only to record changes the same way, such as release notes. Record the change in your reply instead.
 - Never stage or commit changes. Leave all edits unstaged for user review.
 - The user often stages, commits, or edits files outside the session. Treat git status as the user's current state. Do not report or question changes you did not make.
-- When a task ends and the user starts an unrelated task, suggest `/compact` in one line before you start.
+- When the user starts an unrelated task, run the `auto-handoff:handoff` skill for the current work. Then suggest `/clear` in one line. Give the user the new request as a self-contained message to send after `/clear`. Also give a resume message with the handoff file's absolute path and the folder to start it in. End the reply there. Start the new task on the user's next message.
 
 ## Compact Instructions
 
-When compacting, preserve working state for continuation, not chat history. When unsure whether an item is continuation-critical, keep it. Losing state breaks the session. Redundancy only costs tokens.
+When compacting, preserve working state for continuation, not chat history. CLAUDE.md, memory files, the plan file, and up to five recent files reload from disk. Do not repeat their content. When unsure whether an item matters for the next step, keep it.
 
-Keep verbatim:
+Keep exactly:
 
 - Current goal and acceptance criteria
-- The pending task list and the exact next step
+- The pending task list, and the next step with a verbatim quote of the user's latest request
+- Every instruction the user gave during the session (preferences, limits, corrections, skips, approvals), quoted with its scope
 - Files changed, created, or deleted, and why
-- Identifiers (hooks, functions, classes, routes, settings, commands, config keys) that the next step depends on or that were changed
-- Business rules and architectural decisions
-- Approaches tried and rejected with the reasons, and errors or failing tests still unresolved with the fixes already attempted
-- Any inspected file whose findings bear on the goal or next step
+- Identifiers (hooks, functions, classes, routes, settings, commands, config keys) that the next step depends on or that the session changed
+- Business rules and architectural decisions, each with its reason
+- Approaches tried and rejected with the reasons, and unresolved errors or failing tests with the fixes already attempted
 
-Summarize (keep the conclusion, compress the detail): exploration and inspected files that did not change the plan (record what was learned, not the step-by-step). Commands that ran (keep the command and its outcome, drop the raw output). Older discussion that reached a decision already captured above.
+Keep these as a pointer (path, command, or name) with a one-line conclusion: inspected files, exploration, and commands that ran. Reduce older discussion that reached a decision to one line that states the decision.
 
-Drop: logs and command output, unless they contain an unresolved error. Duplicated explanations of state kept elsewhere. Ideas floated but never acted on, and resolved errors with no bearing on remaining work.
+Drop: raw logs and command output unless they show an unresolved error. Ideas never acted on, except open questions and deferred findings not yet reported to the user. Resolved errors with no bearing on remaining work.
 
 ## Delegation
 
