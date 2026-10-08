@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-# PreToolUse hook on Bash: deny file reads, searches, and typed file writes
-# that go through the shell, so the Read, Grep, Glob, Edit, and Write tools
-# (and their permission rules and hooks) handle them instead.
+# PreToolUse hook on Bash: deny file reads and typed file writes that go
+# through the shell, so the Read, Edit, and Write tools (and their permission
+# rules and hooks) handle them instead.
+# grep and find stay allowed: native Claude Code builds have no Grep or Glob
+# tool and route these Bash commands to embedded ugrep and bfs instead.
 # Text matching only: it catches the common forms, not every route.
 import datetime
 import json
@@ -12,19 +14,17 @@ import sys
 
 SEPARATORS = {"|", "|&", "||", "&&", ";", ";;", "&", "(", ")", "\n"}
 REDIRECTS = {">", ">>", ">|", "&>", "&>>", "<", "<<", "<<<", ">&", "<&", "<>"}
-WRAPPERS = {"env", "sudo", "command", "nohup", "time", "exec"}
+WRAPPERS = {"env", "sudo", "command", "nohup", "time", "exec", "then", "do", "else", "elif", "{", "!"}
 NUMBER = re.compile(r"^[+-]?\d+$")
 HEREDOC = re.compile(r"(?<!<)<<-?(?!<)\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
 PERL_INPLACE = re.compile(r"^-[0-9alnpw]*i")
 INTERP_FILE_CALLS = ("open(", "readFile", "writeFile", "File.")
 READERS = {"cat", "head", "less", "more", "bat", "nl"}
-SEARCHERS = {"grep", "egrep", "fgrep", "rg", "ag", "ack"}
 AWKS = {"awk", "gawk", "mawk"}
 XARGS_VALUE_FLAGS = {"-n", "-I", "-L", "-P", "-d", "-s", "-E"}
 
 REASONS = {
     "read": "Use the Read tool. Use offset and limit for a line range.",
-    "search": "Use the Grep tool to search file contents. Use the Glob tool to find files by name.",
     "write": "Use the Edit tool or the Write tool to change files.",
     "interpreter": "Use the Read, Edit, or Write tool for file access.",
 }
@@ -130,8 +130,6 @@ def check(words, targets, heredoc, pipe_head, scratch):
         inner = os.path.basename(args[i]) if i < len(args) else ""
         if inner in READERS or inner in {"tail"} | AWKS:
             return "read"
-        if inner in SEARCHERS:
-            return "search"
 
     if name in READERS and files:
         return "read"
@@ -155,19 +153,6 @@ def check(words, targets, heredoc, pipe_head, scratch):
             return "write"
         if "-n" in flags and len(files) >= 2:
             return "read"
-
-    if name in SEARCHERS:
-        if "--files" in flags:
-            return "search"
-        has_e = any(f in {"-e", "--regexp", "-f", "--file"} or f.startswith("--regexp=") for f in flags)
-        paths = files if has_e else files[1:]
-        # rg, ag, and ack search the working directory when given no path
-        recursive = name in {"rg", "ag", "ack"} or any(
-            f == "--recursive" or re.match(r"^-[a-zA-Z]*[rR]", f) for f in flags)
-        if paths or (recursive and pipe_head == name):
-            return "search"
-    if name == "find" and any(a in {"-name", "-iname", "-path", "-ipath", "-regex", "-iregex"} for a in args):
-        return "search"
 
     if name == "perl" and any(PERL_INPLACE.match(f) for f in flags):
         return "write"
