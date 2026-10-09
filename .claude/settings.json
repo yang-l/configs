@@ -133,15 +133,17 @@
     "autoAllowBashIfSandboxed": true,
     "allowUnsandboxedCommands": false,
     "filesystem": {
-      "allowWrite": ["/dev/ptmx", "/dev/ttys*"]
+      "allowWrite": ["/dev/ptmx", "/dev/ttys*"],
+      "allowRead": ["/etc/ssl/cert.pem", "/private/etc/ssl/cert.pem"]
     },
     "excludedCommands": [
       "bundle exec rspec *",
       "bundle exec rubocop *",
+      "docker *",
       "gh *",
       "git *",
-      "terraform *",
-      "node *codex-companion.mjs*"
+      "node *codex-companion.mjs*",
+      "terraform *"
     ]
   },
   "spinnerTipsEnabled": false,

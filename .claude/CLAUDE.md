@@ -184,6 +184,7 @@ Subagents do not inherit the user's output style, so this section is the whole c
 ## Tool Hints
 
 - Advisor escalates to the configured reviewer (`advisorModel` in settings).
+- Run an excluded command (`gh`, `git`, `terraform`, `docker`, `bundle exec rspec`, `bundle exec rubocop`) as a plain call: no `cd`, env prefix, absolute path, pipe, redirect, `&&`, or `git -C`. Use `terraform -chdir=<dir>`, `gh -R <owner>/<repo>`, or a separate call instead.
 - For subagents and team members, set `model` on spawn:
   - `opus`: Opus 5.5, $4/$20 per 1M tokens. See Delegation for the canonical trigger list.
   - `haiku`: Haiku 5.5 on the Anthropic API, 1M context. It costs $0.10/$0.50 per 1M tokens for a prompt up to 100K tokens, and $0.50/$2.50 above that. Use it for lookups, formatting, mechanical transforms, classification. Use it only when the output has a hard check, such as a command, a schema, or an exact match. Use Sonnet when no such check exists. Pass `model: sonnet` to a haiku-pinned agent such as `Explore` in that case.
