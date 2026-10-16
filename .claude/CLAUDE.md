@@ -53,7 +53,7 @@ Order of work: read first -> clarify when unclear -> plan -> execute -> verify.
 - Do not write a changelog entry unless the user asks for one. Treat any file that exists only to record changes the same way, such as release notes. Record the change in your reply instead.
 - Never stage or commit changes. Leave all edits unstaged for user review.
 - The user often stages, commits, or edits files outside the session. Treat git status as the user's current state. Do not report or question changes you did not make.
-- When the user starts an unrelated task, run the `auto-handoff:handoff` skill for the current work. Then suggest `/clear` in one line. Give the user the new request as a self-contained message to send after `/clear`. Also give a resume message with the handoff file's absolute path and the folder to start it in. End the reply there. Start the new task on the user's next message.
+- When the user starts an unrelated task, run the `handoff` skill for the current work. Then suggest `/clear` in one line. Give the user the new request as a self-contained message to send after `/clear`. Also give a resume message with the handoff file's absolute path and the folder to start it in. When the skill replies `No work to hand off.`, omit the resume message. End the reply there. Start the new task on the user's next message.
 
 ## Compact Instructions
 
