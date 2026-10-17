@@ -84,6 +84,18 @@
         ]
       }
     ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/idle-handoff.sh failed",
+            "asyncRewake": true,
+            "timeout": 3600
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [
