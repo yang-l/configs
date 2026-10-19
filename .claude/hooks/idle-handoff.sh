@@ -109,6 +109,8 @@ mark)
   field prompt_id >"$s.token"
   ;;
 arm)
+  # claude -p (entrypoint sdk-cli) waits for this async hook before it calls the API.
+  [ "${CLAUDE_CODE_ENTRYPOINT:-cli}" = cli ] || exit 0
   wait_s=$(( ${2:-50} * 60 ))
   pid=$(field prompt_id)
   # mark and arm start in parallel. Wait for mark to write this prompt's token.
@@ -142,6 +144,7 @@ arm)
   ;;
 failed)
   # StopFailure: the laptop slept or lost the network during the handoff turn.
+  [ "${CLAUDE_CODE_ENTRYPOINT:-cli}" = cli ] || exit 0
   [ -d "$s.done" ] && [ -f "$s.rewake" ] || exit 0
   [ "$(cat "$s.token" 2>/dev/null)" = "$(cat "$s.rewake")" ] || exit 0
   mkdir "$s.retry" 2>/dev/null || exit 0
