@@ -35,9 +35,19 @@
       "Read(~/.local/state/claude-handoffs/**)",
       "Edit(~/.local/state/claude-handoffs/**)",
       "Bash(bash ~/.claude/hooks/idle-handoff.sh path *)",
-      "Skill(handoff)"
+      "Skill(handoff)",
+      "Bash(aws-vault exec readonly-sso@* -- aws *)"
     ],
     "deny": [
+      "Bash(*aws-vault*admin*)",
+      "Bash(*aws-vault*developer*)",
+      "Bash(aws-vault exec readonly-sso@* * -- *)",
+      "Bash(aws-vault exec * configure *)",
+      "Bash(aws-vault exec * sso *)",
+      "Bash(aws-vault exec * s3 cp *)",
+      "Bash(aws-vault exec * s3 mv *)",
+      "Bash(aws-vault exec * s3 sync *)",
+      "Bash(aws-vault exec * s3api get-object *)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
@@ -173,16 +183,11 @@
     "autoAllowBashIfSandboxed": true,
     "allowUnsandboxedCommands": false,
     "filesystem": {
-      "allowWrite": [
-        "/dev/ptmx",
-        "/dev/ttys*"
-      ],
-      "allowRead": [
-        "/etc/ssl/cert.pem",
-        "/private/etc/ssl/cert.pem"
-      ]
+      "allowWrite": ["/dev/ptmx", "/dev/ttys*"],
+      "allowRead": ["/etc/ssl/cert.pem", "/private/etc/ssl/cert.pem"]
     },
     "excludedCommands": [
+      "aws-vault exec readonly-sso@* -- aws *",
       "bundle exec rspec *",
       "bundle exec rubocop *",
       "docker *",
