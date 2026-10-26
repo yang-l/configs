@@ -133,12 +133,21 @@ arm)
       continue
     fi
     age=$(( $(date +%s) - start ))
-    (( age < wait_s )) && continue
-    # The laptop slept through the wait, so the prompt cache is already cold.
-    (( age * 10 > wait_s * 11 )) && exit 0
+    if (( age < wait_s )); then
+      # The Mac idle-sleeps after "sleep" minutes without keyboard or mouse
+      # input, often before the timer is due. Fire 10 minutes before that.
+      # Inside the Bash sandbox pmset -g prints no settings, so this rule is off.
+      sleep_min=$(pmset -g 2>/dev/null | awk '$1 == "sleep" { print $2; exit }')
+      [[ $sleep_min =~ ^[0-9]+$ ]] && (( sleep_min > 10 )) || continue
+      input_idle=$(ioreg -c IOHIDSystem -d 4 | awk '/HIDIdleTime/ { print int($NF / 1000000000); exit }')
+      (( ${input_idle:-0} >= (sleep_min - 10) * 60 )) || continue
+    else
+      # The laptop slept through the wait, so the prompt cache is already cold.
+      (( age * 10 > wait_s * 11 )) && exit 0
+    fi
     mkdir "$s.done" 2>/dev/null || exit 0
     printf '%s You were idle for %d minutes. Call Skill("handoff") now for session %s, before the prompt cache expires. Ask nothing.\n' \
-      "$tag" "$(( wait_s / 60 ))" "$sid" >&2
+      "$tag" "$(( age / 60 ))" "$sid" >&2
     exit 2
   done
   ;;

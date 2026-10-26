@@ -18,6 +18,7 @@
     "pr": "",
     "sessionUrl": false
   },
+  "includeGitInstructions": false,
   "permissions": {
     "allow": [
       "Bash(bundle exec rspec:*)",
@@ -90,8 +91,8 @@
           {
             "type": "command",
             "command": "bash ~/.claude/hooks/idle-handoff.sh failed",
-            "asyncRewake": true,
-            "timeout": 3600
+            "timeout": 3600,
+            "asyncRewake": true
           }
         ]
       }
@@ -172,8 +173,14 @@
     "autoAllowBashIfSandboxed": true,
     "allowUnsandboxedCommands": false,
     "filesystem": {
-      "allowWrite": ["/dev/ptmx", "/dev/ttys*"],
-      "allowRead": ["/etc/ssl/cert.pem", "/private/etc/ssl/cert.pem"]
+      "allowWrite": [
+        "/dev/ptmx",
+        "/dev/ttys*"
+      ],
+      "allowRead": [
+        "/etc/ssl/cert.pem",
+        "/private/etc/ssl/cert.pem"
+      ]
     },
     "excludedCommands": [
       "bundle exec rspec *",
@@ -186,7 +193,6 @@
     ]
   },
   "spinnerTipsEnabled": false,
-  "includeGitInstructions": false,
   "effortLevel": "medium",
   "modelSettings": {
     "claude-opus-5-5": {

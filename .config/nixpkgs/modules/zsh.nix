@@ -28,6 +28,7 @@
         "e?(c)?(f|t|k)"
         "go*( )?(?(build)|?(test))"
         "pushd" "popd"
+        "claude" "codex"
       ];
       save = 500000;
       size = 500000;

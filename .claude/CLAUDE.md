@@ -47,6 +47,13 @@ Order of work: read first -> clarify when unclear -> plan -> execute -> verify.
 - Batch independent read-only calls in one message, such as Read, WebFetch, and read-only `git`, `grep`, or `find` commands. Run each edit, write, test, or build as a separate call.
 - Keep Bash output small. Before you read a large diff, list the changed files with `git diff --stat` or `gh pr diff --name-only`. Then read the diff one file at a time.
 - For non-trivial edits, make assumptions explicit before acting on them.
+- Working notes, main thread only. Keep task context in files during the work, because a handoff or a compaction loses detail.
+  - Write each result that costs more than one command to get again into a notes file at once. Examples are a finding, a measured number, a working query, a decision with its reason, a subagent result, and a dead end. Skip notes files when you expect to finish the task in this reply.
+  - Run `bash ~/.claude/hooks/idle-handoff.sh path "$CLAUDE_CODE_SESSION_ID" "$PWD" notes`. Put notes in `<topic>/` inside the folder that holds the printed file. Do not write the printed file. Name `<topic>` with 2 to 5 lowercase words, joined by hyphens.
+  - Use one file for each subject. When a fact changes, replace the old text.
+  - After a compaction, read the notes files again before the next step.
+  - Put a fact that later tasks need in auto memory, under the memory rules.
+  - Never write a secret or a credential to a notes file.
 - Before you add code, check whether deleting or simplifying existing code solves the problem. Add code only after subtraction fails.
 - Change only what the request names. Make no drive-by refactor, rename, reorder, or reformat in a file you opened for another reason. Put adjacent findings in a deferred list for the user, never into the diff. Work nobody asked for is the usual reason a reply turns into an essay, because the extra prose then justifies the extra change. Conform to the existing code style and patterns, regardless of personal preference.
 - Do not add an inline comment that only restates the code. A task the user gives you is not a request for comments. Add a comment only when it carries what the code cannot show: a non-obvious constraint, a breaking change, a known-bug workaround, a safety warning, or the reason for a surprising choice. Match the comment density of the surrounding file. This rule also governs any documentation you write, such as a docstring. Write more when the user asks for comments or documentation.
@@ -68,6 +75,7 @@ Keep exactly:
 - Identifiers (hooks, functions, classes, routes, settings, commands, config keys) that the next step depends on or that the session changed
 - Business rules and architectural decisions, each with its reason
 - Approaches tried and rejected with the reasons, and unresolved errors or failing tests with the fixes already attempted
+- Every working notes file path, with a one-line summary of its content
 
 Keep these as a pointer (path, command, or name) with a one-line conclusion: inspected files, exploration, and commands that ran. Reduce older discussion that reached a decision to one line that states the decision.
 
