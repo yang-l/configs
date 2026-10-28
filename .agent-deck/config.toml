@@ -15,6 +15,8 @@
 
 [docker]
   volume_ignores = [".gitconfig"]
+  # ~/devel/code at its Mac path lets git follow worktree .git links.
+  extra_volumes = { "/Users/yangliu/devel/code" = "/Users/yangliu/devel/code", "/Users/yangliu/.local/state/claude-handoffs-sandbox" = "/root/.local/state/claude-handoffs", "/Users/yangliu/.local/state/agent-deck-sandbox/codex-AGENTS.md" = "/root/.claude/codex/AGENTS.md" }
 
 [feedback]
   disabled = true

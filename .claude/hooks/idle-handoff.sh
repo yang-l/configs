@@ -125,10 +125,11 @@ arm)
   (( interval < 1 )) && interval=1
   while sleep "$interval"; do
     [ "$(cat "$s.token" 2>/dev/null)" = "$pid" ] || exit 0
+    # agent-deck sets IS_SANDBOX in its Linux containers, where stat is GNU.
     if [ -f "$s.idle" ]; then
-      start=$(stat -f %m "$s.idle")
+      start=$(if [ -n "${IS_SANDBOX:-}" ]; then stat -c %Y "$s.idle"; else stat -f %m "$s.idle"; fi)
     elif [ -f "$s.busy" ] && interrupted; then
-      start=$(stat -f %m "$tp")
+      start=$(if [ -n "${IS_SANDBOX:-}" ]; then stat -c %Y "$tp"; else stat -f %m "$tp"; fi)
     else
       continue
     fi
@@ -165,7 +166,11 @@ failed)
        elif $e.isApiErrorMessage != true and $e.message.model != "<synthetic>" then .r = .u
        else . end) | .r // empty' "$tp" 2>/dev/null)
   [ -n "$last" ] || exit 0
-  last=$(date -j -u -f '%Y-%m-%dT%H:%M:%S' "${last%%.*}" +%s 2>/dev/null) || exit 0
+  if [ -n "${IS_SANDBOX:-}" ]; then
+    last=$(date -u -d "${last%%.*}" +%s 2>/dev/null) || exit 0
+  else
+    last=$(date -j -u -f '%Y-%m-%dT%H:%M:%S' "${last%%.*}" +%s 2>/dev/null) || exit 0
+  fi
   pid=$(cat "$s.token")
   while :; do
     [ "$(cat "$s.token" 2>/dev/null)" = "$pid" ] || exit 0
@@ -187,7 +192,8 @@ idle)
   ;;
 disarm)
   if [ "$(field reason)" = clear ] && [[ ${CLAUDE_PID:-} =~ ^[0-9]+$ ]]; then
-    link="$root/.links/$CLAUDE_PID"
+    # Sandbox containers share one handoff folder but each has its own PIDs.
+    link="$root/.links/${IS_SANDBOX:+$HOSTNAME-}$CLAUDE_PID"
     rm -f "$link"
     spid='' sfile=''
     [ -f "$s.saved" ] && read -r spid sfile <"$s.saved"

@@ -30,7 +30,15 @@ if [ -n "$EMACS_SOCKET_NAME" ]; then
 elif [ -n "$TMUX" ]; then
   mode=tmux
 else
-  skip "no emacs server or tmux"
+  # a background session has neither, so try each live Emacs server, newest first
+  for sock in $(ls -t "$(getconf DARWIN_USER_TEMP_DIR)emacs$(id -u)"/emacs-* 2>/dev/null); do
+    if emacsclient -s "$sock" -e t >/dev/null 2>&1; then
+      EMACS_SOCKET_NAME=$sock
+      mode=emacs
+      break
+    fi
+  done
+  [ -n "$mode" ] || skip "no emacs server or tmux"
 fi
 note "start: mode=$mode plan=$plan PATH=$PATH TMPDIR=$TMPDIR tools=$(command -v jq emacsclient tmux | tr '\n' ' ')"
 

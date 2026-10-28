@@ -4,7 +4,7 @@
 # parallel session's file. idle-handoff.sh disarm writes the link at SessionEnd.
 source=$(jq -r '.source // empty' 2>/dev/null)
 [[ ${CLAUDE_PID:-} =~ ^[0-9]+$ ]] || exit 0
-link="${HANDOFF_ROOT:-$HOME/.local/state/claude-handoffs}/.links/$CLAUDE_PID"
+link="${HANDOFF_ROOT:-$HOME/.local/state/claude-handoffs}/.links/${IS_SANDBOX:+$HOSTNAME-}$CLAUDE_PID"
 [ -f "$link" ] || exit 0
 file=$(cat "$link")
 # Any other source also removes the link, because the system can reuse a PID.

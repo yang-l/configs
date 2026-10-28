@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Adds the flags bwrap needs. agent-deck v1.16.26 has no setting for them and
+# runs `docker create ... --label managed-by=agent-deck ... <image> sleep infinity`.
+# bwrap also needs this `provision` entry in ~/.config/colima/default/colima.yaml,
+# which is not in git:
+#   - mode: system
+#     script: sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+image=agent-deck-sandbox-yl:latest
+dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+PATH=$(tr ':' '\n' <<<"$PATH" | grep -vxF "$dir" | paste -sd: -)
+
+if [ "${1:-}" = create ] && (($# >= 3)) && [ "${@: -3:1}" = "$image" ] &&
+  [[ " $* " == *" managed-by=agent-deck "* ]]; then
+  shift
+  set -- create \
+    --security-opt "seccomp=$dir/../sandbox/seccomp.json" \
+    --security-opt apparmor=unconfined \
+    --security-opt systempaths=unconfined \
+    "$@"
+fi
+exec docker "$@"
