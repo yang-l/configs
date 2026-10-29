@@ -2,8 +2,8 @@
 name: design-doc-full-pass
 description: |
   Full section-by-section editorial pass over a large or published / heavily-reviewed design doc, RFC, spec, or architecture doc: fans out one read-only agent per section, collects verbatim old_string→new_string cuts with a rationale and risk tier each, then applies them under a mechanical whole-doc structure-and-anchor guard. The heavier multi-agent sibling of the `design-doc` skill, which owns the underlying editorial rules this one orchestrates.
-  TRIGGER whenever a doc is big or important enough that editing it single-threaded would be slow or risk breaking structure/anchors, and the user wants the whole thing gone over — e.g. "do a full pass over this RFC before it ships", "review this whole design doc section by section and tighten it", "audit this published spec end to end", "go through every section of the architecture doc and cut the fat", or hands over a long multi-section doc for comprehensive tightening.
-  SKIP and defer to the plain `design-doc` skill for small or routine edits — a single section, one paragraph, a quick tighten, "does this read OK" — or any doc short enough to edit in one pass. Use this skill only when the doc is large enough that parallel section agents earn their coordination cost.
+  TRIGGER whenever a doc is big or important enough that editing it single-threaded would be slow or risk breaking structure/anchors, and the user wants the whole thing gone over — e.g. "do a full pass over this RFC before it ships", "review this whole design doc section by section and tighten it", "go through every section of the architecture doc and cut the fat", or hands over a long multi-section doc for comprehensive tightening.
+  SKIP and defer to the plain `design-doc` skill for small or routine edits — a single section, one paragraph, a quick tighten, "does this read OK" — or any doc short enough to edit in one pass. Use this skill only when the doc is large enough that parallel section agents earn their coordination cost. SKIP review-only requests, such as an audit or readiness check with no edits. Defer those to `design-doc` review mode.
 model: opus
 effort: high
 ---
@@ -61,7 +61,7 @@ One proposal per edit, in this exact shape:
   risk: redundancy | framing | rationale
 ```
 
-The editorial judgment behind each proposal — the two anchor principles and the nine rules (rationale is never cut for space; intentional duplication isn't redundancy; "inferable" ≠ "safe to cut"; etc.) — is owned by `design-doc`. Load that skill's rules into each section agent; do not re-derive them here.
+The editorial judgment behind each proposal — the two anchor principles and the nine rules (rationale is never cut for space; intentional duplication isn't redundancy; "inferable" ≠ "safe to cut"; etc.) — is owned by the `## Tighten` section of `design-doc/references/guidance.md`. Load only that section into each section agent, not the write or review modes. Do not re-derive the rules here.
 
 ---
 

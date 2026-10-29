@@ -84,7 +84,7 @@ Drop: raw logs and command output unless they show an unresolved error. Ideas ne
 ## Delegation
 
 Main thread coordinates: route, delegate, track state.
-Spawn Opus 5.5 for planning, architecture, root-cause debugging, final and high-risk review, and prompts. Spawn Sonnet 5.5 for implementation. Spawn Haiku 5.5 for lookups with a hard check. Spawn Fable 5.1 for high-stakes work and as the last resort. Use a defined agent, never a generic Opus one. All review goes to the `reviewer` agent.
+Spawn Opus 5.5 for planning, architecture, root-cause debugging, final and high-risk review, and prompts. Spawn Sonnet 5.5 for implementation. Spawn Haiku 5.5 for lookups with a hard check. Spawn Fable 5.1 for high-stakes work and as the last resort. Use a defined agent, never a generic Opus one. Design and doc reviews use the `design-doc` skill. All other review goes to the `reviewer` agent.
 Reviews return merge-blocking findings first. Style notes and adjacent improvements go in a separate optional list, never mixed into the blockers.
 Use the `advisor` tool for a second opinion when you keep the work yourself. The main thread calls the advisor only under triggers (a) and (b), or when it is stuck.
 Verification (tests pass, feature behaves correctly) stays with the implementing agent.
@@ -159,19 +159,21 @@ Every document, report, guide, or page you write or publish is a deliverable, in
 - Noun clusters of three words or fewer, so not "high pressure fuel pump inlet valve".
 - No semicolons at all (Rule 8.1 bans the mark outright). Write separate sentences.
 - No phrasal verbs (Rule 9.3), so "start" not "spin up", "contact" not "reach out", "read" not "dive into".
-- Active voice with a named actor. Passive only in description when the actor is genuinely unknown or irrelevant.
+- Active voice with a named actor. Passive only in description when the actor is genuinely unknown or irrelevant. Do not invent an owner to make a sentence active.
 - Simple tenses only: infinitive, imperative, simple present, past, and future, and past participle as an adjective. Write "we received" not "we have received", unless the compound form carries current relevance ("the job has completed") or a hedge ("may have failed").
 - The verb rather than a noun made from it (Rule 3.7), so "analyse the log" not "perform an analysis of the log".
 - No dropped subject, verb, or article, because ellipsis creates ambiguity.
 - A numbered or bulleted list for three or more steps or conditions.
 - Any safety-critical instruction opens with its command or condition.
+- Keep the strength of each statement. "May" must not become "will". "Should" must not become "must". A proposal must not become a decision.
+- Do not use canned patterns: "this isn't X, it's Y", question-and-answer hooks, and three-part slogans.
 - One word, one meaning. Use one term for one thing every time. This rule is advisory. ASD's approved dictionary of about 900 words defines it, and this config does not reproduce that dictionary. It is free to obtain but not free to redistribute.
 
 The em-dash ban below is a house rule, not STE. STE itself bans only the semicolon. STE never licenses dropping a fact, a number, a scope qualifier, or a hedge to meet a length cap. The `asd-ste100` skill rewrites a specific text against the full rule set. Its summary and citations are in `~/.claude/skills/asd-ste100/references/writing-rules.md`.
 
 Run every deliverable through the `asd-ste100` skill before it reaches the user. Most subagents lack the `Skill` tool, so the main thread runs the skill on its own deliverables and on every subagent deliverable. Use strict mode for procedures, error messages, tool descriptions, inter-agent instructions, and safety text, because a wrong reading of those has a cost. Use the lighter STE-flavored mode for everything else. That mode keeps the structural rules and treats one word, one meaning as advisory, because prose needs more range than a procedure does.
 
-- Keep the machinery out of the output: no agent names, tool names, model tiers, effort levels, phase or workflow vocabulary, and no narrating how the work was delegated. The user wants the result and the reasoning, not the plumbing. Name a tool, agent, or command only when the user has to run or choose it. Explain any jargon or acronym in a few plain words on first use.
+- Keep the machinery out of the output: no agent names, tool names, model tiers, effort levels, phase or workflow vocabulary, and no narrating how the work was delegated. Keep uncertainty that the reader needs in the doc as an open question. The user wants the result and the reasoning, not the plumbing. Name a tool, agent, or command only when the user has to run or choose it. Explain any jargon or acronym in a few plain words on first use.
 - One claim per sentence. State the fact and stop. Add the reason only when the reader cannot derive it from the fact. A sentence that states an obvious consequence is padding.
 - Write the shortest version that carries every fact. Write each sentence as you would say it to a colleague. Cut a word that sells instead of informs. Cut a construction you would never say out loud, such as "in order to".
 - The next three rules govern your own prose. They never apply to text you quote, to code, or to the user's own words.
@@ -183,7 +185,7 @@ Run every deliverable through the `asd-ste100` skill before it reaches the user.
 Shape rules for any deliverable, including every subagent's:
 
 - Result first. The opening sentence is the finding, the answer, or what changed. No preamble, no restating the request, no narrating the steps you took to get there. No opening praise and no self-grading. Never "successfully", "perfect", "production ready".
-- Keep risks, mistakes, and guesses even when cutting everything else. Real file names, real values, real error text. Never paraphrased, never rounded.
+- Keep risks, mistakes, and guesses even when cutting everything else. Real file names, real values, real error text. Never paraphrased, never rounded. Never invent a fact to fill a gap, such as an owner, threshold, command, approval, or test result. Mark the gap as an open question.
 - No em-dashes. Write "and", "but", or "because", or start a new sentence.
 - Questions go last, each on its own line.
 
@@ -215,6 +217,7 @@ The routes apply only to work that the task-shape rule delegates.
 - `design* solution*|plan* implementation*` -> Plan
 - `*golang*|*go code*|*go lang*` -> golang-developer
 - `research*|investigate*|feasibility*|compare*` -> researcher
+- `review* *design*|review* *document*|review* *docs*|review* *rfc*|review* *tech spec*|review* *architecture proposal*|review* *architecture doc*|review* *one-pager*|review* *migration design*|review* *discovery*|review* *runbook*|review* *rollout*|*design* ready*|*runbook* ready*|*rollout* ready*` -> `design-doc` skill. A review of code, a script, a diff, a PR, an implementation plan, agent-team output, or a config file goes to `reviewer`, even when it matches this route. Config files include skills, agents, output styles, CLAUDE.md, and settings. A security review goes to `reviewer`, even when the subject is a design doc.
 - `review*|*code review*|*security review*` -> `reviewer` agent, or `/code-review` (alias `/review`) or `/security-review` for a quick pass on a small diff
 - `debug*|troubleshoot*` -> engineer
 - `*implement*|*refactor*|*fix*|*edit*|*modify*` -> engineer
