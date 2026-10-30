@@ -1,13 +1,7 @@
 # Workflow-tier full-pass skeleton
 
-Use **only** when the user has opted into multi-agent orchestration (explicit
-"use a workflow", `ultracode`, or a named/saved workflow) **and** the doc is
-large enough to justify it (many sections, or persistent cross-verification).
-A task merely benefiting from orchestration does not authorize this path.
-
-Per CLAUDE.md, workflow tier is runbook-mandatory: spawn a `Plan (model: fable)`
-runbook author before any executor runs. The pattern below is identical to the
-Team-tier default — this just expresses it as a resumable Workflow script that
+`SKILL.md` sets when to use this path. The pattern below is identical to the
+Team-tier default. This file expresses it as a resumable Workflow script that
 keeps per-section proposals out of the coordinator's context.
 
 ```js

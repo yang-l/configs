@@ -28,7 +28,7 @@ Find the plan with this order of checks.
 
 ## 3. Step 2: attack the plan through six lenses
 
-Run each lens once against the plan. A lens either names a finding, or states that the plan is clear on that lens and names the evidence you checked. Never invent a finding a lens did not surface.
+Run each lens once against the plan. A lens either names a finding, or states that the plan is clear on that lens. A clear lens names the evidence you checked and the weakest point on that lens. Never invent a finding that the lens did not surface.
 
 1. **Assumption**: name the assumption the plan depends on that, if false, sinks the plan.
 2. **Failure mode**: assume the plan ran and failed, then name the most likely cause.
@@ -63,9 +63,3 @@ Write the result in this order, with the verdict first.
 2. Findings grouped by severity (BLOCKER, then RISK, then NOTE). Name the lens for each finding.
 3. The disproof check under each BLOCKER.
 4. A two-sentence summary. Name the single most important fix. If the verdict is SHIP, state that no fix is required.
-
-Give the result with no preamble and no self-grading.
-
-## 6. Honesty rule
-
-When a lens finds no flaw, say so in plain words and name the weakest point on that lens instead. Never manufacture a flaw to look useful.

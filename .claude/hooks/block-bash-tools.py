@@ -57,7 +57,8 @@ def segments(tokens):
     # Yields (words, redirect_targets, heredoc, pipeline_head) per simple command.
     seg, head = [], None
     for tok in tokens + [";"]:
-        if tok in SEPARATORS:
+        # shlex joins adjacent punctuation, so ")" before ";" arrives as ");".
+        if tok in SEPARATORS or (tok not in REDIRECTS and set(tok) <= set("();|&")):
             if seg:
                 parsed = parse(seg)
                 if head is None:

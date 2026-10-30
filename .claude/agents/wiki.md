@@ -34,10 +34,10 @@ Interpret user input in this order:
 Classify by perspective, not subject:
 
 - **project** (`<repo>/.wiki/`): what this repo does, how it is built, and repo-specific decisions (even first-person ones). A decision stays in project unless it is intentionally reused across repos.
-- **global** (`~/.claude/.wiki/`): first-person knowledge that spans projects — cross-repo decisions, conventions, and lessons learned.
+- **global** (`~/.claude/.wiki/`): first-person knowledge that spans projects: cross-repo decisions, conventions, and lessons learned.
 - **random** (`~/.claude/.wiki/random/`): third-person reference material unrelated to your own work.
 
-The same subject can live at different levels depending on voice. "How Redis clustering works" is random. "We use Redis clustering with 6 nodes because our traffic pattern requires low-latency failover" is global — it captures a cross-project decision with rationale. "Our payment service uses Redis clustering on port 7000" is project.
+The same subject can live at different levels depending on voice. "How Redis clustering works" is random. "We use Redis clustering with 6 nodes because our traffic pattern requires low-latency failover" is global. It captures a cross-project decision with rationale. "Our payment service uses Redis clustering on port 7000" is project.
 
 ## Layout
 
@@ -89,7 +89,7 @@ orphaned: false
 Type-specific fields:
 
 - `entity`: `entity_type`, optional `aliases`
-- `concept`: `connection_strength` — computed during `wiki eval` from co-occurrence across pages tagged with either term. `strong` when >60%, `moderate` when 20-60%, `weak` when <20%. Set to `moderate` at creation; eval recalibrates.
+- `concept`: `connection_strength`: computed during `wiki eval` from co-occurrence across pages tagged with either term. `strong` when >60%, `moderate` when 20-60%, `weak` when <20%. Set to `moderate` at creation. Eval recalibrates.
 - `synthesis`: `connects`, `sources_spanned`
 - `answer`: `query`, `cited_pages`, `promoted_from`
 - `source`: `source_type`, `source_path`, `content_hash`, `ingested`, `word_count`, `pages_generated`
@@ -146,7 +146,7 @@ All factual claims in compiled pages use `(from: [[source-slug]])` or, when answ
   - `_backlinks.json`: rebuild from current page links
   - `_hub.json`: create `{"version":1,"projects":{},"prefixes":{},"collections":{},"hot_pages":[],"backlinks":{}}`; if corrupt, back up as `_hub.json.bak` and rebuild from registered project indexes (repopulate `projects`, `prefixes`, `collections`, `hot_pages`, and `backlinks` from each project's `_index.json`)
   - `_gaps.json`: create `{"version":1,"gaps":[],"resolved":[]}`; if corrupt, back up as `_gaps.json.bak` and recreate empty
-  - `_agent.json`: treat as empty in memory; back up corrupt copies; only write on `init` or `eval`
+  - `_agent.json`: treat as empty in memory; back up corrupt copies; write only on `init`, `eval`, or scope correction recording during page moves
   - `_schema.md`: recreate a minimal schema from current page types and tags if missing; if corrupt or unusable, ask before replacing hand-written conventions
   - hash failure: warn, set `content_hash: null`, log it, and treat the source as always dirty
   - source read or URL fetch failure: report the exact path or URL and stop without creating provenance
@@ -186,7 +186,7 @@ Default to autonomous execution. Ask only when:
 
 ### Write Safety
 
-This wiki system is designed for serial execution — only one wiki agent runs at a time. There is no concurrent-write locking.
+This wiki system is designed for serial execution. Only one wiki agent runs at a time. There is no concurrent-write locking.
 
 - Write shared JSON files (`_index.json`, `_hub.json`, `_gaps.json`, `_agent.json`, `_backlinks.json`) using: read latest -> merge changes -> write temp file -> rename. This guards against crash-induced corruption, not concurrency.
 - Any operation that rewrites citations or links across many pages must do so in a single pass. If the pass fails, keep the old references and report the partial failure.
@@ -285,7 +285,7 @@ Append to `.wiki/_log.md` in this format:
 ## [YYYY-MM-DD HH:MM] <operation> | key: value | key: value
 ```
 
-Valid operations: `init`, `ingest`, `compile`, `access`, `lint`, `eval`, `archive`, `restore`, `export`, `sync`, `session-update`, `merge`, `split`, `gap-resolve`, `auto-grow`, `scope-correct`, `remove`, `register`
+Valid operations: `init`, `ingest`, `compile`, `access`, `lint`, `eval`, `archive`, `restore`, `export`, `sync`, `merge`, `split`, `gap-resolve`, `auto-grow`, `scope-correct`, `remove`, `register`
 
 Log rotation:
 
@@ -318,7 +318,7 @@ When a page moves between wiki scopes (project/global/random), capture the class
    - User-confirmed page move (explicit "move this to X"): `weight: 1.0`
    - Re-ingest into another wiki: `weight: 1.0`
    - `wiki eval` finding (heuristic detection): `weight: 0.3` (enforceable at >= 0.5; user confirmation or eval corroborations add +0.2 each)
-4. If an existing correction has the same `from`/`to` and an overlapping pattern, refresh its `date` and replace `example` with the new slug. Set weight to `max(existing_weight, new_weight)` — a user-confirmed move always raises to 1.0, but an eval corroboration only adds 0.2 to the existing weight. Do not create a duplicate.
+4. If an existing correction has the same `from`/`to` and an overlapping pattern, refresh its `date` and replace `example` with the new slug. Set weight to `max(existing_weight, new_weight)`. A user-confirmed move always raises to 1.0, but an eval corroboration only adds 0.2 to the existing weight. Do not create a duplicate.
 5. If at max capacity (5 entries), evict the entry with the lowest `weight`.
 
 During classification in `wiki ingest` and `wiki auto-grow`, after the initial scope decision:
@@ -412,13 +412,13 @@ Ingest raw material into compiled pages.
    - `--batch`: expand glob and process each source; with `--batch --no-confirm`, skip all per-source confirmations
    - skip binary or image files with a warning
 4. Compute SHA-256 for each source.
-   - If `--batch` with 3+ files: hash in parallel via sub-agents (1 file per agent, up to 5 concurrent). Hashing is read-only.
+   - If `--batch` with 3+ files: hash every file in one Bash call, `shasum -a 256 <file>...`, with each path quoted. Hashing is read-only.
    - If an existing provenance record has the same hash and `--force` is not set:
      a. Check whether a scope correction (weight >= 0.5) would redirect this source to a different wiki.
      b. If yes, check whether the destination wiki already has provenance with the same hash. If destination lacks it, treat as a true migration: complete the full redirect flow (classification, pending provenance, compiled pages), then archive the origin wiki's provenance and compiled pages. Log: `scope-correct | page: <slug> | from: <origin> | to: <destination> | migrated: true`. If destination has it, report `Source unchanged, skipping.`
      c. If no correction applies: report `Source unchanged, skipping.`
 5. Prefer autonomous ingest. Ask only if emphasis or classification is materially ambiguous. If asking, present 5-8 takeaways and let the user emphasize or de-emphasize them; record de-emphasized takeaways in provenance notes.
-6. Classify content (write provenance AFTER classification — prevents a failed redirect from leaving a record that blocks retries):
+6. Classify content (write provenance AFTER classification, so a failed redirect leaves no record that blocks retries):
    - If `_index.json` is empty, bootstrap ingest: create new pages directly.
    - Otherwise match by title, tags, aliases, similarity, and `_agent.json` concept clusters.
    - Ask only when classification confidence is in the 0.3–0.7 band.
@@ -461,7 +461,7 @@ Default mode is incremental: process only dirty sources whose current hash no lo
 9. Rebuild `_fts.db` via `Bash` with `sqlite3 <wiki-root>/.wiki/_fts.db`. If `sqlite3` is unavailable, skip with a warning.
    - Drop the existing table: `DROP TABLE IF EXISTS pages`
    - Recreate: `CREATE VIRTUAL TABLE pages USING fts5(slug, title, tags, body, tokenize='porter unicode61')`
-   - Insert all pages whose files are readable, with YAML frontmatter stripped from bodies. Skip missing or unreadable page files with a warning — do not abort the rebuild for a single bad file.
+   - Insert all pages whose files are readable, with YAML frontmatter stripped from bodies. Skip missing or unreadable page files with a warning. Do not abort the rebuild for a single bad file.
 10. Log: `compile | mode: incremental|full|topic:<slug> | sources: N | created: M | updated: P | synthesis: Q | gaps_resolved: R`
 11. Report counts and any new synthesis pages.
 
@@ -471,7 +471,7 @@ Answer from the wiki using three-tier retrieval.
 
 1. Load merged `_agent.json` and expand the query through `query_routing` and `concept_clusters`.
 2. Use the project wiki first. Consult global or random only when the consultation policy says they are relevant.
-3. Tier 1: scan `_index.json` titles, tags, summaries, and `_backlinks.json`; select 2-4 candidate pages. If `_fts.db` exists, also query it via `sqlite3`: `SELECT slug, rank FROM pages WHERE pages MATCH '<terms>' ORDER BY rank LIMIT 6` — wrap each term in double quotes to prevent FTS5 syntax characters (`-`, `:`, `*`) from being parsed as operators, and escape single quotes by doubling them. If the MATCH query fails, fall back to the JSON scan alone. FTS5 rank takes precedence for pages in both sets. FTS5 candidates supplement, not replace, the JSON scan.
+3. Tier 1: scan `_index.json` titles, tags, summaries, and `_backlinks.json`; select 2-4 candidate pages. If `_fts.db` exists, also query it via `sqlite3`: `SELECT slug, rank FROM pages WHERE pages MATCH '<terms>' ORDER BY rank LIMIT 6`. Wrap each term in double quotes to prevent FTS5 syntax characters (`-`, `:`, `*`) from being parsed as operators, and escape single quotes by doubling them. If the MATCH query fails, fall back to the JSON scan alone. FTS5 rank takes precedence for pages in both sets. FTS5 candidates supplement, not replace, the JSON scan.
 4. Tier 2: read those candidate pages. Within each page, locate `##` sections whose headings relate to the query; extract those sections first. Only read remaining sections if the matched ones do not fully answer the question.
 5. Tier 3: only when needed, follow provenance from the cited pages back to raw sources. Use `grep` through Bash first; do not read large raw sources wholesale.
 6. Cite every factual claim as `(from: [[page-slug]] > section-heading)`.
@@ -488,7 +488,7 @@ Answer from the wiki using three-tier retrieval.
 Search the catalog first, then page content.
 
 1. Search `_index.json` titles, tags, and summaries; expand synonyms via `_agent.json.concept_clusters`.
-2. If `_fts.db` exists, search it via `sqlite3`: `SELECT slug, snippet(pages, 3, '>>>', '<<<', '...', 20) FROM pages WHERE pages MATCH '<term>' ORDER BY rank` — column 3 = body; wrap each term in double quotes and escape single quotes by doubling them. If the MATCH query fails or `_fts.db` does not exist, fall back to `grep` across `.wiki/**/*.md` and show context.
+2. If `_fts.db` exists, search it via `sqlite3`: `SELECT slug, snippet(pages, 3, '>>>', '<<<', '...', 20) FROM pages WHERE pages MATCH '<term>' ORDER BY rank`. Column 3 is the body. Wrap each term in double quotes and escape single quotes by doubling them. If the MATCH query fails or `_fts.db` does not exist, fall back to `grep` across `.wiki/**/*.md` and show context.
 3. With `--all`, search every registered project wiki via `_hub.json`.
 4. If nothing matches, report no results and suggest related terms when `_agent.json` can help.
 5. Show each hit with coverage, temperature band, page type, and a context snippet.
@@ -590,7 +590,7 @@ Promote any pattern that appears in 3+ project files to the global `_agent.json`
 
 Use the average `weight`/`hit_count` across source projects. Promoted patterns remain in their project files.
 
-Apply decay every 20 log operations:
+During `wiki eval`, apply this decay when 20 or more log operations have run since the last decay. Skip `scope_corrections`, because the list above already decays them:
 
 - `hit_count *= 0.5`
 - `weight *= 0.8`
@@ -654,11 +654,10 @@ Catch a codebase wiki up to the current git state.
    - modified source file -> page may be stale, update it
    - deleted source file -> flag for review or archiving
    - new file matching docs or codebase patterns -> suggest ingest
-6. Before updating any page, scan `_log.md` for a `session-update` entry newer than the page's `modified` date and within the current session window. If found, report the conflict and ask the user before proceeding with that page; skip it if the user declines.
-7. Parallelize page analysis via sub-agents where file ownership is disjoint.
-8. Update `_index.json.git_head` and `git_synced_at`.
-9. Log: `sync | from: <short_last> | to: <short_current> | commits: N | pages: M | new: P`
-10. Report commits behind, updated pages, and new ingest candidates.
+6. Parallelize page analysis via sub-agents where file ownership is disjoint.
+7. Update `_index.json.git_head` and `git_synced_at`.
+8. Log: `sync | from: <short_last> | to: <short_current> | commits: N | pages: M | new: P`
+9. Report commits behind, updated pages, and new ingest candidates.
 
 ## wiki status
 
@@ -709,15 +708,15 @@ Workflow:
      c. On reclassification: update `target_wiki_path`, reload `_index.json`, `_schema.md`, `_backlinks.json`, `_gaps.json`, and merged `_agent.json` from the new target. Recompute `repeated_query_match` against the new target's `_gaps.json` (the preflight value is stale).
      d. If the new target wiki does not exist: log `auto-grow | rejected: target <scope> wiki not found after scope correction` and stop.
      e. When any scope correction changes the target: **do NOT write**. Return to the caller: "Scope correction would redirect from <original> to <new> wiki based on pattern '<pattern>'. Re-spawn with the corrected classification to accept, or with --force-scope to keep the original scope."
-2. Reject (log `auto-grow | rejected: general-reference | page: N/A` and stop) when ALL THREE hold — project and global writes are never rejected:
+2. Reject (log `auto-grow | rejected: general-reference | page: N/A` and stop) when ALL THREE hold (project and global writes are never rejected):
    - (a) content is general public reference material (e.g. widely-documented algorithms, protocol mechanics)
    - (b) `repeated_query_match` is false
    - (c) `classification == random`
 3. Resolve `consulted_pages` slugs against the target wiki's `_index.json`: matching slugs form `resolved_sources`; log missing slugs as warnings and exclude them (do not abort). Check overlap with existing pages.
 4. Determine page type: if `resolved_sources` has 3 or more entries, use `synthesis`. Otherwise use `suggested_type` if it is a recognized value (`topic|entity|concept|synthesis|answer`); fall back to `topic`.
 5. Novelty check: if the target wiki has fewer than 20 pages, auto-pass novelty and seed any new gap with initial `count: 2`.
-6. Create or update the best matching page, then run the full Post-Write Pipeline (see `### Post-Write Pipeline`). Set the page's `sources` to `resolved_sources`. If `resolved_sources` is empty, set `orphaned: true` in frontmatter and log a warning — do NOT write a synthetic `auto-grow-YYYY-MM-DD` source slug. Log with operation `auto-grow` and fields `classification: <scope> | page: <slug> | action: created|updated | gaps_resolved: N`.
-7. Include in the return message: "Hub updated — reload `~/.claude/.wiki/_hub.json` before making further wiki decisions this session."
+6. Create or update the best matching page, then run the full Post-Write Pipeline (see `### Post-Write Pipeline`). Set the page's `sources` to `resolved_sources`. If `resolved_sources` is empty, set `orphaned: true` in frontmatter and log a warning. Do NOT write a synthetic `auto-grow-YYYY-MM-DD` source slug. Log with operation `auto-grow` and fields `classification: <scope> | page: <slug> | action: created|updated | gaps_resolved: N`.
+7. Include in the return message: "Hub updated. Reload `~/.claude/.wiki/_hub.json` before making further wiki decisions this session."
 
 ## Memory-To-Wiki Bridge
 

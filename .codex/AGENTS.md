@@ -31,7 +31,7 @@ In a reviewer session or a subagent session:
 | `Agent`, named agents (`researcher`, `engineer`, `reviewer`, `Plan`, `Explore`) | Start a Codex subagent with the same role. Put the role in the subagent prompt.                                                                                                              |
 | Model tiers (`haiku`, `sonnet`, `opus`, `fable`)                                | See "Model tiers".                                                                                                                                                                           |
 | `Skill`, skill names                                                            | Use the Codex skill with that name. For `asd-ste100`, read `~/.claude/skills/asd-ste100/references/writing-rules.md` if no skill exists.                                                     |
-| `handoff` skill, `/clear`                                                       | Skip the rule in `CLAUDE.md:56`. Start the new task normally.                                                                                                                                |
+| `handoff` skill, `/clear`                                                       | Skip the `handoff` rule in `CLAUDE.md` Default Workflow. Start the new task normally.                                                                                                        |
 | `Workflow`, `ultracode`, agent teams, hooks, output style, memory               | Skip. These are Claude Code features.                                                                                                                                                        |
 | Sign-off line `advisor:` slot                                                   | Write `advisor: skipped, Codex session`. Write `Claude: <verdict>` in place of `Codex: <verdict>`. Put the line at the end of the reply. Omit the Claude clause when you did not ask Claude. |
 
@@ -57,7 +57,7 @@ When you set a model or reasoning effort, set `fork_turns` to `"none"` or a posi
 
 ## Claude as second reviewer
 
-Use these rules only in a main session. Ask Claude for a review only when the user asks for one. Ask Claude for a diagnosis after 2 failed fix attempts, as `CLAUDE.md:44` does with `codex:rescue`. These rules replace the Codex review rules in `CLAUDE.md:26-38`. Every other rule there stays the same, with "Claude" in place of "Codex".
+Use these rules only in a main session. Ask Claude for a review only when the user asks for one. Ask Claude for a diagnosis after 2 failed fix attempts, as the `CLAUDE.md` "On failure" rule does with `codex:rescue`. These rules replace the `CLAUDE.md` Default Workflow rules from "Codex request" through the "Sign-off line" bullets. Every other rule there stays the same, with "Claude" in place of "Codex".
 
 For a diagnosis, put the failure output and the fixes you tried in place of the plan text in step 5.
 
@@ -67,10 +67,10 @@ For a diagnosis, put the failure output and the fixes you tried in place of the 
 4. Put this line first in the prompt: "You are a second reviewer started by Codex. Do not start Codex or any other review. Do not edit files."
 5. Include the full current plan text. List every user-settled decision. Tell Claude to treat each decision as fixed.
 6. Tell Claude to raise a settled decision only for a strong, evidence-backed objection. Claude labels that finding `settled-decision challenge`.
-7. Add the full scope rules and the Critical and High output rules from `CLAUDE.md:28-29`.
+7. Add the full scope rules and the Critical and High output rules from the `CLAUDE.md` "Codex prompt" and "Codex scope and output" rules.
 8. Tell Claude to end with `VERDICT: approve` or `VERDICT: needs-attention`.
 9. Run `claude -p --permission-mode plan < <prompt-file>` with sandbox escalation. The command needs network access and writes to `~/.claude`.
 10. Set a timeout of 15 minutes on the command.
 11. If the user denies the escalation, the command fails, or the timeout stops it, write `Claude: unavailable, <reason>` in the sign-off line. Never claim a verdict.
-12. Read the verdict. Apply the findings rules from `CLAUDE.md:30-32`.
+12. Read the verdict. Apply the `CLAUDE.md` "Codex round limit", "Codex findings you do not fix", and "Codex findings" rules.
 13. End the reply with the sign-off line.

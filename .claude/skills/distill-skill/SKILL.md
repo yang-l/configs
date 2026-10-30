@@ -10,19 +10,18 @@ description: >
   week's thing", "don't make me re-explain this, go look at what I already did". Signal: reference to
   completed past work ("last time", "yesterday", "that session"). NOT for "build me a new skill that
   does X" with no prior-session reference - route those to skill-creator, which this hands off to once
-  approved (never writes a skill file itself; mines, filters, drafts, then skill-creator authors it).
+  approved.
 ---
 
 # Distill a Skill from Session History
 
 ## Why this exists
 
-Session transcripts under `~/.claude/projects/<project>/` already contain most of what a skill
-interview would ask for: what you did, what tools you used, what broke, what you concluded. This
-skill mines that history directly instead of re-interviewing you from scratch, then hands the
-resulting draft to `skill-creator` for the actual authoring/validation. It deliberately does not
-duplicate `skill-creator`'s job - it produces the intent `skill-creator` would otherwise have to
-extract from a live conversation.
+Session transcripts under `~/.claude/projects/<project>/` already hold most of what a skill
+interview asks for: what you did, which tools you used, what broke, and what you concluded. This
+skill mines that history instead of a new interview. It then gives the draft to `skill-creator`,
+which writes and validates the skill. This skill does not do the `skill-creator` job. It supplies
+the intent that `skill-creator` would otherwise get from a live conversation.
 
 Three existing subsystems are used as-is and never modified by this flow:
 
@@ -47,8 +46,8 @@ independent mitigations for that, not substitutes for each other.
 
 ### 1. Containment gate
 
-State plainly (per "Before you start" above) that this repo is public before mining a non-configs
-project. This is about awareness, not about where the output lands - the output always lands here.
+Before you mine a non-configs project, do the "Before you start" check above. The output always
+lands in this repo.
 
 ### 2. Resolve the project directory
 
@@ -98,18 +97,18 @@ sessions or subagents. That judgment is yours, in the next step.
 
 ### 6. Delegate extraction to a researcher agent
 
-Hand the filtered output to a `researcher` agent (`model: opus`) - not `Explore`
-(there is nothing left to _locate_ after step 5, only to _interpret_), and not a generic
-general-purpose agent (that would need `model: opus`, which this repo's CLAUDE.md reserves for
-specific trigger cases and forbids for generic agents). Tell the researcher explicitly that it is
-read-only for this task despite having Bash access - it must not run any of the commands it finds,
-only read and report on them.
+Give the filtered output to a `researcher` agent (`model: opus`). Do not use `Explore`, because
+after step 5 nothing is left to _locate_, only to _interpret_. Do not use a generic general-purpose
+agent, because it would need `model: opus`. This repo's CLAUDE.md reserves Opus for specific
+trigger cases and forbids it for generic agents. Tell the researcher that it is read-only for this
+task, although it has Bash access. Tell it to not run any command that it finds. It only reads and
+reports.
 
 Required output, one step at a time: `what` (plain description) / `command` (exact command) /
-`verify` (a command plus its expected output) / `why` (why this step matters). All four fields are
-load-bearing - do not let the researcher collapse them into prose.
+`verify` (a command plus its expected output) / `why` (why this step matters). The researcher must keep
+all four fields. It must not merge them into prose.
 
-Required behaviors, none of them optional:
+Required behaviors:
 
 - **Never invent a `verify` command.** If a step's transcript doesn't show a command being _executed_
   (a tool call with a corresponding tool result), emit `UNVERIFIED - needs user input` for that step
@@ -148,16 +147,14 @@ Nothing is written to `.claude/skills/` before the user approves the draft. Pres
 Once approved, write the file using `skill-creator`'s own authoring conventions (see the synced copy's `SKILL.md`
 for the anatomy of a skill directory), then:
 
-- **Append the new skill's directory to `.gitignore`** (e.g. `.claude/skills/<distilled-name>/`) as
-  part of the same write - tracking is opt-in for skills this tool produces, not opt-out. This is a
-  per-skill append at write time, not a single pre-declared output path - every distilled skill is a
-  first write to a name that doesn't exist yet, so there is nothing to pre-declare in `.gitignore`
-  ahead of time.
-- **Run the mandatory validation gate**: `python .claude/skills/synced/*/skill-creator/scripts/quick_validate.py
+- **Append the new skill's directory to `.gitignore`** (e.g. `.claude/skills/<distilled-name>/`) in
+  the same write. Git tracking is opt-in for skills this tool produces. Append one entry per skill at
+  write time. Each distilled skill uses a new name, so `.gitignore` cannot list it in advance.
+- **Run the mandatory validation gate**: `python3 .claude/skills/synced/*/skill-creator/scripts/quick_validate.py
 <path-to-new-SKILL.md>`. Don't consider the write done until this passes.
 
 Note: this gitignore-on-write default applies only to skills this tool _produces_. `distill-skill`
-itself is first-party tooling like `skill-creator` or `coding-pitfalls` - it is meant to be committed,
+itself is first-party tooling like `skill-creator` or `wrapup` - it is meant to be committed,
 not gitignored.
 
 ## Helper script: `scripts/mine_sessions.py`

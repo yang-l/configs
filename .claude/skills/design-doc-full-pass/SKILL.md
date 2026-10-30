@@ -10,9 +10,9 @@ effort: high
 
 ## When to use this
 
-Reach for this skill when a design doc, RFC, or spec is **large or already published / heavily reviewed** and the user wants the _whole thing_ gone over, not a quick touch-up. For a single section, one paragraph, or a routine tighten, **defer to the `design-doc` skill**, because spinning up section agents isn't worth the coordination cost on a small edit.
+Use this skill when a design doc, RFC, or spec is **large or already published / heavily reviewed** and the user wants the _whole thing_ gone over, not a quick touch-up. For a single section, one paragraph, or a routine tighten, **defer to the `design-doc` skill**, because section agents do not earn their coordination cost on a small edit.
 
-This skill owns the **orchestration**. The per-section editorial judgment (what's safe to cut, what's protected) lives in `design-doc`; every section agent applies those rules, and this skill points there rather than restating them.
+This skill owns the **orchestration**. The per-section editorial judgment (what's safe to cut, what's protected) lives in `design-doc`. Every section agent applies those rules, and this skill points there rather than restating them.
 
 ---
 
@@ -22,7 +22,7 @@ Partition → fan out → assemble → guard/verify.
 
 Cap the fan-out at 20 concurrent section agents, which is the Claude Code default. On a doc with more sections, batch the ranges and dispatch them in waves.
 
-Sections are disjoint in the text each agent **edits**, so agents never collide on the same string. They are _not_ disjoint in what an edit can **break**: a heading one agent rewords may be a link target elsewhere; a detail one agent cuts may be mirrored in a summary or threat table in another section; a sentence one agent trims may carry a prose cross-ref ("as in §4") or a pinned review comment. A section-blind agent sees none of that. **The coordinator is the only party with the whole-doc view, so the coordinator owns cross-reference integrity**, not the section agents.
+Sections are disjoint in the text each agent **edits**, so agents never collide on the same string. They are _not_ disjoint in what an edit can **break**: a heading one agent rewords may be a link target elsewhere. A detail one agent cuts may be mirrored in a summary or threat table in another section. A sentence one agent trims may carry a prose cross-ref ("as in §4") or a pinned review comment. A section-blind agent sees none of that. **The coordinator is the only party with the whole-doc view, so the coordinator owns cross-reference integrity**, not the section agents.
 
 ---
 
@@ -44,7 +44,7 @@ Hand each section editor the read-only dependency map for its range ("your headi
 
 Default to **Team tier**: parallel `Agent` calls in one message, main-thread synthesis between phases. No opt-in required. This covers a handful of sections on one file.
 
-Reach for the **`Workflow` tool only if both hold**: the user has explicitly opted into multi-agent orchestration (says "use a workflow", uses `ultracode`, or names a saved workflow) **and** the doc is large enough to justify it (many sections, or persistent cross-verification). A doc merely benefiting from orchestration does **not** authorize a Workflow call. Never trigger one unprompted. Workflow tier is runbook-mandatory: spawn the `Plan (model: fable)` runbook author first. See `references/workflow-tier.md` for the script skeleton.
+Use the **`Workflow` tool only if both hold**: the user has explicitly opted into multi-agent orchestration (says "use a workflow", uses `ultracode`, or names a saved workflow) **and** the doc is large enough to justify it (many sections, or persistent cross-verification). A doc merely benefiting from orchestration does **not** authorize a Workflow call. Never trigger one unprompted. Workflow tier is runbook-mandatory: spawn the `Plan (model: fable)` runbook author first. See `references/workflow-tier.md` for the script skeleton.
 
 ---
 
@@ -69,9 +69,9 @@ The `## Tighten` section of `design-doc/references/guidance.md` owns the editori
 
 Apply every proposal as an **exact string replacement, never a freehand rewrite**. That is what makes each edit mechanically checkable.
 
-- **Unique match is whole-doc, not per-section.** Section agents are blind to the rest of the doc, so an `old_string` that's unique inside a section may recur elsewhere. The coordinator verifies each `old_string` against the **whole file**; if it isn't unique, qualify it with surrounding context or scope the replacement to the section's byte range before applying.
+- **Unique match is whole-doc, not per-section.** Section agents are blind to the rest of the doc, so an `old_string` that's unique inside a section may recur elsewhere. The coordinator verifies each `old_string` against the **whole file**. If it isn't unique, qualify it with surrounding context or scope the replacement to the section's byte range before applying.
 - **Structural invariants stay byte-identical** except for the intended change: headings, code blocks, tables, intra-doc links/anchors, and review-comment anchors. If applying an edit would alter any of these, it isn't the edit that was proposed. Reject it.
-- **Review anchors often live outside the file.** On a doc under external review (GitHub PR, Confluence, Google Docs), reviewer comments are pinned in the platform, not in the file text, so you can't diff them from the file. Pull the review threads if the platform is reachable (Confluence/Jira, GitHub) to map which passages are pinned; otherwise conservatively **flag, never auto-cut**, any passage a reviewer may have anchored to.
+- **Review anchors often live outside the file.** On a doc under external review (GitHub PR, Confluence, Google Docs), reviewer comments are pinned in the platform, not in the file text, so you can't diff them from the file. Pull the review threads if the platform is reachable (Confluence/Jira, GitHub) to map which passages are pinned. Otherwise, conservatively **flag, never auto-cut**, any passage a reviewer may have anchored to.
 
 ---
 
@@ -83,7 +83,7 @@ Apply every proposal as an **exact string replacement, never a freehand rewrite*
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Clean redundancy  | Auto-apply, but only after the coordinator confirms the text is not a link target, not mirrored in a table elsewhere, and carries no review-comment anchor. Those are intentional duplication (`design-doc`), not redundancy. |
 | Framing-only      | Flag for the author's call; don't apply silently.                                                                                                                                                                             |
-| Touches rationale | Discard. Rationale is the most protected content; when in doubt, keep it and drop the edit.                                                                                                                                   |
+| Touches rationale | Discard. Rationale is the most protected content. When in doubt, keep it and drop the edit.                                                                                                                                   |
 
 ---
 
@@ -99,4 +99,4 @@ Final pass, run by a **fresh `reviewer` agent** at opus or fable (the synthesis-
 
 ## Stop if it's already tight
 
-If the doc is already lean, say so and stop. A full pass that changes nothing is a valid outcome; manufacturing cuts to look busy violates `design-doc`'s honesty rule.
+If the doc is already lean, say so and stop. A full pass that changes nothing is a valid outcome. Manufacturing cuts to look busy violates `design-doc`'s honesty rule.

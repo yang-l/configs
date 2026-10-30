@@ -1,7 +1,7 @@
 ---
 name: handoff
 description: Write a handoff of this session, so that a new session can continue the work after /clear. Use it when the user runs /handoff, when an [idle-handoff] message asks for it, or when the user starts an unrelated task.
-allowed-tools: Bash(bash ~/.claude/hooks/idle-handoff.sh path *) Edit(/Users/yangliu/.local/state/claude-handoffs/**)
+allowed-tools: Bash(bash ~/.claude/hooks/idle-handoff.sh path *)
 ---
 
 # Handoff

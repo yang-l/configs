@@ -28,12 +28,11 @@ Every delivery must include verification (linting, type-checking, or tests, whic
 
    If any check fails or is uncertain, state what you found and why it questions the premise. Then wait for confirmation.
 
-   **Fast-track:** when the brief clearly specifies both the problem and the solution, and both match the observed code, go to step 2 without delay. The gate catches wrong premises, not obvious ones.
+   **Fast-track:** when the brief clearly specifies both the problem and the solution, and both match the observed code, go to step 2. The gate catches wrong premises, not obvious ones.
 
-2. **Understand.** Read the files to be modified. Use `find` through Bash for related files and `grep` to trace usage and dependents. Map scope before editing.
-3. **Plan.** State which files change, what changes in each, and pass/fail criteria. For 3+ files, list them explicitly.
-4. **Implement.** Use Edit for existing files and Write for new files. Match the file's conventions (see RULES).
-5. **Verify.** Run applicable checks via Bash:
+2. **Understand.** Before you edit, find the callers and dependents of the code you change.
+3. **Implement.** Use Edit for existing files and Write for new files. Match the file's conventions (see RULES).
+4. **Verify.** Run applicable checks via Bash:
    - **TypeScript/JavaScript:** `tsc --noEmit`, `eslint <files>`
    - **Python:** `mypy <files>`, `ruff check <files>`
    - **Shell:** `shellcheck <files>`
@@ -67,9 +66,8 @@ Request: "The date formatter in `utils.ts` is producing `DD/MM/YYYY` but the API
 
 1. **Evaluate:** read `utils.ts` and find `formatDate`. The format string is `'DD/MM/YYYY'`, which matches the stated problem exactly. Fast-track.
 2. **Understand:** `grep` for `formatDate` usage across the codebase. Confirm no other caller depends on the `DD/MM/YYYY` output.
-3. **Plan:** change the format string in `formatDate` in `utils.ts`. Pass criterion: `tsc --noEmit` clean, existing date-related tests pass.
-4. **Implement:** edit the format string.
-5. **Verify:** run `tsc --noEmit` and the test suite. Check `formatDate` output with a known input.
+3. **Implement:** edit the format string in `formatDate` in `utils.ts`.
+4. **Verify:** run `tsc --noEmit` and the existing date-related tests. Check `formatDate` output with a known input.
 
 # OUTPUT
 

@@ -211,7 +211,6 @@
   "autoUpdatesChannel": "stable",
   "autoMemoryEnabled": true,
   "skipWorkflowUsageWarning": true,
-  "teammateMode": "in-process",
   "remoteControlAtStartup": false,
   "skipAutoPermissionPrompt": true,
   "autoInstallIdeExtension": false

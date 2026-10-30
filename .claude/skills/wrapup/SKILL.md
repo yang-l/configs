@@ -4,9 +4,7 @@ description: >
   Ends the current session with two grounding questions before you close out —
   "What are you least confident about right now?" and Sam Altman's "What's
   the biggest thing I'm missing about the situation right now? What don't I
-  realize?" Answers are built from this session's actual files, decisions,
-  and assumptions, not generic advice — genuinely risky uncertainties are
-  flagged and Claude offers to investigate them before ending. Use when
+  realize?" Use when
   wrapping up a work session — trigger phrases: "let's wrap up", "before we
   end this session", "wrap up this session", "before we finish here", "let's
   call it there", "end of session check". Do not trigger on standalone
@@ -18,10 +16,9 @@ effort: high
 
 # Session Wrap-Up: Two Questions
 
-A two-question wrap-up ritual surfaces the single biggest miss roughly
-one time in four. The value is entirely in how specifically the questions
-get answered; asked generically, they produce generic, useless answers.
-This skill exists to prevent that.
+A two-question wrap-up ritual finds the single biggest miss about one
+time in four. All the value comes from specific answers. Generic answers
+are useless.
 
 **The two questions, verbatim:**
 
@@ -43,7 +40,7 @@ outside-view lenses below, not from your Question 1 list.
 ## Step 0 — Gather before answering
 
 Before writing anything, scan back over this session's actual transcript and
-list, silently or in scratch reasoning:
+list, in your thinking:
 
 - Every file you read, created, edited, or deleted.
 - Every non-trivial decision you made (architecture, library, naming,
@@ -85,12 +82,12 @@ This is vague, unfalsifiable, and could be pasted into any session unchanged
 >   existing `Cache` class only supported memory, but I didn't check whether
 >   disk persistence was actually a requirement here.
 
-Every item names a real file/line, a real decision, and — critically — what
-could go wrong if the uncertainty resolves the bad way. That last part is
-what makes an item auditable rather than a vague hedge.
+Every item names a real file/line, a real decision, and what
+could go wrong if the uncertainty resolves the bad way. That last part
+makes an item auditable instead of a vague hedge.
 
 **Risk-rate every item.** Mark an item **[HIGH RISK]** if it matches any of
-these criteria — these are the categories where a missed item is a big deal:
+these criteria. A missed item in these categories has a high cost:
 
 - Could cause **silent wrong behavior** — the code runs, looks fine, and
   produces incorrect results with no error.
@@ -111,9 +108,8 @@ if it's selective.
 that this is a big enough deal to warrant checking before ending the
 session, and explicitly offer to investigate it right now — read the
 relevant code, trace the actual behavior, or ask the one clarifying question
-that resolves it. This follow-through is the actual point of the exercise;
-a list of flagged risks nobody chases down is no better than not flagging
-them.
+that resolves it. This follow-through is the point of the exercise.
+A flagged risk that nobody checks has no value.
 
 ## Step 2 — "What's the biggest thing I'm missing about the situation right now? What don't I realize?" (Sam Altman's)
 
@@ -145,8 +141,7 @@ each one rather than skip to a conclusion.
 
 > Everything looks good, I think we covered all the bases here!
 
-This is exactly the generic non-answer this skill is designed to defeat — it
-required no actual outside-view thinking and could apply to any session.
+This generic answer needs no outside-view thinking and fits any session.
 
 **Good answer (this is the bar):**
 

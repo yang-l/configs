@@ -134,7 +134,6 @@ CLAUDE.md Writing and the `asd-ste100` skill hold the base language rules. Apply
 - Flag summaries that repeat, generic benefits, and sentences that only repeat their heading.
 - Flag canned contrasts ("this isn't X, it's Y"), question-and-answer hooks, repeated slogans, invented labels, too much emphasis, and needless hyphenated adjectives.
 - Do not add personality with slang, deliberate mistakes, stories, or forced friendliness. Do not claim to detect AI authorship, and do not try to pass an AI detector.
-- Keep each statement's strength. "May" stays "may", "should" stays "should", and a proposal stays a proposal.
 - Keep code, commands, identifiers, paths, config values, quotes, contract wording, command order, and operational safeguards as they are. Improve the text around them.
 - For a design, make the proposal, the reasons, the tradeoffs, and the open decisions easy to find. For a procedure, put the prerequisites, expected results, stop conditions, and warnings next to the steps they affect.
 
