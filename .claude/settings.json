@@ -19,6 +19,7 @@
     "sessionUrl": false
   },
   "includeGitInstructions": false,
+  "cleanupPeriodDays": 270,
   "permissions": {
     "allow": [
       "Bash(bundle exec rspec:*)",
@@ -35,6 +36,7 @@
       "Read(~/.local/state/claude-handoffs/**)",
       "Edit(~/.local/state/claude-handoffs/**)",
       "Bash(bash ~/.claude/hooks/idle-handoff.sh path *)",
+      "Bash(bash ~/.claude/hooks/history-search.sh *)",
       "Skill(handoff)",
       "Bash(aws-vault exec readonly-sso@* -- aws *)"
     ],

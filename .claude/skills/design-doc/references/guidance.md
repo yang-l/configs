@@ -1,6 +1,6 @@
 # Design doc guidance
 
-This guide covers technical designs, RFCs, tech specs, architecture proposals, migration designs, discovery pages, rollout plans, and runbooks. The test for every doc is the same. Can the reader take the next decision or the next action without a guess? Judge each doc against its purpose and its stage. A discovery page does not need a production runbook checklist.
+This guide covers technical designs, RFCs, tech specs, architecture proposals, migration designs, discovery pages, rollout plans, and runbooks. The test for every doc is the same: the reader can take the next decision or the next action without a guess. Judge each doc against its purpose and its stage. A discovery page does not need a production runbook checklist.
 
 ## Choose the mode
 
@@ -28,7 +28,7 @@ Return the doc first. After it, add a short note on open decisions and on what y
 
 ## Tighten
 
-Aim: cut the doc to what it must say, and keep every reason behind it. Use this section for designs only. A runbook carries the steps, so tighten it with the runbook checks below.
+Aim: cut the doc to what it must say, and keep every reason behind it. For a design, use all of this section. For a runbook, use supporting rules 1, 4, 5, 7, and 8, and the Process. Never cut a step, a prerequisite, an expected result, a stop condition, or a warning from a runbook. Report each gap that the runbook checks find. Do not fill the gap.
 
 ### Anchor principles
 
@@ -124,7 +124,7 @@ In a review, check the template structure and the principles that apply. For a c
 
 ## Clear language
 
-CLAUDE.md Writing and the `asd-ste100` skill hold the base language rules. Apply them in every mode. This section adds the rules for engineering docs.
+CLAUDE.md Writing and the `asd-ste100` skill hold the base language rules. Apply them in every mode. This section adds the rules for engineering docs. In tighten mode, apply only the rules that cut or reword. Do not add an example or a term explanation in tighten mode.
 
 - Keep precise technical terms. Explain an unknown term or acronym the first time, when the audience needs it. Do not replace a precise term with a vague everyday word.
 - Flag a vague claim such as "robust" or "seamless". Replace it with the behaviour or evidence that supports it, or flag the missing detail.

@@ -54,6 +54,11 @@ Order of work: read first -> clarify when unclear -> plan -> execute -> verify.
   - After a compaction, read the notes files again before the next step.
   - Put a fact that later tasks need in auto memory, under the memory rules.
   - Never write a secret or a credential to a notes file.
+- Past decisions, main thread only. Use this rule when the user asks about a past value, reason, or decision that your context does not explain. Search the old sessions before you answer.
+  - Run `bash ~/.claude/hooks/history-search.sh "$PWD" '<regex>'`. Use ERE syntax that both grep and jq accept.
+  - The script shows at most 40 transcript hits. To see more, add `[hits-per-file] [max-hits]` after the regex.
+  - Search for the exact number or a key word. Do not guess.
+  - For a transcript hit, give the session id and the UTC date of the source. For a memory or handoff hit, give the file path.
 - Before you add code, check whether deleting or simplifying existing code solves the problem. Add code only after subtraction fails.
 - Change only what the request names. Make no drive-by refactor, rename, reorder, or reformat in a file you opened for another reason. Put adjacent findings in a deferred list for the user, never into the diff. Work nobody asked for is the usual reason a reply turns into an essay, because the extra prose then justifies the extra change. Conform to the existing code style and patterns, regardless of personal preference.
 - Do not add an inline comment that only restates the code. A task the user gives you is not a request for comments. Add a comment only when it carries what the code cannot show: a non-obvious constraint, a breaking change, a known-bug workaround, a safety warning, or the reason for a surprising choice. Match the comment density of the surrounding file. This rule also governs any documentation you write, such as a docstring. Write more when the user asks for comments or documentation.
@@ -76,19 +81,37 @@ Keep exactly:
 - Business rules and architectural decisions, each with its reason
 - Approaches tried and rejected with the reasons, and unresolved errors or failing tests with the fixes already attempted
 - Every working notes file path, with a one-line summary of its content
+- Each figure the user asked about or a deliverable used, with its calculation and its source: a file, a query, or a session id
 
-Keep these as a pointer (path, command, or name) with a one-line conclusion: inspected files, exploration, and commands that ran. Reduce older discussion that reached a decision to one line that states the decision.
+Keep these as a pointer (path, command, or name) with a one-line conclusion: inspected files, exploration, and commands that ran. Reduce older discussion that reached a decision to one line that states the decision and its reason.
 
 Drop: raw logs and command output unless they show an unresolved error. Ideas never acted on, except open questions and deferred findings not yet reported to the user. Resolved errors with no bearing on remaining work.
 
 ## Delegation
 
 Main thread coordinates: route, delegate, track state.
-Spawn Opus 5.5 for planning, architecture, root-cause debugging, final and high-risk review, and prompts. Spawn Sonnet 5.5 for implementation. Spawn Haiku 5.5 for lookups with a hard check. Spawn Fable 5.1 for high-stakes work and as the last resort. Use a defined agent, never a generic Opus one. Design and doc reviews use the `design-doc` skill. All other review goes to the `reviewer` agent.
+Spawn Opus 5.5 for planning, architecture, root-cause debugging, final and high-risk review, and prompts. Spawn Sonnet 5.5 for implementation. Spawn Haiku 5.5 for lookups with a hard check. Spawn Fable 5.1 for high-stakes work and as the last resort. Use a defined agent, never a generic Opus one. Doc reviews follow the `design-doc` route in Routing, with its exceptions. All other review goes to the `reviewer` agent.
 Reviews return merge-blocking findings first. Style notes and adjacent improvements go in a separate optional list, never mixed into the blockers.
 Use the `advisor` tool for a second opinion when you keep the work yourself. The main thread calls the advisor only under triggers (a) and (b), or when it is stuck.
 Verification (tests pass, feature behaves correctly) stays with the implementing agent.
 Delegate by task shape. The main thread does small and medium edits on one dependent chain itself. It delegates parallel or independent work, large reads, and work with its own pass/fail check to Sonnet 5.5. See Routing for agent selection.
+
+Every brief for a new subagent holds a `Known context` block. A fork inherits the main thread's context. A fork brief needs no block. The block holds these items:
+
+- Facts: each direct observation that the main thread checked, such as what a file, a command, or a URL shows. Give its source as `file:line`, a command, or a URL.
+- Files read: each path and line range, with one line about the content that the task needs.
+- Findings: each conclusion that the main thread drew from the facts, marked checked or inferred.
+- Dead ends: each approach that the main thread tried, with the reason it failed.
+
+Give only the items that the task needs. Do not paste whole files. When a working notes file holds the context, give the file path and the section names to a subagent that does the work.
+
+Give the full block only to a subagent that does the work. A subagent that checks work from this session gets only the facts and the requirements. This covers a check of the main thread's work and a check of a subagent's work. Also give the checker the work to check. Omit the files read, the findings, the dead ends, and any notes file path. The checker then reasons on its own.
+
+In a team or workflow loop, the brief also holds the scope manifest. The manifest sets the scope and the side effects. The block gives what the main thread knows.
+
+A subagent that receives a `Known context` block accepts its facts and dead ends as true. It does not research them again. It checks a fact again only when the evidence contradicts the fact. It also checks a fact when the task needs more detail than the block gives. It reports each contradiction.
+
+A checker is the exception to the paragraph above. It checks each fact that a finding depends on.
 
 When delegating edits:
 

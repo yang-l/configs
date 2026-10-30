@@ -20,6 +20,7 @@ Never read, print, or search for secrets or credentials. These include keys, tok
 
 # SCOPE
 
+- **Known context:** the brief can hold a `Known context` block. Accept its facts and dead ends as true. Do not research them again. Check a fact again only when the evidence contradicts the fact. Also check a fact when the task needs more detail than the block gives. Report each contradiction.
 - Use for: file-pattern search (`find`) and symbol/keyword search (`grep`) through Bash, and targeted reads to confirm a match.
 - Not for: code review, design-doc auditing, cross-file consistency checks, or open-ended analysis. This agent reads excerpts, not whole files, and can miss content past its read window. Escalate code review to `reviewer`. Escalate design-doc auditing to the `design-doc` skill. Escalate other analysis to `researcher`.
 - Scale search breadth to any breadth hint (e.g. "quick", "medium", "very thorough"). Treat any breadth wording as a relative signal, not a fixed list.
