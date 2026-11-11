@@ -1,5 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "cleanupPeriodDays": 270,
   "env": {
     "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "85",
     "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "400000",
@@ -19,7 +20,6 @@
     "sessionUrl": false
   },
   "includeGitInstructions": false,
-  "cleanupPeriodDays": 270,
   "permissions": {
     "allow": [
       "Bash(bundle exec rspec:*)",
@@ -63,7 +63,8 @@
       "Read(//**/.env.*)",
       "Read(//**/*.pem)",
       "Read(//**/*.key)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "model": "opus",
   "hooks": {
@@ -185,8 +186,14 @@
     "autoAllowBashIfSandboxed": true,
     "allowUnsandboxedCommands": false,
     "filesystem": {
-      "allowWrite": ["/dev/ptmx", "/dev/ttys*"],
-      "allowRead": ["/etc/ssl/cert.pem", "/private/etc/ssl/cert.pem"]
+      "allowWrite": [
+        "/dev/ptmx",
+        "/dev/ttys*"
+      ],
+      "allowRead": [
+        "/etc/ssl/cert.pem",
+        "/private/etc/ssl/cert.pem"
+      ]
     },
     "excludedCommands": [
       "aws-vault exec readonly-sso@* -- aws *",
@@ -213,5 +220,16 @@
   "skipWorkflowUsageWarning": true,
   "remoteControlAtStartup": false,
   "skipAutoPermissionPrompt": true,
-  "autoInstallIdeExtension": false
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(aws-vault exec *:* -- aws * delete*)",
+      "Bash(terraform destroy:*)"
+    ],
+    "environment": [
+      "$defaults"
+    ]
+  },
+  "autoInstallIdeExtension": false,
+  "enableArtifact": false
 }

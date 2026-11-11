@@ -59,6 +59,15 @@ RUN case "$(dpkg --print-architecture)" in \
   && /tmp/aws/install \
   && rm -rf /tmp/aws /tmp/awscliv2.zip
 
+ARG AWS_VAULT_VERSION=v7.17.7
+RUN arch="$(dpkg --print-architecture)" \
+  && base="https://github.com/ByteNess/aws-vault/releases/download/${AWS_VAULT_VERSION}" \
+  && curl -fsSL "${base}/aws-vault-linux-${arch}" -o "/tmp/aws-vault-linux-${arch}" \
+  && curl -fsSL "${base}/aws-vault_sha256_checksums.txt" -o /tmp/aws-vault.sha256 \
+  && (cd /tmp && grep " aws-vault-linux-${arch}\$" aws-vault.sha256 | sha256sum -c -) \
+  && install -m 0755 "/tmp/aws-vault-linux-${arch}" /usr/local/bin/aws-vault \
+  && rm -f "/tmp/aws-vault-linux-${arch}" /tmp/aws-vault.sha256
+
 WORKDIR /root
 
 RUN curl -fsSL https://claude.ai/install.sh | bash
@@ -70,7 +79,7 @@ RUN npm install -g @openai/codex@latest
 # installed_plugins.json holds host paths such as
 # $HOST_HOME/.claude/plugins/cache/..., so point them at the mount.
 RUN test -n "$HOST_HOME" || { echo "set --build-arg HOST_HOME" >&2; exit 1; }; \
-    mkdir -p /root/.claude /root/.codex /root/.ssh "$HOST_HOME" \
+    mkdir -p /root/.claude /root/.codex /root/.ssh /root/.aws "$HOST_HOME" \
   && ln -s /root/.claude "$HOST_HOME/.claude"
 
 # Per-container Codex plugin state, because every container uses /workspace.
@@ -85,6 +94,13 @@ ENV IS_SANDBOX=1
 # Writable mount. CODEX_HOME avoids the host auth.json copy in /root/.codex.
 ENV GH_CONFIG_DIR=/root/.claude/gh
 ENV CODEX_HOME=/root/.claude/codex
+# Linux has no Keychain, and seccomp.json blocks keyctl. The empty passphrase
+# lets agents run aws-vault unattended. Device code avoids the 127.0.0.1 callback.
+ENV AWS_CONFIG_FILE=/root/.aws/config
+ENV AWS_VAULT_BACKEND=file
+ENV AWS_VAULT_FILE_DIR=/root/.aws/keys
+ENV AWS_VAULT_FILE_PASSPHRASE=""
+ENV AWS_VAULT_DEVICE_CODE=true
 
 WORKDIR /workspace
 

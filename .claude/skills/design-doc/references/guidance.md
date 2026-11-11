@@ -175,13 +175,15 @@ After the verdict, write a **Language assessment**. State whether the doc is cle
 Report findings in 2 lists, in this order:
 
 1. **Technical and readiness findings:** missing decisions, wrong or conflicting technical details, unsafe order of steps, paths or identifiers that do not agree, missing procedures, validation gaps, and rollback gaps.
-2. **Language and readability findings:** unclear sentences, unexplained jargon, repetition, vague headings, poor order, and author or agent commentary.
+2. **Language and readability findings:** unclear sentences, unexplained jargon, repetition, vague headings, poor order, hard-to-read tables, and author or agent commentary.
 
 Rules for the lists:
 
 - Put a finding in a list by what must change. A missing rule, owner, or decision is technical. Better wording for a fact the doc already states is language. Example: an undefined rule for which services count as "critical" is technical. A simpler sentence for a rule the doc already defines is language.
 - When one passage has both kinds of problem, explain the technical problem once, in the first list. In the language list, refer to it and give only the wording change. Do not count it as a second blocker.
 - Each problem that the language assessment names needs its own language finding, or a reference to the technical finding that must come first. "Repetitive", "too much jargon", or "readable but vague" alone is not a finding.
+- Report language findings in the first review. Do not wait until the user asks about language.
+- Check more than author commentary in the language review. Also check dense sentences, vague headings, vague words, unexplained jargon, repetition, and hard-to-read tables.
 - Sort each list by priority. When a list is empty, say so in one line. Do not invent findings to fill it.
 
 Each finding has this format:

@@ -8,9 +8,15 @@
 image=agent-deck-sandbox-yl:latest
 dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PATH=$(tr ':' '\n' <<<"$PATH" | grep -vxF "$dir" | paste -sd: -)
+# agent-deck skips a missing mount path, and checks it after earlier docker calls.
+aws_dir=$HOME/.local/state/agent-deck-sandbox/aws
+mkdir -p "$aws_dir"
 
 if [ "${1:-}" = create ] && (($# >= 3)) && [ "${@: -3:1}" = "$image" ] &&
   [[ " $* " == *" managed-by=agent-deck "* ]]; then
+  # A copy, because extra mounts are read-write and the agent must not edit the host config.
+  # mv replaces a symlink that the sandbox put in place of config. cp would follow it.
+  tmp=$(mktemp "$aws_dir/config.XXXXXX") && cp "$HOME/.aws/config" "$tmp" && mv -f "$tmp" "$aws_dir/config"
   shift
   set -- create \
     --security-opt "seccomp=$dir/../sandbox/seccomp.json" \

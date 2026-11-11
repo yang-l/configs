@@ -42,7 +42,7 @@ Order of work: read first -> clarify when unclear -> plan -> execute -> verify.
 - On failure, show the concrete failure. Before you write a fix, state the root cause or your best hypothesis in one sentence. Give the evidence, such as a log line, error text, or failing test. Do not hide an error with defensive code. Fix the cause. Try a different approach after 2 failed attempts on the same path. Invoke the `codex:rescue` skill for a fresh Codex view.
 - Model escalation: when a subagent fails its pass/fail check twice on the same task, rerun it one effort level higher, with the Agent tool `effort` parameter. Change the model only if that rerun also fails twice. The tier order is `haiku`, `sonnet`, `opus`. Use `fable` only when `opus` fails at `high` effort. Put the failure output in the new prompt. Raise effort once and change the model once per task. Apply the approach-change rule above when the escalated run fails twice. A runbook step follows the runbook revision rule in Delegation instead.
 - Never weaken a test assertion to make a test pass. Fix the code. Change the test only when the user says the test is wrong.
-- Batch independent read-only calls in one message, such as Read, WebFetch, and read-only `git`, `grep`, or `find` commands. Run each edit, write, test, or build as a separate call.
+- Batch independent read-only calls in one message, such as Read, WebFetch, and read-only `git`, `grep`, or `find` commands. MCP reads, such as a Confluence page fetch, are read-only calls too. Before a read-only call, identify every other independent read that the next step needs. Send that call and those reads in one message. Run each edit, write, test, or build as a separate call.
 - Keep Bash output small. Before you read a large diff, list the changed files with `git diff --stat` or `gh pr diff --name-only`. Then read the diff one file at a time.
 - For non-trivial edits, make assumptions explicit before acting on them.
 - Working notes, main thread only. Keep task context in files during the work, because a handoff or a compaction loses detail.
@@ -91,8 +91,8 @@ Main thread coordinates: route, delegate, track state.
 Spawn Opus 5.5 for planning, architecture, root-cause debugging, final and high-risk review, and prompts. Spawn Sonnet 5.5 for implementation. Spawn Haiku 5.5 for lookups with a hard check. Spawn Fable 5.1 for high-stakes work and as the last resort. Use a defined agent, never a generic Opus one. Doc reviews follow the `design-doc` route in Routing, with its exceptions. All other review goes to the `reviewer` agent.
 Reviews return merge-blocking findings first. Style notes and adjacent improvements go in a separate optional list, never mixed into the blockers.
 Use the `advisor` tool for a second opinion when you keep the work yourself. The main thread calls the advisor only under triggers (a) and (b), or when it is stuck.
-Verification (tests pass, feature behaves correctly) stays with the implementing agent.
-Delegate by task shape. The main thread does small and medium edits on one dependent chain itself. It delegates parallel or independent work, large reads, and work with its own pass/fail check to Sonnet 5.5. See Routing for agent selection.
+The implementing agent owns verification, such as passing tests and correct feature behaviour. It decides pass or fail, even when a subagent runs the check.
+Delegate by task shape. The main thread does small and medium edits on one dependent chain itself. It delegates parallel or independent work, large reads, and work with its own pass/fail check to Sonnet 5.5. A subagent runs a check inside the chain when the check costs more than a subagent spawn. The main thread runs a cheap check itself, such as one `git status`. Haiku 5.5 runs a check that only returns raw output. Sonnet 5.5 runs a check that needs analysis. The subagent returns the exact command, its exit code, and the output lines that decide the result. The main thread reads them and decides pass or fail. A costly check is, for example, a read-back comparison after a push, a test or lint run, or a search across many files. See Routing for agent selection.
 
 Every brief for a new subagent holds a `Known context` block. A fork brief needs none, because a fork inherits the main thread's context. The block holds:
 
@@ -157,6 +157,7 @@ Team = parallel Agent calls in one message from main thread, each role-isolated.
 - Code changes: run relevant tests or linters when available.
 - Report a check as passed only when it ran as its own command and you read its exit code. A pipe through `grep`, `tail`, or `head` returns the exit code of the last command, not the check.
 - Before you claim a state such as fixed, deployed, or running, check the object itself. Mark a claim that rests on a log line, dashboard, old note, or agent report as inferred. Apply this check before every state claim, not only when you are in doubt.
+- A subagent check in the main thread's chain counts as checked when the subagent returns the command, exit code, and output.
 - Docs and knowledge work: ground factual claims in sources or wiki pages.
 - Say "I don't know" when evidence is missing. Retract unsupported claims.
 

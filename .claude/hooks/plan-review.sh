@@ -24,21 +24,51 @@ agent_id=$(jq -r '.agent_id // empty' <<<"$input")
 
 # claude-code-ide sets EMACS_SOCKET_NAME to the server of the Emacs that runs
 # Claude, so open the plan there. In a tmux pane (agent-deck), no server is
-# used: a fresh `emacs -nw` opens in a popup over the Claude pane.
+# used: a fresh `emacs -nw` opens in a popup over the Claude pane. A background
+# job borrows the pane that views it. With no Emacs and no pane, a new GUI
+# Emacs opens on the plan.
 if [ -n "$EMACS_SOCKET_NAME" ]; then
   mode=emacs
 elif [ -n "$TMUX" ]; then
   mode=tmux
 else
-  # a background session has neither, so try each live Emacs server, newest first
-  for sock in $(ls -t "$(getconf DARWIN_USER_TEMP_DIR)emacs$(id -u)"/emacs-* 2>/dev/null); do
-    if emacsclient -s "$sock" -e t >/dev/null 2>&1; then
-      EMACS_SOCKET_NAME=$sock
-      mode=emacs
-      break
+  # A background job's worker may have a minimal PATH without the Nix profile,
+  # where emacsclient, emacs and tmux live.
+  PATH="$PATH:$HOME/.nix-profile/bin"
+  # The worker is outside tmux. Its viewer is the claude that dispatched it,
+  # still in the agent-deck pane, so borrow that pane.
+  sid=$(jq -r '.session_id // empty' <<<"$input")
+  short=$(jq -r --arg s "$sid" 'select(.sessionId == $s or .resumeSessionId == $s) | .daemonShort' \
+    "$HOME"/.claude/jobs/*/state.json 2>/dev/null | head -1)
+  origin=$(jq -r --arg k "$short" '.workers[$k].dispatch.launch.sessionId // empty' \
+    "$HOME/.claude/daemon/roster.json" 2>/dev/null)
+  [ -n "$origin" ] && origin=$(basename "$origin" .jsonl)
+  viewer=$([ -n "$origin" ] && pgrep -n -f -- "--session-id $origin")
+  if [ -n "$viewer" ]; then
+    # keep only the two TMUX values from the viewer's environment
+    env=$(ps -wwE -o command= -p "$viewer" | tr ' ' '\n')
+    TMUX=$(grep -m1 '^TMUX=' <<<"$env" | cut -d= -f2-)
+    TMUX_PANE=$(grep -m1 '^TMUX_PANE=' <<<"$env" | cut -d= -f2-)
+    unset env
+    export TMUX TMUX_PANE
+  fi
+  if [ -n "$TMUX" ]; then
+    mode=tmux
+  else
+    # no pane either, so try each live Emacs server, newest first
+    socks=$(ls -t "$(getconf DARWIN_USER_TEMP_DIR)emacs$(id -u)"/emacs-* 2>/dev/null)
+    for sock in $socks; do
+      if emacsclient -s "$sock" -e t >/dev/null 2>&1; then
+        EMACS_SOCKET_NAME=$sock
+        mode=emacs
+        break
+      fi
+    done
+    if [ -z "$mode" ]; then
+      note "no emacs server or tmux: job=$short origin=$origin viewer=$viewer emacsclient=$(command -v emacsclient || echo none) sockets=[${socks//$'\n'/ }] PATH=$PATH"
+      mode=gui
     fi
-  done
-  [ -n "$mode" ] || skip "no emacs server or tmux"
+  fi
 fi
 note "start: mode=$mode plan=$plan PATH=$PATH TMPDIR=$TMPDIR tools=$(command -v jq emacsclient tmux | tr '\n' ' ')"
 
@@ -47,7 +77,9 @@ note "start: mode=$mode plan=$plan PATH=$PATH TMPDIR=$TMPDIR tools=$(command -v 
 # emacsclient prints `t` on success; hook stdout must hold only JSON
 if [ "$mode" = emacs ]; then
   emacsclient -s "$EMACS_SOCKET_NAME" -e t >/dev/null 2>&1 || skip "no emacs server"
-else
+elif [ "$mode" = gui ]; then
+  command -v emacs >/dev/null || skip "no emacs on PATH"
+elif [ "$mode" = tmux ]; then
   # agent-deck keeps a control-mode client on each session. Without -c, tmux
   # can draw the popup there, where nobody sees it, so pick the newest real one.
   session=$(tmux display -p ${TMUX_PANE:+-t "$TMUX_PANE"} '#{session_name}')
@@ -76,6 +108,12 @@ if [ "$mode" = emacs ]; then
   (when w
     (select-frame-set-input-focus (window-frame w))
     (select-window w)))' >/dev/null 2>&1
+elif [ "$mode" = gui ]; then
+  # it returns when you quit this Emacs
+  if ! emacs "$plan" </dev/null >&2; then
+    rm -f "$before"
+    skip "emacs failed"
+  fi
 else
   # display-popup -E waits until the editor exits
   if ! tmux display-popup -E -c "$client" ${TMUX_PANE:+-t "$TMUX_PANE"} -w 96% -h 96% \
