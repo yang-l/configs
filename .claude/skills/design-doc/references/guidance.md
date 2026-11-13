@@ -23,24 +23,34 @@ When the user asks for a draft and a review, write the draft first. Then review 
 7. Keep the current decisions easy to read. When the user allows edits, move old drafting history out of the main text. Keep the rationale and the trace of each decision.
 8. When the source is published or under review, use the Tighten safeguards. Rule 7 keeps comment anchors, links, headings, tables, and code blocks. Process step 2 allows only exact old→new edits with a structure check, never a freehand rewrite.
 9. Before you deliver, check the draft against the doc-type checks and the language rules below. Fix each problem that the evidence supports. Keep each open gap as an open question.
+10. Then do a cut pass. Apply the reader-need test in Tighten anchor principle 2 to each paragraph. The language pass must not add sentences. Merge sentences instead.
 
 Return the doc first. After it, add a short note on open decisions and on what you did not verify, when either exists. A writing request does not need the review report unless the user also asks for a review. Do not put a verdict, a language assessment, or notes about your edits inside the doc. A local draft does not give you permission to publish it.
 
 ## Tighten
 
-Aim: cut the doc to what it must say, and keep every reason behind it. For a design, use all of this section. For a runbook, use supporting rules 1, 4, 5, 7, and 8, and the Process. Never cut a step, a prerequisite, an expected result, a stop condition, or a warning from a runbook. Report each gap that the runbook checks find. Do not fill the gap.
+Aim: cut the doc to what it must say, and keep each reason that the reader needs. For a design, use all of this section. For a runbook, use supporting rules 1, 4, 5, 7, and 8, and the Process. Never cut a step, a prerequisite, an expected result, a stop condition, or a warning from a runbook. Report each gap that the runbook checks find. Do not fill the gap.
 
 ### Anchor principles
 
 1. **Shorten, and keep detail in the appendix.** Prose carries the what and the why at a readable level. Exact values go in a code block, an appendix, or a linked runbook. Examples are policies, configs, encodings, and tables. Prefer a deletion or a merge to a rewrite.
 2. **Keep only what serves the doc's aim.** State the aim in one sentence. Each section must serve that aim. Give adjacent or nice-to-know material a pointer, or cut it. Document this design, not domain theory that the reader already knows.
 
+   Apply the reader-need test to each sentence: "Without this sentence, does the reader decide or act differently?" If not, cut the sentence or move it to the appendix. These sentences often fail the test:
+
+   - How a vendor or platform works inside, such as its billing rules or request order. Keep it only when it changes a decision. State it once, in one sentence.
+   - A defence of an option that nobody chose. Keep at most one short clause in the options section.
+   - Implementation details in a design, such as algorithm names, function names, line numbers, or stream handling. They go in the code, the PR, or the appendix.
+   - Measurements that do not change the decision, such as counts behind a default that the team will tune in testing.
+   - The author's own understanding, the history of a convention, or notes such as "from memory" or "my inference".
+   - A repeat of a fact that the doc states in another place.
+
 ### Supporting rules
 
-1. **Protect the rationale.** Never cut a "why" to save space, because that is the costliest mistake. Cut restatement and meta-commentary. Keep each distinct fact, control, caveat, and reason.
+1. **Keep the reasons the reader needs.** A sentence stays only when it explains something the reader needs. Cut a sentence that adds no value, even when it gives a reason. Apply the reader-need test first. A reason is protected only when it passes that test. The reasons for a decision usually stay: why this design, why not the other option, and a caveat that changes what someone does. Keep each of those to the one sentence the reader needs. Supporting evidence for a reason, such as a count, a latency, or a cost of the other option, is not protected. Cutting a needed reason is the costliest mistake. An explanation of how a system works often goes. When it stays, state it once, in one sentence, in the section that owns it. Cut restatement and meta-commentary.
 2. **Tell redundancy from planned repetition.** A decision table that a later section repeats is often the doc's pattern, not waste. So is a threat-model matrix, or a jump-target section with its own caveat. Cut a repeat only when one copy is the main copy and the others can become pointers.
 3. **Use a pointer for detail.** State each fact once, in the section that owns it. In other sections, link to it ("see X") and do not derive it again. This stops the copies from drifting apart.
-4. **A claim the reader can infer is not always safe to cut.** Keep a key claim even when a careful reader could infer it. This applies most to a security or controls doc.
+4. **A security or control claim that the reader can infer is not always safe to cut.** Keep a key security or control claim even when a careful reader could infer it. For other claims, apply the reader-need test.
 5. **Remove meta text and boilerplate.** You can cut "This document describes…", "captured here so it isn't lost", hedges with no content, and examples that only repeat a rule. Keep an example that shows a real failure.
 6. **Write for the engineer who builds it.** That reader has no shared context and no chance to ask a question. Use plain words. Explain only the terms this team needs.
 7. **Keep the structure of a published or reviewed doc.** Never break review-comment anchors, links inside the doc, code blocks, tables, headings, or inline styles. Keep the set of anchors stable, so reviewer comments stay attached.
@@ -53,11 +63,11 @@ Aim: cut the doc to what it must say, and keep every reason behind it. For a des
 2. On a published or reviewed doc, make exact old→new edits with mechanical guards. Use a find and replace that matches one place only, plus a structure check. Do not rewrite freehand. This step protects rule 7.
 3. Put each possible cut in a risk tier before you apply it:
 
-   | Tier              | What it looks like                                      | Action                               |
-   | ----------------- | ------------------------------------------------------- | ------------------------------------ |
-   | Clean redundancy  | Says nothing that the doc does not say elsewhere        | Apply it                             |
-   | Framing only      | A change of wording or style, with no change of content | Show it to the author for a decision |
-   | Touches rationale | Any "why", caveat, or reason                            | Do not apply it                      |
+   | Tier                       | What it looks like                                               | Action                               |
+   | -------------------------- | ---------------------------------------------------------------- | ------------------------------------ |
+   | Clean redundancy           | Says nothing that the doc does not say elsewhere, or fails the reader-need test | Apply it                             |
+   | Framing only               | A change of wording or style, with no change of content          | Show it to the author for a decision |
+   | Touches decision rationale | A reason that passes the reader-need test, or a caveat that changes an action | Do not apply it                      |
 
 4. After you edit, check three things. The structure did not change. The planned cuts are in place. The meaning did not change.
 
@@ -126,6 +136,10 @@ In a review, check the template structure and the principles that apply. For a c
 
 CLAUDE.md Writing and the `asd-ste100` skill hold the base language rules. Apply them in every mode. This section adds the rules for engineering docs. In tighten mode, apply only the rules that cut or reword. Do not add an example or a term explanation in tighten mode.
 
+- Write one short sentence for each point. When a paragraph makes one point, reduce it to one sentence. Use a list for 3 or more parallel facts. Keep each table cell to a short phrase.
+- Make each sentence clear to a reader who starts at that section.
+- Do not use slogans or undefined derived phrases, such as "X less the Y it removes". Write the plain result, such as "no transformation cost".
+- Do not use the same word twice in one sentence.
 - Keep precise technical terms. Explain an unknown term or acronym the first time, when the audience needs it. Do not replace a precise term with a vague everyday word.
 - Flag a vague claim such as "robust" or "seamless". Replace it with the behaviour or evidence that supports it, or flag the missing detail.
 - Add a concrete example when it helps to explain the change. Do not invent facts or requirements for the example.
