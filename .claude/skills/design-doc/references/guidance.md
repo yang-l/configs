@@ -21,11 +21,29 @@ When the user asks for a draft and a review, write the draft first. Then review 
 5. Write a useful draft from what you know. Ask for a missing fact only when the gap stops a useful draft. Never present a rollout with gaps as ready to execute.
 6. Keep the requested scope. A clarity edit does not give you permission to change the architecture or the operational behaviour. When the source has a conflict, show it and ask for the decision.
 7. Keep the current decisions easy to read. When the user allows edits, move old drafting history out of the main text. Keep the rationale and the trace of each decision.
-8. When the source is published or under review, use the Tighten safeguards. Rule 7 keeps comment anchors, links, headings, tables, and code blocks. Process step 2 allows only exact old→new edits with a structure check, never a freehand rewrite.
-9. Before you deliver, check the draft against the doc-type checks and the language rules below. Fix each problem that the evidence supports. Keep each open gap as an open question.
-10. Then do a cut pass. Apply the reader-need test in Tighten anchor principle 2 to each paragraph. The language pass must not add sentences. Merge sentences instead.
+   - In the design section, describe the system in the present tense, such as "The worker reads each message once."
+   - Move these details out of the body: change numbers such as PR or ticket numbers, who decided, and the dates of checks. Put them in one decision-log table with the columns decision, decided by, date, and link, or in an appendix.
+   - While a doc is under review, keep each "Decided:" line next to its struck question. Move it to the decision log when the review closes.
+8. For a technical design, use these rules within the requested scope of step 6:
+   - Near the top, add a short definitions table for the terms that the reader must know. When one word has two meanings in the doc, qualify it every time, such as "cluster node" and "graph node".
+   - Collect the unknowns in one place, such as the open-questions section. Write each one as a statement about the design, such as "The retry limit of the client library is unconfirmed."
+   - Give each out-of-scope item at most one sentence and one link.
+   - When a section is hard to follow, start it with a worked example. Trace one case from start to end before you give the rules.
+   - When a choice has trade-offs, state them. Include reasons that are not technical, such as team skills or the cost to maintain.
+9. When the source is published or under review, use the Tighten safeguards. Rule 7 keeps comment anchors, links, headings, tables, and code blocks. Process step 2 allows only exact old→new edits with a structure check, never a freehand rewrite.
+10. Before you deliver, check the draft against the doc-type checks and the language rules below. Fix each problem that the evidence supports. Keep each open gap as an open question.
+11. Then do a cut pass. Apply the reader-need test in Tighten anchor principle 2 to each paragraph. The language pass must not add sentences. Merge sentences instead.
 
 Return the doc first. After it, add a short note on open decisions and on what you did not verify, when either exists. A writing request does not need the review report unless the user also asks for a review. Do not put a verdict, a language assessment, or notes about your edits inside the doc. A local draft does not give you permission to publish it.
+
+### Address a review comment
+
+1. Close the reviewer's question in the doc with the fewest words, usually one sentence. Put your evidence and explanation in your message to the user, not in the doc.
+2. Keep the strength of the user's answer. When the user says the team "can investigate", write "The team can investigate this. A possible fix is …". Do not write the fix as a plan.
+3. When the user decides an open question, strike the question text. The strike keeps the comment anchor. Add one "Decided:" sentence after the struck text. Link that sentence to the section that holds the decision.
+4. When the comment asks only for clarity, edit the text in place. Do not strike it.
+5. After an edit changes a name, a path, or a value, search the whole doc for the old text. Include headings, tables, code blocks, and links in the search. Show each match as old text and new text in the same draft.
+6. When the user gives no answer to the comment, propose one. Mark it as a proposal, and ask the user to decide.
 
 ## Tighten
 
@@ -37,7 +55,6 @@ Aim: cut the doc to what it must say, and keep each reason that the reader needs
 2. **Keep only what serves the doc's aim.** State the aim in one sentence. Each section must serve that aim. Give adjacent or nice-to-know material a pointer, or cut it. Document this design, not domain theory that the reader already knows.
 
    Apply the reader-need test to each sentence: "Without this sentence, does the reader decide or act differently?" If not, cut the sentence or move it to the appendix. These sentences often fail the test:
-
    - How a vendor or platform works inside, such as its billing rules or request order. Keep it only when it changes a decision. State it once, in one sentence.
    - A defence of an option that nobody chose. Keep at most one short clause in the options section.
    - Implementation details in a design, such as algorithm names, function names, line numbers, or stream handling. They go in the code, the PR, or the appendix.
@@ -63,11 +80,11 @@ Aim: cut the doc to what it must say, and keep each reason that the reader needs
 2. On a published or reviewed doc, make exact old→new edits with mechanical guards. Use a find and replace that matches one place only, plus a structure check. Do not rewrite freehand. This step protects rule 7.
 3. Put each possible cut in a risk tier before you apply it:
 
-   | Tier                       | What it looks like                                               | Action                               |
-   | -------------------------- | ---------------------------------------------------------------- | ------------------------------------ |
+   | Tier                       | What it looks like                                                              | Action                               |
+   | -------------------------- | ------------------------------------------------------------------------------- | ------------------------------------ |
    | Clean redundancy           | Says nothing that the doc does not say elsewhere, or fails the reader-need test | Apply it                             |
-   | Framing only               | A change of wording or style, with no change of content          | Show it to the author for a decision |
-   | Touches decision rationale | A reason that passes the reader-need test, or a caveat that changes an action | Do not apply it                      |
+   | Framing only               | A change of wording or style, with no change of content                         | Show it to the author for a decision |
+   | Touches decision rationale | A reason that passes the reader-need test, or a caveat that changes an action   | Do not apply it                      |
 
 4. After you edit, check three things. The structure did not change. The planned cuts are in place. The meaning did not change.
 
@@ -136,7 +153,7 @@ In a review, check the template structure and the principles that apply. For a c
 
 CLAUDE.md Writing and the `asd-ste100` skill hold the base language rules. Apply them in every mode. This section adds the rules for engineering docs. In tighten mode, apply only the rules that cut or reword. Do not add an example or a term explanation in tighten mode.
 
-- Write one short sentence for each point. When a paragraph makes one point, reduce it to one sentence. Use a list for 3 or more parallel facts. Keep each table cell to a short phrase.
+- Write one short sentence for each point. When a paragraph makes one point, reduce it to one sentence. Use a list for 3 or more parallel facts. Keep each table cell to a short phrase, with no reasoning.
 - Make each sentence clear to a reader who starts at that section.
 - Do not use slogans or undefined derived phrases, such as "X less the Y it removes". Write the plain result, such as "no transformation cost".
 - Do not use the same word twice in one sentence.
@@ -147,6 +164,21 @@ CLAUDE.md Writing and the `asd-ste100` skill hold the base language rules. Apply
 - Flag inflated verbs and phrases, such as "unlock", "empower", "foster", "leverage", and "comprehensive solution", when a concrete description says more. These words are examples, not a ban list.
 - Flag summaries that repeat, generic benefits, and sentences that only repeat their heading.
 - Flag canned contrasts ("this isn't X, it's Y"), question-and-answer hooks, repeated slogans, invented labels, too much emphasis, and needless hyphenated adjectives.
+- Flag these machine-writing patterns too:
+  - a last sentence that only restates the paragraph or calls it important, such as "That distinction matters."
+  - a reply to an objection that nobody made, such as "To be clear," or "One might be tempted to"
+  - two hedges on one claim, such as "could potentially". Keep one hedge.
+  - a vague relation word, such as "associated with" or "tied to". Name the real relation.
+  - a closing "-ing" phrase that claims a benefit, such as ", ensuring reliability"
+  - "serves as" or "stands as" where "is" is enough
+  - text before the answer that repeats what the reader already knows
+- Use the plain words in `references/word-swaps.md` when the swap reads naturally.
+- In the body, add a source link for a claim about a third-party system when a reader can question it. A decision that the doc makes needs no source.
+- Keep people's names out of the body, except an owner or a decider that the doc must name. Use a direct quote only when its exact words are the requirement.
+- When a reason needs more than two sentences, move it to a "Rationale" subsection in the same section.
+- Keep a parenthesis short, and use it only to explain a term. Move a reason or an exception into its own sentence.
+- Introduce each table with one sentence.
+- Point to another section by its heading, such as "see the Rollback section". Use a section number only when the heading is not exact enough.
 - Do not add personality with slang, deliberate mistakes, stories, or forced friendliness. Do not claim to detect AI authorship, and do not try to pass an AI detector.
 - Keep code, commands, identifiers, paths, config values, quotes, contract wording, command order, and operational safeguards as they are. Improve the text around them.
 - For a design, make the proposal, the reasons, the tradeoffs, and the open decisions easy to find. For a procedure, put the prerequisites, expected results, stop conditions, and warnings next to the steps they affect.

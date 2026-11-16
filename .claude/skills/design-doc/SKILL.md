@@ -18,6 +18,8 @@ description: >-
   on a doc page. Also TRIGGER when the user quotes doc text followed by
   "-> remove", "-> do we need this", "-> reword", "-> shorten",
   "-> make it easy to understand", or "-> what is this".
+  Also TRIGGER when the user pastes a reviewer comment, such as
+  "next comment -> <comment> -> <reply>" or "<doc text> -> <comment or reply>".
   SKIP for code, implementation plans, security reviews, and general prose or
   marketing copy with no design content.
 model: opus
@@ -29,7 +31,7 @@ effort: high
 Aim: help the reader of an engineering doc take the next decision or action without a guess.
 
 1. Pick the mode from the request: write or revise, tighten, or review. The modes are in `references/guidance.md`.
-2. Read all of `references/guidance.md` before you draft, edit, or review.
+2. Read all of `references/guidance.md` and `references/word-swaps.md` before you draft, edit, or review.
 3. Do the task in that mode, within the scope the user asked for.
 
 Rules for every mode:
